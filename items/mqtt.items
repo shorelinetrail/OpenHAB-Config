@@ -65,6 +65,7 @@ String GL1SS18_IPAddress "Living Room Xmas Lights (GL1-SS18)" <network> (gSonoff
 String GL1SS5_IPAddress  "Living Room Temperature (GL1-SS5)"  <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GL1SS5_IPAddress:GL1SS5_IPAddress",   autoupdate="false" }
 
 String GO1SS12_IPAddress "Office Radiator (GO1-SS12)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GO1SS12_IPAddress:GO1SS12_IPAddress", autoupdate="false" }
+String GO1SS15_IPAddress "Office (GO1-SS15)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GO1SS15_IPAddress:GO1SS15_IPAddress", autoupdate="false" }
 String GO1SS4_IPAddress  "Office Temperature (GO1-SS4)"  <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GO1SS4_IPAddress:GO1SS4_IPAddress",   autoupdate="false" }
 
 String GS1SS10_IPAddress "Sun Room Heating (GS1-SS10)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GS1SS10_IPAddress:GS1SS10_IPAddress", autoupdate="false" }
@@ -96,6 +97,7 @@ String GL1SS18_Uptime "GL1SS18_Uptime" <network> (gSonoff_Uptime) { channel="mqt
 String GL1SS5_Uptime  "GL1SS5_Uptime"  <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GL1SS5_Uptime:state", autoupdate="false" }
 
 String GO1SS12_Uptime "GO1SS12_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GO1SS12_Uptime:state", autoupdate="false" }
+String GO1SS15_Uptime "GO1SS15_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GO1SS15_Uptime:state", autoupdate="false" }
 String GO1SS4_Uptime  "GO1SS4_Uptime"  <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GO1SS4_Uptime:state", autoupdate="false" }
 
 String GS1SS10_Uptime "GS1SS10_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GS1SS10_Uptime:state", autoupdate="false" }
@@ -124,6 +126,7 @@ Number GL1SS11_rssi "GL1SS11_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topi
 Number GL1SS18_rssi "GL1SS18_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GL1SS18_rssi:state", autoupdate="false" }
 Number GL1SS5_rssi  "GL1SS5_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GL1SS5_rssi:state", autoupdate="false" }
 Number GO1SS12_rssi "GO1SS12_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GO1SS12_rssi:state", autoupdate="false" }
+Number GO1SS15_rssi "GO1SS15_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GO1SS15_rssi:state", autoupdate="false" }
 Number GO1SS4_rssi  "GO1SS4_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GO1SS4_rssi:state", autoupdate="false" }
 Number GS1SS10_rssi "GS1SS10_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GS1SS10_rssi:state", autoupdate="false" }
 Number GS1SS17_rssi "GS1SS17_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GS1SS17_rssi:state", autoupdate="false" }

@@ -1,23 +1,4 @@
 /*============ GROUPS ============*/
-/* Floors */
-Group gF            "First Floor"                   <firstfloor>                ["FirstFloor"]
-Group gG            "Ground Floor"                  <groundfloor>               ["GroundFloor"]
-
-/* Rooms */
-
-Group GO1           "Office"                        <video>         (gG)       ["Office"] 
-Group GK1           "Kitchen"                       <kitchen>       (gG)       ["Kitchen"]
-Group GU1           "Utility"                       <bath>          (gG)       ["Utility"] 
-Group GL1           "Living Room"                   <corridor>      (gG)       ["LivingRoom"] { synonyms="Lounge" }
-Group GS1           "Sun Room"                      <corridor>      (gG)       ["SunRoom"]
-Group GH1           "Hall"                          <corridor>      (gG)       ["Hall"]
-
-Group FL1           "Landing"                       <video>         (gF)       ["Office"]
-Group FB1           "Master Bedroom"                <kitchen>       (gF)       ["Kitchen"]
-Group FB2           "Workshop"                      <bath>          (gF)       ["Utility"] 
-Group FB3           "Guest Bedroom"                 <corridor>      (gF)       ["LivingRoom"] { synonyms="Lounge" }
-
-Group XM1           "Mobile"                        <corridor>      (gG)       ["Hall"]
 
 /* General Groups */
 
@@ -51,12 +32,9 @@ Group gHueYardRColour "Rear Yard Lighting"           <colorlight>     (gDevices)
 Group gHueFront      "Front Door Lighting"           <lightbulb>     (gDevices)   ["Front Door Lighting"]
 Group gHueFrontColour "Front Door Lighting"          <colorlight>     (gDevices)  ["Front Door Lighting"] 
 Group gSmoke         "Smoke Detection"               <fire>          (gDevices)   ["Smoke"]
-Group gSmoke_GK1     "Smoke Detection Kitchen"       <fire>          (gSmoke)     ["Smoke"]
-Group gSmoke_FL1     "Smoke Detection Landing"       <fire>          (gSmoke)     ["Smoke"]
-Group gThermostat    "Central Heating"               <radiator>      (gDevices)   ["Thermostat"]
-Group gPlug_SP1      "Plug Office"                   <energy>        (gDevices)   ["Smart Plugs"]
-Group gPlug_SP2      "Plug Living Room"              <energy>        (gDevices)   ["Smart Plugs"]
-Group gPlug_SP3      "Plug Bedroom"                  <energy>        (gDevices)   ["Smart Plugs"]
+Group gPlugSP1       "Plug Office"                   <energy>        (gDevices)   ["Smart Plugs"]
+Group gPlugSP2       "Plug Living Room"              <energy>        (gDevices)   ["Smart Plugs"]
+Group gPlugSP3       "Plug Bedroom"                  <energy>        (gDevices)   ["Smart Plugs"]
 Group gChristmas     "Christmas Lights"              <lightbulb>
 Group gHeatingSP    <heating>
 Group gHeatingSP1
@@ -148,15 +126,11 @@ Dimmer GY1HB24_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:
 
 /* Multisensor */
 
-Number GH1MS1_temperature "Temperature [%.1f °C]" (gMultisensor) {channel="smartthings:temperatureMeasurement:d5f94ca3:Multisensor_GH1-MS1:temperature"}
 Number GH1MS1_illuminance "Illuminance [%.0f lx]" <light> (gMultisensor, gIlluminance) {channel="smartthings:illuminanceMeasurement:d5f94ca3:Multisensor_GH1-MS1:illuminance"}
 Number GH1MS1_illuminance_avg "Average Illuminance Measurement [%.0f lx]" <light> (gMultisensor, gIlluminance)
 Switch GH1MS1_illuminance_switch "Front Illuminance Bypass"
 String GH1MS1_motion "Motion Sensor" <motion> (gMultisensor) {channel="smartthings:motionSensor:d5f94ca3:Multisensor_GH1-MS1:motion"}
 Number GH1MS1_humidity "Humidity Sensor [%.1f %%]" <humidity> (gMultisensor, gHumidity) {channel="smartthings:relativeHumidityMeasurement:d5f94ca3:Multisensor_GH1-MS1:humidity"}
-String GH1MS1_powersource "Power Source" <energy> (gMultisensor) {channel="smartthings:powerSource:d5f94ca3:Multisensor_GH1-MS1:powerSource"}
-Number GH1MS1_battery "Battery Status [%.0f %%]" <batterylevel> (gMultisensor) {channel="smartthings:battery:d5f94ca3:Multisensor_GH1-MS1:battery"}
-String GH1MS1_tamper "Tamper Alert" <alarm> (gMultisensor) {channel="smartthings:tamperAlert:d5f94ca3:Multisensor_GH1-MS1:tamper"}
 
 /* Fibaro Smoke Detectors */
 
@@ -343,14 +317,6 @@ Number hSPh_FB1 "Heating Set Point Master Bedroom (Holiday) [%.1f °C]" <vacatio
 Number hSPh_FB2 "Heating Set Point Workshop (Holiday) [%.1f °C]" <vacation> (gHeatingSP6)
 Number hSPh_FB3 "Heating Set Point Guest Bedroom (Holiday) [%.1f °C]" <vacation> (gHeatingSP6)
 
-Number hOP_GO1 "Heating Output Office [%.0f]" <radiator>
-Number hOP_GK1 "Heating Output Kitchen [%.0f]" <radiator>
-Number hOP_GL1 "Heating Output Living Room [%.0f]" <radiator>
-Number hOP_GS1 "Heating Output Sun Room [%.0f]" <radiator>
-Number hOP_FB1 "Heating Output Master Bedroom [%.0f]" <radiator>
-Number hOP_FB2 "Heating Output Workshop [%.0f]" <radiator>
-Number hOP_FB3 "Heating Output Guest Bedroom [%.0f]" <radiator>
-
 Number hHysteresis "Heating Hysteresis [%.1f °C]" <radiator>
 
 Number hMode "Heating Status" <radiator>
@@ -383,8 +349,6 @@ Number hFB3_Radiator "Guest Bedroom Radiator" <radiator> (gHeatingFault)
 
 /* Hank Scene Controller */
 
-Number FB1SC1_battery "Battery Status" <batterylevel> (gSceneControl) {channel="smartthings:battery:d5f94ca3:Scene_Controller_FB1-SC1:battery"}
-String FB1SC1_button "Button Status" <settings> (gSceneControl) {channel="smartthings:button:d5f94ca3:Scene_Controller_FB1-SC1:button"}
 Number FB1SC1_power "Scene No." <settings> (gSceneControl) {channel="smartthings:powerMeter:d5f94ca3:Scene_Controller_FB1-SC1:power"}
 
 /* Astro */

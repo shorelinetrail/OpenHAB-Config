@@ -982,11 +982,12 @@ Frame label="Data" {
 			Switch item=GL1SS11_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=FB1SS13_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=GO1SS12_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
-			//Switch item=GO1SS15_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GO1SS15_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=GS1SS17_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
-			//Switch item=GL1SS18_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GL1SS18_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=FB3SS19_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=FB3SS20_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=XM1SS16_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=XM1SS21_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=GY1SS24_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=GY1SS25_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
@@ -1006,10 +1007,12 @@ Frame label="Data" {
 			Text item=GL1SS11_IPAddress
 			Text item=FB1SS13_IPAddress
 			Text item=GO1SS12_IPAddress
+			Text item=GO1SS15_IPAddress
 			Text item=GS1SS17_IPAddress
 			Text item=GL1SS18_IPAddress
 			Text item=FB3SS19_IPAddress
 			Text item=FB3SS20_IPAddress
+			Text item=XM1SS16_IPAddress
 			Text item=XM1SS21_IPAddress
 			Text item=GY1SS26_IPAddress
 			Text item=GY1SS27_IPAddress
@@ -1028,10 +1031,12 @@ Frame label="Data" {
 			Text item=GL1SS11_rssi
 			Text item=FB1SS13_rssi
 			Text item=GO1SS12_rssi
+			Text item=GO1SS15_rssi
 			Text item=GS1SS17_rssi
 			Text item=GL1SS18_rssi
 			Text item=FB3SS19_rssi
 			Text item=FB3SS20_rssi
+			Text item=XM1SS16_rssi
 			Text item=XM1SS21_rssi
 			Text item=GY1SS26_rssi
 			Text item=GY1SS27_rssi
@@ -1051,10 +1056,12 @@ Frame label="Data" {
 			Text item=GL1SS11_Uptime
 			Text item=FB1SS13_Uptime
 			Text item=GO1SS12_Uptime
+			Text item=GO1SS15_Uptime
 			Text item=GS1SS17_Uptime
 			Text item=GL1SS18_Uptime
 			Text item=FB3SS19_Uptime
 			Text item=FB3SS20_Uptime
+			Text item=XM1SS16_Uptime
 			Text item=XM1SS21_Uptime
 			Text item=GY1SS26_Uptime
 			Text item=GY1SS27_Uptime
