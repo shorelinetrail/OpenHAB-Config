@@ -354,52 +354,50 @@ rule "Dark Daytime Status (Kitchen)"
                 }
         end
 
-rule "Dark Daytime Left Home"
-// When Multisensor illuminance changes, is above 60 lx and a = 5, wait 10 minutes, then set a = 0 if the previous conditions are still true */
+rule "Left Home"
+/* When presence changes to away, wait 5 minutes (covers brief WiFi drops), then react
+   by lighting mode:
+     - dark daytime (C/D == 2): shut the interior down, leave exterior on as security
+     - dusk / evening (A == 1 or 2): OCCUPIED LOOK - keep hall (gHueDimmer), plugs and
+       exterior on; only the kitchen is switched off
+     - night (A == 3): go to night-away (a = 5) and make the interior dark
+     - bright daytime (else): just make sure the kitchen is off */
         when
                 Item XM1AS1_presence changed to "not present"
         then
-                if(
-                        ((C.state == 2) || (D.state == 2))  // Dark day hall or kitchen active
-                ){
-                        timerLeaveHome = createTimer(now.plusMinutes(5), [ |
-                        if (XM1AS1_presence.state == "not present"){
-                                //sendCommand (GO1SP1_switch, "OFF")
-                                sendCommand (GL1SP2_switch, "OFF")
-                                sendCommand (XM1SS21_switch, "OFF")
-                                sendCommand (gHueDimmer, 0)
-                                sendCommand (gHueKitchen, 0)
-                                sendCommand (gHueGlass, 0)
-                                sendCommand (GK1SS1_switch, "OFF")
-                                sendCommand (GK1SS2_switch, "OFF")
-                                //sendCommand(BlueIris_trigger, "profile=2")
-                        }
+                if(timerLeaveHome !== null){ timerLeaveHome.cancel; timerLeaveHome = null }
+                timerLeaveHome = createTimer(now.plusMinutes(5), [ |
                         timerLeaveHome = null
-                        ])
-                }
-                else if (A.state == 1 || A.state == 2){              // Lighting mode dusk or evening
-                        timerLeaveHome = createTimer(now.plusMinutes(5), [ |
-                        if (XM1AS1_presence.state == "not present"){
-                                sendCommand (gHueKitchen, 0)
-                                sendCommand (gHueGlass, 0)
-                                sendCommand (GK1SS1_switch, OFF)
-                                sendCommand (GK1SS2_switch, OFF)
-                                sendCommand (XM1SS21_switch, OFF)
-                                //sendCommand(BlueIris_trigger, "profile=2")
+                        if(XM1AS1_presence.state.toString == "not present"){      // still away after the grace period
+                                if((C.state == 2) || (D.state == 2)){             // dark daytime active
+                                        sendCommand (GL1SP2_switch, "OFF")
+                                        sendCommand (XM1SS21_switch, "OFF")
+                                        sendCommand (gHueDimmer, 0)
+                                        sendCommand (gHueKitchen, 0)
+                                        sendCommand (gHueGlass, 0)
+                                        sendCommand (GK1SS1_switch, "OFF")
+                                        sendCommand (GK1SS2_switch, "OFF")
+                                }
+                                else if(A.state == 1 || A.state == 2){            // dusk / evening - occupied look
+                                        sendCommand (gHueKitchen, 0)             // hall, plugs and exterior stay on
+                                        sendCommand (gHueGlass, 0)
+                                        sendCommand (GK1SS1_switch, "OFF")
+                                        sendCommand (GK1SS2_switch, "OFF")
+                                        sendCommand (XM1SS21_switch, "OFF")
+                                }
+                                else if(A.state == 3){                            // night - left after lights-out
+                                        a = 5
+                                        postUpdate(A, a)
+                                        sendCommand (gHueDimmer, 0)
+                                        sendCommand (gHueKitchen, 0)
+                                        sendCommand (FB1SP3_switch, "OFF")
+                                }
+                                else {                                            // bright daytime
+                                        sendCommand (gHueKitchen, 0)
+                                        sendCommand (gHueGlass, 0)
+                                }
                         }
-                        timerLeaveHome = null
-                        ])
-                }
-                else {
-                        timerLeaveHome = createTimer(now.plusMinutes(5), [ |
-                        if (XM1AS1_presence.state == "not present"){
-                                sendCommand (gHueKitchen, 0)
-                                sendCommand (gHueGlass, 0)
-                                //sendCommand(BlueIris_trigger, "profile=2")
-                        }
-                        timerLeaveHome = null
-                        ])
-                }
+                ])
 end
 
 rule "Dark Day Lights Return"
@@ -775,7 +773,7 @@ rule "Lights Off"
                 if((hallLux instanceof Number) && ((hallLux as Number) < darkDayMinHall)){
                         c = 2
                         postUpdate(C, c)                 // -> "Dark Day Hall Lights Present" sets yard/front/GY1HB15 (+ ceiling if present)
-                        if(XM1AS1_presence.state.toString != "present"){
+                        if(XM1AS1_presence.state.toString == "not present"){
                                 sendCommand (gHueDimmer, 0)   // away: keep the hall ceiling off (yard/front stay on as security)
                         }
                 }
@@ -789,7 +787,7 @@ rule "Lights Off"
                 if((kitLux instanceof Number) && ((kitLux as Number) < darkDayMinKit)){
                         d = 2
                         postUpdate(D, d)                 // -> "Dark Day Kitchen Lights Present" sets the kitchen Hue (only when home)
-                        if(XM1AS1_presence.state.toString != "present"){
+                        if(XM1AS1_presence.state.toString == "not present"){
                                 sendCommand (gHueKitchen, 0)   // away: keep the kitchen Hue off
                         }
                 }
