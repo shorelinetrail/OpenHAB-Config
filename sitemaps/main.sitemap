@@ -1,0 +1,1066 @@
+sitemap main label="Main Menu"
+
+{
+	
+Frame label="Dashboard" {
+		Text item=GY1SS8_temp label="Outdoor Temperature"
+		Text item=gTemperatureAvg 
+		//Switch item=Lighting_Mode label="Lighting Override" mappings=[4="Morning", 3="Day", 1="Evening", 2="Night"]
+		Text item=Light_Status label="Lighting Mode"
+		Text item=GO1EM1_P label="Energy Meter [%.1f W]" {	
+				Frame label="Live Data"{
+				Text item=GO1EM1_V
+				Text item=GO1EM1_I
+				Text item=GO1EM1_P
+				Text item=GO1EM1_Q
+				Text item=GO1EM1_PF
+				Text item=GO1EM1_F
+				Text item=GO1EM1_TE
+				Text item=GO1EM1_M
+				}
+
+				Frame label="Consumption"{
+				Text item=Power_Today
+				Text item=Power_CostToday
+				Text item=Power_Day 
+				Text item=Power_Cost
+				}
+
+				Frame label="Current Tariff"{
+				Text  item=Power_EUnit 
+				Text  item=Power_EStand  
+				Text  item=Power_GUnit 
+				Text  item=Power_GStand 
+				}
+
+				Frame label="Voltage"{
+				Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+				Chart item=GO1EM1_V period=h refresh=60000 visibility=[Chart_Period==0]
+				Chart item=GO1EM1_V period=D refresh=60000 visibility=[Chart_Period==1]
+				Chart item=GO1EM1_V period=W refresh=60000 visibility=[Chart_Period==2]
+				Chart item=GO1EM1_V period=M refresh=60000 visibility=[Chart_Period==3]
+				Chart item=GO1EM1_V period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+
+				Frame label="Current"{
+				Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+				Chart item=GO1EM1_I period=h refresh=60000 visibility=[Chart_Period==0]
+				Chart item=GO1EM1_I period=D refresh=60000 visibility=[Chart_Period==1]
+				Chart item=GO1EM1_I period=W refresh=60000 visibility=[Chart_Period==2]
+				Chart item=GO1EM1_I period=M refresh=60000 visibility=[Chart_Period==3]
+				Chart item=GO1EM1_I period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+
+				Frame label="Power"{
+				Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+				Chart item=gPower period=h refresh=60000 visibility=[Chart_Period==0]
+				Chart item=gPower period=D refresh=60000 visibility=[Chart_Period==1]
+				Chart item=gPower period=W refresh=60000 visibility=[Chart_Period==2]
+				Chart item=gPower period=M refresh=60000 visibility=[Chart_Period==3]
+				Chart item=gPower period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+
+				Frame label="Settings" icon="settings"
+				{
+					Text label="Tariff" icon="price"
+					{
+						Frame label="Electricity Unit" icon="price"{
+							Setpoint  item=Power_EUnit label="Unit Price (x.00) [%.2f p/kWh]" minValue=20 maxValue=50 step=1
+							Setpoint  item=Power_EUnit label="Unit Price (0.x0) [%.2f p/kWh]" minValue=20 maxValue=50 step=0.1 
+							Setpoint  item=Power_EUnit label="Unit Price (0.0x) [%.2f p/kWh]" minValue=20 maxValue=50 step=0.01 	
+						}
+						Frame label="Electricity Standing" icon="price"{
+							Setpoint  item=Power_EStand label="Standing Charge (x.00) [%.2f p/kWh]" minValue=30 maxValue=80 step=1
+							Setpoint  item=Power_EStand label="Standing Charge (0.x0) [%.2f p/kWh]" minValue=30 maxValue=80 step=0.1 
+							Setpoint  item=Power_EStand label="Standing Charge (0.0x) [%.2f p/kWh]" minValue=30 maxValue=80 step=0.01 	
+						}
+						Frame label="Gas Unit" icon="price"{
+							Setpoint  item=Power_GUnit label="Unit Price (x.00) [%.2f p/kWh]" minValue=5 maxValue=15 step=1
+							Setpoint  item=Power_GUnit label="Unit Price (0.x0) [%.2f p/kWh]" minValue=5 maxValue=15 step=0.1 
+							Setpoint  item=Power_GUnit label="Unit Price (0.0x) [%.2f p/kWh]" minValue=5 maxValue=15 step=0.01 	
+						}
+						Frame label="Gas Standing" icon="price"{
+							Setpoint  item=Power_GStand label="Standing Charge (x.00) [%.2f p/kWh]" minValue=20 maxValue=50 step=1
+							Setpoint  item=Power_GStand label="Standing Charge (0.x0) [%.2f p/kWh]" minValue=20 maxValue=50 step=0.1 
+							Setpoint  item=Power_GStand label="Standing Charge (0.0x) [%.2f p/kWh]" minValue=20 maxValue=50 step=0.01 	
+						}			
+					}
+				}
+		}
+		Text item=gHeating label="Central Heating [%d zones active]" visibility=[hStandby == 0]
+		Text item=hStandbyNumber label="Central Heating [%d zones active]" visibility=[hStandby == 1]
+		Text item=hStatus label="Heating Mode"
+		Switch item=GY1SS9_switch label="Gate Control" mappings=[ON="Open/Stop/Close"] 
+		Switch item=gatePosition mappings=[1="Closed", 2="Moving", 4="In between", 3="Open"]
+		//Text item=GO1EM1_voltage label="Mains Voltage"
+		//Switch item=XM1DB1_doorbell label="Doorbell"
+
+
+		Switch item=Blanket_control label="Electric Blanket" icon="bedroom" mappings=[1="ON", 2="CANCEL", 0="OFF"]
+		Switch item=Presence_Override icon="settings" mappings=[ON="OVERRIDE", OFF="NORMAL"]
+		//Text item=GY1MC1_temp label="Freezer PV [%.1f °C]"
+
+
+		//Slider item=gHueDimmer label="Landing/Hall Dimmer"
+		//Slider item=gHueKitchen label="Kitchen Dimmer"
+		//Slider item=GH1HB1_dimmer label="Hue Hall"
+		//Slider item=FL1HB2_dimmer label="Hue Landing Front"
+		//Slider item=FL1HB3_dimmer label="Hue Landing Rear"
+		/*Text item=GO1HT1_temperature label="Current Temperature"
+		#Setpoint item=GO1HT1_setpoint label="Heating Setpoint" minValue=5.0 maxValue=30 step=0.5*/
+		//Switch item=gPlugs mappings=[OFF="All Off", ON="All On"]
+		//Switch item=gSonoff mappings=[OFF="All Off", ON="All On"]
+		//Text  item=GK1SA1_smoke label="Smoke Detector Kitchen"
+		//Text  item=FL1SA2_smoke label="Smoke Detector Landing"
+		/*Switch item=GO1SP1_switch label="Plug Office"
+		Switch item=GL1SP2_switch label="Plug Living Room"
+		Switch item=FB1SP3_switch label="Plug Bedroom"*/
+		/*Text  item=GK1SS1_temp label="Sonoff Temp."
+		Text  item=GK1SS1_humid label="Sonoff RH"
+		Text item=Scene label="Scene"*/
+	}
+
+	Frame label="Devices" {
+
+		Text label="Central Heating" icon="radiator" {
+
+			Frame label="System" 
+			{
+				Switch  item=GY1SS8_switch label="Call for Heat" mappings=[OFF="OFF", ON="ON"]
+				//Switch item=gHeating label="Zones Active" mappings=[ON="None", OFF="1+"]
+				Switch item=hMode label="Mode" mappings=[0="Manual", 1="Auto"]
+				Switch item=GY1SS8_power label="Boiler Switch Feedback" mappings=[OFF="OFF", ON="ON"]
+				Text item=gHeating label="Zones Active [%d]" visibility=[hStandby == 0]
+				Text item=hStandbyNumber label="Zones Active [%d]" visibility=[hStandby == 1]
+				Text item=hStatus label="Heating Mode"
+				Text item=GY1NM2_temp1 label="Boiler Supply"
+				Text item=GY1NM2_temp2 label="Boiler Return"
+				Text item=GY1NM2_delta label="Boiler Delta"
+				Text item=hRuntimeToday label="Boiler Runtime Today"
+				//Text item=gHeatingFault label="Zones Faults [%s]" 
+				//Setpoint item=myClock label="Clock [JS(numberToClock.js):%s]" minValue=0 maxValue=1425 step=1
+			}
+
+			Frame label="Room Temperatures"{
+					Chart item=gTemperature period=d refresh=15000
+			}
+
+			Frame label="Boiler"{
+					Chart item=gBoiler period=h refresh=15000 
+			}
+
+			Frame label="Radiator Status" {
+				Switch  item=GO1SS12_switch mappings=[ON="OFF", OFF="ON"]
+				Switch  item=GL1SS5_switch mappings=[ON="OFF", OFF="ON"]
+				Switch  item=GS1SS10_switch mappings=[ON="OFF", OFF="ON"]
+				Switch  item=GL1SS11_switch mappings=[ON="OFF", OFF="ON"]
+				Switch  item=FB1SS13_switch1 mappings=[ON="OFF", OFF="ON"] 
+				Switch  item=FB1SS13_switch2 mappings=[ON="OFF", OFF="ON"] 
+				Switch  item=FB3SS19_switch mappings=[ON="OFF", OFF="ON"] 
+			}
+			Frame label="Temperature Control" {
+				Text  item=GO1SS4_temp label="Office PV" 
+				Setpoint  item=hSP_GO1 label="Office SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+				Text  item=GK1SS3_temp label="Kitchen PV"
+				Setpoint  item=hSP_GK1 label="Kitchen SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+				Text  item=GL1SS5_temp label="Living Room PV"
+				Setpoint  item=hSP_GL1 label="Living Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+				Text  item=GS1SS10_temp label="Sun Room PV"
+				Setpoint  item=hSP_GS1 label="Sun Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+				Text  item=FB1SS6_temp label="Master Bedroom PV"
+				Setpoint  item=hSP_FB1 label="Master Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+				Text  item=FB2SS7_temp label="Workshop PV"
+				Setpoint  item=hSP_FB2 label="Workshop SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+				Text  item=FB3SS20_temp label="Guest Bedroom PV"
+				Setpoint  item=hSP_FB3 label="Guest Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+			}
+
+			Frame label="Temperature Deltas" {
+				Text  item=GO1SS4_temp_delta label="Office dT" 
+				Text  item=GK1SS3_temp_delta label="Kitchen dT"
+				Text  item=GL1SS5_temp_delta label="Living Room dT"
+				Text  item=GS1SS10_temp_delta label="Sun Room dT"
+				Text  item=FB1SS6_temp_delta label="Master Bedroom dT"
+				Text  item=FB2SS7_temp_delta label="Workshop dT"
+				Text  item=FB3SS20_temp_delta label="Guest Bedroom dT"
+				Text  item=gTemperatureDelta label="Temperature Min. dT [%.1f °C]"
+			}
+
+			Frame label="Settings"
+				{
+					Switch item=hAway label="Holiday"
+					Switch item=hWork label="Home"
+					Text label="Set Points" icon="Heating"
+						{
+							Frame label="Weekday Morning"
+							{
+								Setpoint  item=hSPm_GO1 label="Office SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPm_GK1 label="Kitchen SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPm_GL1 label="Living Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPm_GS1 label="Sun Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPm_FB1 label="Master Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPm_FB2 label="Workshop SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPm_FB3 label="Guest Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=gHeatingSP1 label="All Rooms SP [%.1f °C]" minValue=15 maxValue=25 step=1							
+							}
+							Frame label="Weekday Daytime"
+							{
+								Setpoint  item=hSPd_GO1 label="Office SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPd_GK1 label="Kitchen SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPd_GL1 label="Living Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPd_GS1 label="Sun Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPd_FB1 label="Master Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPd_FB2 label="Workshop SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPd_FB3 label="Guest Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=gHeatingSP2 label="All Rooms SP [%.1f °C]" minValue=15 maxValue=25 step=1								
+							}
+							Frame label="Weekend Morning & Daytime"
+							{
+								Setpoint  item=hSPw_GO1 label="Office SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPw_GK1 label="Kitchen SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPw_GL1 label="Living Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPw_GS1 label="Sun Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPw_FB1 label="Master Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPw_FB2 label="Workshop SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPw_FB3 label="Guest Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=gHeatingSP5 label="All Rooms SP [%.1f °C]" minValue=15 maxValue=25 step=1								
+							}
+							Frame label="Evening"
+							{
+								Setpoint  item=hSPe_GO1 label="Office SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPe_GK1 label="Kitchen SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPe_GL1 label="Living Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPe_GS1 label="Sun Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPe_FB1 label="Master Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPe_FB2 label="Workshop SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPe_FB3 label="Guest Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=gHeatingSP3 label="All Rooms SP [%.1f °C]" minValue=15 maxValue=25 step=1								
+							}
+							Frame label="Night"
+							{
+								Setpoint  item=hSPn_GO1 label="Office SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPn_GK1 label="Kitchen SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPn_GL1 label="Living Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPn_GS1 label="Sun Room SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPn_FB1 label="Master Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPn_FB2 label="Workshop SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=hSPn_FB3 label="Guest Bedroom SP [%.1f °C]" minValue=15 maxValue=25 step=0.1
+								Setpoint  item=gHeatingSP4 label="All Rooms SP [%.1f °C]" minValue=15 maxValue=25 step=1								
+							}
+							Frame label="Holiday"
+							{
+								Setpoint  item=hSPh_GO1 label="Office SP [%.1f °C]" minValue=13 maxValue=25 step=0.1
+								Setpoint  item=hSPh_GK1 label="Kitchen SP [%.1f °C]" minValue=13 maxValue=25 step=0.1
+								Setpoint  item=hSPh_GL1 label="Living Room SP [%.1f °C]" minValue=13 maxValue=25 step=0.1
+								Setpoint  item=hSPh_GS1 label="Sun Room SP [%.1f °C]" minValue=13 maxValue=25 step=0.1
+								Setpoint  item=hSPh_FB1 label="Master Bedroom SP [%.1f °C]" minValue=13 maxValue=25 step=0.1
+								Setpoint  item=hSPh_FB2 label="Workshop SP [%.1f °C]" minValue=13 maxValue=25 step=0.1
+								Setpoint  item=hSPh_FB3 label="Guest Bedroom SP [%.1f °C]" minValue=13 maxValue=25 step=0.1
+								Setpoint  item=gHeatingSP6 label="All Rooms SP [%.1f °C]" minValue=15 maxValue=25 step=1								
+							}
+							Frame label="Global Override"
+							{
+								Setpoint  item=gHeatingSP label="SP [%.1f °C]" minValue=15 maxValue=25 step=1
+							}
+						}						
+					Text label="Boiler" icon="fire"
+					{
+						Frame label="Boiler Run Time"
+						{
+							Text item=hRuntimeToday label="Today [%.0f min]" 
+							Text item=hRuntimeYesterday label="Yesterday [%.0f min]" 
+							Text item=hRuntimeThisWeek label="This Week [%.1f hr]" 
+							Text item=hRuntimeLastWeek label="Last Week [%.1f hr]" 
+							Text item=hRuntimeThisMonth label="This Month [%.1f hr]" 
+							Text item=hRuntimeLastMonth label="Last Month [%.1f hr]" 
+						}
+					}	
+
+					Text label="Advanced" icon="settings"
+					{
+						Frame label="General"
+						{
+							Setpoint  item=hHysteresis label="Hysteresis [± %.1f °C]" minValue=0.1 maxValue=2 step=0.1
+							Switch item=hOverride label="Mode Override" mappings=[1="Weekday morning", 2="Weekday daytime", 3="Evening", 4="Night", 5="Weekend morning/daytime"]
+						}
+						Frame label="Radiator Override" 
+						{
+							Switch  item=hGO1_Radiator mappings=[0="Disable", 1="Enable"]
+							Switch  item=hGL1_Radiator mappings=[0="Disable", 1="Enable"]
+							Switch  item=hGK1_Radiator mappings=[0="Disable", 1="Enable"]
+							Switch  item=hGS1_Radiator mappings=[0="Disable", 1="Enable"]
+							Switch  item=hFB1_Radiator mappings=[0="Disable", 1="Enable"]
+							Switch  item=hFB2_Radiator mappings=[0="Disable", 1="Enable"]
+							Switch  item=hFB3_Radiator mappings=[0="Disable", 1="Enable"]
+							Setpoint  item=hStandby label="Standby Variable [%.0f]" minValue=0 maxValue=1 step=1
+						}
+					}	
+
+
+				}
+
+		
+		}
+
+		Text label="Sonos" icon="rollershutter" {
+
+    Frame label="Whole House" {
+        Switch item=Sonos_All_PlayPause mappings=[ON="Play/Pause All"]
+        Switch item=Sonos_All_Next      mappings=[ON="Next ▶▶"]
+        Switch item=Sonos_All_Prev      mappings=[ON="⏮ Prev"]
+        Switch item=Sonos_All_Mute      mappings=[ON="Mute All"]
+        Switch item=Sonos_All_Unmute    mappings=[ON="Unmute All"]
+        Switch item=Sonos_All_VolUp     mappings=[ON="Vol +"]
+        Switch item=Sonos_All_VolDown   mappings=[ON="Vol -"]
+
+        // optional: see who we think is the current master
+        Text   item=Sonos_CurrentMaster label="Group Master [%s]"
+    }
+
+    Frame label="Living Room – Connect:Amp" {
+        Text   item=Sonos_LivingRoom_CurrentTrack label="Now Playing [%s]"
+        Slider item=Sonos_LivingRoom_Volume       label="Volume"
+        Switch item=Sonos_LivingRoom_Mute         label="Mute" mappings=[ON="Mute", OFF="Unmute"]
+
+        Switch item=Sonos_LivingRoom_Control mappings=[PLAY="▶ Play"]
+        Switch item=Sonos_LivingRoom_Control mappings=[PAUSE="⏸ Pause"]
+        Switch item=Sonos_LivingRoom_Control mappings=[NEXT="Next ▶▶"]
+        Switch item=Sonos_LivingRoom_Control mappings=[PREVIOUS="⏮ Prev"]
+    }
+
+    Frame label="Kitchen – Play:3" {
+        Text   item=Sonos_Kitchen_CurrentTrack label="Now Playing [%s]"
+        Slider item=Sonos_Kitchen_Volume       label="Volume"
+        Switch item=Sonos_Kitchen_Mute         label="Mute" mappings=[ON="Mute", OFF="Unmute"]
+
+        Switch item=Sonos_Kitchen_Control mappings=[PLAY="▶ Play"]
+        Switch item=Sonos_Kitchen_Control mappings=[PAUSE="⏸ Pause"]
+        Switch item=Sonos_Kitchen_Control mappings=[NEXT="Next ▶▶"]
+        Switch item=Sonos_Kitchen_Control mappings=[PREVIOUS="⏮ Prev"]
+
+        Switch item=Sonos_Kitchen_JoinGroup   mappings=[ON="Join Group"]
+        Switch item=Sonos_Kitchen_LeaveGroup  mappings=[ON="Leave Group"]
+    }
+
+    Frame label="Office – Play:3" {
+        Text   item=Sonos_Office_CurrentTrack label="Now Playing [%s]"
+        Slider item=Sonos_Office_Volume       label="Volume"
+        Switch item=Sonos_Office_Mute         label="Mute" mappings=[ON="Mute", OFF="Unmute"]
+
+        Switch item=Sonos_Office_Control mappings=[PLAY="▶ Play"]
+        Switch item=Sonos_Office_Control mappings=[PAUSE="⏸ Pause"]
+        Switch item=Sonos_Office_Control mappings=[NEXT="Next ▶▶"]
+        Switch item=Sonos_Office_Control mappings=[PREVIOUS="⏮ Prev"]
+
+        Switch item=Sonos_Office_JoinGroup   mappings=[ON="Join Group"]
+        Switch item=Sonos_Office_LeaveGroup  mappings=[ON="Leave Group"]
+    }
+
+    Frame label="Bedroom – Play:1" {
+        Text   item=Sonos_Bedroom_CurrentTrack label="Now Playing [%s]"
+        Slider item=Sonos_Bedroom_Volume       label="Volume"
+        Switch item=Sonos_Bedroom_Mute         label="Mute" mappings=[ON="Mute", OFF="Unmute"]
+
+        Switch item=Sonos_Bedroom_Control mappings=[PLAY="▶ Play"]
+        Switch item=Sonos_Bedroom_Control mappings=[PAUSE="⏸ Pause"]
+        Switch item=Sonos_Bedroom_Control mappings=[NEXT="Next ▶▶"]
+        Switch item=Sonos_Bedroom_Control mappings=[PREVIOUS="⏮ Prev"]
+
+        Switch item=Sonos_Bedroom_JoinGroup   mappings=[ON="Join Group"]
+        Switch item=Sonos_Bedroom_LeaveGroup  mappings=[ON="Leave Group"]
+    }
+
+    Frame label="Sun Room – Play:1" {
+        Text   item=Sonos_SunRoom_CurrentTrack label="Now Playing [%s]"
+        Slider item=Sonos_SunRoom_Volume       label="Volume"
+        Switch item=Sonos_SunRoom_Mute         label="Mute" mappings=[ON="Mute", OFF="Unmute"]
+
+        Switch item=Sonos_SunRoom_Control mappings=[PLAY="▶ Play"]
+        Switch item=Sonos_SunRoom_Control mappings=[PAUSE="⏸ Pause"]
+        Switch item=Sonos_SunRoom_Control mappings=[NEXT="Next ▶▶"]
+        Switch item=Sonos_SunRoom_Control mappings=[PREVIOUS="⏮ Prev"]
+
+        Switch item=Sonos_SunRoom_JoinGroup   mappings=[ON="Join Group"]
+        Switch item=Sonos_SunRoom_LeaveGroup  mappings=[ON="Leave Group"]
+    }
+
+    Frame label="Sun Room (Aux) – Connect" {
+        Text   item=Sonos_Aux_CurrentTrack label="Now Playing [%s]"
+        Slider item=Sonos_Aux_Volume       label="Volume"
+        Switch item=Sonos_Aux_Mute         label="Mute" mappings=[ON="Mute", OFF="Unmute"]
+
+        Switch item=Sonos_Aux_Control mappings=[PLAY="▶ Play"]
+        Switch item=Sonos_Aux_Control mappings=[PAUSE="⏸ Pause"]
+        Switch item=Sonos_Aux_Control mappings=[NEXT="Next ▶▶"]
+        Switch item=Sonos_Aux_Control mappings=[PREVIOUS="⏮ Prev"]
+
+        Switch item=Sonos_Aux_JoinGroup   mappings=[ON="Join Group"]
+        Switch item=Sonos_Aux_LeaveGroup  mappings=[ON="Leave Group"]
+    }
+
+    Frame label="Workshop – Play:1" {
+        Text   item=Sonos_Workshop_CurrentTrack label="Now Playing [%s]"
+        Slider item=Sonos_Workshop_Volume       label="Volume"
+        Switch item=Sonos_Workshop_Mute         label="Mute" mappings=[ON="Mute", OFF="Unmute"]
+
+        Switch item=Sonos_Workshop_Control mappings=[PLAY="▶ Play"]
+        Switch item=Sonos_Workshop_Control mappings=[PAUSE="⏸ Pause"]
+        Switch item=Sonos_Workshop_Control mappings=[NEXT="Next ▶▶"]
+        Switch item=Sonos_Workshop_Control mappings=[PREVIOUS="⏮ Prev"]
+
+        Switch item=Sonos_Workshop_JoinGroup   mappings=[ON="Join Group"]
+        Switch item=Sonos_Workshop_LeaveGroup  mappings=[ON="Leave Group"]
+    }
+}
+
+
+
+
+		Text label="Blinds" icon="rollershutter" {
+
+			Frame label="Settings" {
+				Switch item=Blinds_Auto mappings=[ON="Auto", OFF="Manual"]
+				Switch item=Blinds_Bedroom_Mode mappings=[ON="Auto", OFF="Manual"]
+				Switch item=Blinds_Lux_On mappings=[ON="On", OFF="Off"]
+				Text label="Advanced" icon="settings" {
+					Setpoint item=Blinds_Post_Sunrise_T minValue=0 maxValue=120 step=5
+					Setpoint item=Blinds_Post_Sunset_T minValue=0 maxValue=120 step=5
+					Setpoint item=Blinds_Sunrise minValue=0 maxValue=100 step=5
+					Setpoint item=Blinds_Post_Sunrise minValue=0 maxValue=100 step=5
+					//Setpoint item=Blinds_Pre_Sunset_T minValue=0 maxValue=120 step=5
+					Setpoint item=Blinds_Post_Sunset minValue=1 maxValue=100 step=5
+					Setpoint item=Blinds_Sunset minValue=0 maxValue=100 step=5
+					Setpoint item=Blinds_Pre_Sunset minValue=0 maxValue=100 step=5
+					Switch item=Blinds_Christmas mappings=[ON="On", OFF="Off"]
+					Setpoint item=Blinds_Lux minValue=100 maxValue=2600 step=100
+					Setpoint item=Blinds_Lux_Hys minValue=10 maxValue=100 step=10
+				}
+			}
+
+			Frame label="All" {
+				Setpoint item=gBlinds label="Position [%.0f %%]" minValue=1 maxValue=100 step=5
+				Switch item=gBlinds label="Open/Close []" mappings=[100="Open", 50="50 %", 1="Close"] 
+			}
+			Frame label="Downstairs" {
+				Setpoint item=gGBlinds label="Position [%.0f %%]" minValue=1 maxValue=100 step=5
+				Switch item=gGBlinds label="Open/Close []" mappings=[100="Open", 50="50 %", 1="Close"] 
+			}
+			Frame label="Office" {
+				Setpoint item=GO1BE1_position label="Position [%.0f %%]" minValue=1 maxValue=100 step=5 
+				Switch item=GO1BE1_position label="Open/Close []" mappings=[100="Open", 50="50 %", 1="Close"] 
+			}
+			Frame label="Living Room" {
+				Setpoint item=GL1BE2_position label="Position [%.0f %%]" minValue=1 maxValue=100 step=5
+				Switch item=GL1BE2_position label="Open/Close []" mappings=[100="Open", 50="50 %", 1="Close"] 
+			}
+			Frame label="Bedroom" {
+				Setpoint item=FB1BE3_position label="Position [%.0f %%]" minValue=1 maxValue=100 step=5
+				Switch item=FB1BE3_position label="Open/Close []" mappings=[100="Open", 50="50 %", 1="Close"] 
+			}
+
+		}
+
+
+		Text label="Lighting" icon="lightbulb" {
+			Frame label="Hall" {
+				Setpoint item=GH1HB1_dimmer label="Dimmer [%s%%]" minValue=0 maxValue=100 step=5
+				Switch item=GH1HB1_switch label="On/Off"
+				Text   item=GH1HB1_alert label="Alert"
+			}
+			Frame label="Landing Front" {
+				Setpoint item=FL1HB2_dimmer label="Dimmer [%s%%]" minValue=0 maxValue=100 step=5
+				Switch item=FL1HB2_switch label="On/Off"
+				Text   item=FL1HB2_alert label="Alert"
+			}	
+			Frame label="Landing Rear" {
+				Setpoint item=FL1HB3_dimmer label="Dimmer [%s%%]" minValue=0 maxValue=100 step=5
+				Switch item=FL1HB3_switch label="On/Off"
+				Text   item=FL1HB3_alert label="Alert"
+			}
+			Frame label="Kitchen Mode & Control" {
+				Switch item=GK1_mode label="Mode" mappings=[1="Evening", 2="Dinner", 3="Bright"] 
+				Text item=GK1HS1_event label="Switch Event [%.0f]"
+			}
+			Frame label="Kitchen Spots" {
+				Setpoint item=gHueKitchen label="All [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB4_dimmer label="Front Left [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB5_dimmer label="Rear Left [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB6_dimmer label="Front Mid [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB7_dimmer label="Rear Mid [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB8_dimmer label="Front Right [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB9_dimmer label="Rear Right [%s%%]" minValue=0 maxValue=100 step=5
+				//Setpoint item=GK1B10_dimmer label="Dining [%s%%]" minValue=0 maxValue=100 step=5
+			}
+			Frame label="Kitchen Table" {
+				Setpoint item=gHueTable label="All [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1B10_dimmer label="Table Left [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1B13_dimmer label="Table Centre [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1B14_dimmer label="Table Right [%s%%]" minValue=0 maxValue=100 step=5
+			}			
+			Frame label="Kitchen Glasses" {
+				Setpoint item=gHueGlass label="Both [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=gHueColour label="Both [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB11_dimmer label="Left [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB11_colour label="Left [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB12_dimmer label="Right [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GK1HB12_colour label="Right [%s%%]" minValue=0 maxValue=100 step=5
+
+			}
+			Frame label="Kitchen Cooker" {
+				Switch item=GK1SS1_switch label="On/Off"
+			}
+			Frame label="Kitchen Side" {
+				Switch item=GK1SS2_switch label="On/Off"
+			}
+			Frame label="Front Door" {
+				Setpoint item=gHueFront label="Both [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=gHueFrontColour label="Both [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GH1HB18_dimmer label="Left [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GH1HB18_colour label="Left [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GH1HB19_dimmer label="Right [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GH1HB19_colour label="Right [%s%%]" minValue=0 maxValue=100 step=5
+			}
+
+			Frame label="Yard" {
+				Setpoint item=gHueYard label="All Yard [%s%%]" minValue=0 maxValue=100 step=5	
+				Setpoint item=gHueYardColour label="All Yard [%s%%]" minValue=0 maxValue=100 step=5	
+				Setpoint item=GY1HB16_dimmer label="Side [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB16_colour label="Side [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB17_dimmer label="Rear [%s%%]" minValue=0 maxValue=100 step=5 
+				Setpoint item=GY1HB17_colour label="Rear [%s%%]" minValue=0 maxValue=100 step=5			
+			}	
+			Frame label="Rear Yard" {
+				Setpoint item=gHueYardR label="All Rear Yard [%s%%]" minValue=0 maxValue=100 step=5	
+				Setpoint item=gHueYardRColour label="All Rear Yard [%s%%]" minValue=0 maxValue=100 step=5	
+				Setpoint item=GY1HB15_dimmer label="Door [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB15_colour label="Door [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB20_dimmer label="No. 1 [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB20_colour label="No. 1 [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB21_dimmer label="No. 2 [%s%%]" minValue=0 maxValue=100 step=5 
+				Setpoint item=GY1HB21_colour label="No. 2 [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB22_dimmer label="No. 3 [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB22_colour label="No. 3 [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB23_dimmer label="No. 4 [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB23_colour label="No. 4 [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB24_dimmer label="Shed [%s%%]" minValue=0 maxValue=100 step=5
+				Setpoint item=GY1HB24_colour label="Shed [%s%%]" minValue=0 maxValue=100 step=5
+			}	
+	
+			Frame label="Camera Lamp" {
+				Switch item=XM1SS21_switch label="On/Off"
+			}					
+		}
+
+		Text label="Smart Plugs" icon="energy" {
+			Frame label="Office" {
+				Switch item=GO1SP1_switch
+				Switch item=GO1SP1_led
+				Text   item=GO1SP1_voltage
+				Text   item=GO1SP1_current
+				Text   item=GO1SP1_power 
+				Text   item=GO1SP1_energy
+				Text   item=GO1SP1_rssi
+			}
+			Frame label="Living Room" {
+				Switch item=GL1SP2_switch
+				Switch item=GL1SP2_led
+				Text   item=GL1SP2_voltage
+				Text   item=GL1SP2_current
+				Text   item=GL1SP2_power 
+				Text   item=GL1SP2_energy
+				Text   item=GL1SP2_rssi
+			}	
+			Frame label="Bedroom" {
+				Switch item=FB1SP3_switch
+				Switch item=FB1SP3_led
+				Text   item=FB1SP3_voltage
+				Text   item=FB1SP3_current
+				Text   item=FB1SP3_power 
+				Text   item=FB1SP3_energy
+				Text   item=FB1SP3_rssi
+			}				
+		}
+
+		Text label="Electric Blanket" icon="bedroom" {	
+			Switch item=Blanket_control mappings=[1="On", 2="Cancel", 0="Off"] 
+			Text item=Blanket_status	
+			Setpoint item=Blanket_autotime minValue=0 maxValue=60 step=15
+			Setpoint item=Blanket_expiretime minValue=0 maxValue=60 step=15	
+//			Switch item=Blanket_test mappings=[ON="CHARGING", OFF="NOT CHARGING"] 	
+		}
+
+		Text label="Smoke Detection" icon="fire" {
+
+			Frame label="Kitchen" {
+				Text  item=GK1SA1_smoke 
+				Text  item=GK1SA1_tamper 
+				Text  item=GK1SA1_battV 
+				Text  item=GK1SA1_battpc
+				Text  item=GK1SA1_temp 
+				Text  item=GK1SA1_LastUpdate
+			}
+		}
+
+		Text label="Gate" icon="keyring" {
+		
+				Frame label="Status & Local Control"
+				{
+					Switch item=GY1SS9_switch mappings=[ON="Open/Stop/Close", OFF="Inactive"] 
+					Switch item=GY1SS9_switch1 mappings=[ON="Closed", OFF="Not Closed"] 
+					Switch item=gateSamsungOnline mappings=[ON="Online", OFF="Offline"] 
+				}
+				Frame label="Remote Control"
+				{
+					Switch item=gateRemoteEnable mappings=[ON="Enabled", OFF="Disabled"] 
+					//Switch item=gateRemoteControl mappings=[ON="Enabled", OFF="Disabled"] 
+					Switch item=gateRecloseEnable mappings=[ON="Enabled", OFF="Disabled"] 
+					Setpoint item=gateRemoteTimer label="Auto Reclose Delay [%.0f min]" minValue=1 maxValue=30 step=1
+					Switch item=gateTimerActive mappings=[ON="Active", OFF="Standby"]
+					//Switch item=gateRemoteControl mappings=[ON="Active", OFF="Standby"]
+					//Text item=GY1SS9_status 
+					Text item=gateSamsung label="Gate Command"
+					Switch item=gateBinDay
+					Switch item=GY1SS9_switch1
+					Switch item=GY1SS9_switch2
+				}
+		}
+
+		Group item=gSceneControl label="Scene Controller" icon="wallswitch"		
+
+		Group item=gMultisensor label="Multisensor" icon="line"
+
+		Text label="Room Sensors" icon="heating" {
+
+			Frame label="Temperature" {
+				//Text  item=GH1MS1_temperature label="Hall"
+				Text  item=GO1SS4_temp label="Office"
+				Text  item=GL1SS5_temp label="Living Room"
+				Text  item=GK1SS3_temp label="Kitchen"
+				Text  item=GS1SS10_temp label="Sun Room"
+				Text  item=FB1SS6_temp label="Bedroom"
+				Text  item=FB2SS7_temp label="Workshop"
+				Text  item=GY1SS8_temp label="Outside"
+				Text  item=GY1SS24_temp label="Shed"
+				Text  item=GL1NM1_temp label="Portable"
+				Text  item=GY1MC1_temp label="TC"
+			}
+
+			Frame label="Humidity" {
+				Text  item=GH1MS1_humidity label="Hall"
+				Text  item=GY1SS24_humid label="Shed"
+				Text  item=GL1SS5_humid label="Living Room"
+				Text  item=FB1SS6_humid label="Master Bedroom"
+			}
+
+			Frame label="Dew Point" {
+				Text  item=FB1SS6_dew label="Master Bedroom"
+			}
+
+			Frame label="Pressure" {
+				Text  item=GY1SS8_press label="Outside"
+				Text  item=GY1SS24_press label="Shed"
+				Text  item=GS1SS10_press label="Sun Room"
+				Text  item=FB1SS6_press label="Master Bedroom"
+			}
+
+			Frame label="Illuminance" {
+				Text  item=GH1MS1_illuminance label="Hall"
+				Text  item=GH1MS1_illuminance_avg label="Hall Avg."
+				Text  item=GO1SS4_illuminance label="Office"
+				Text  item=GK1SS1_illuminance label="Kitchen"
+			}
+			Frame label="Gas" {
+				Text  item=FB1SS6_gas label="Master Bedroom"
+			}			
+		}		
+		
+		/*Text label="Homebrew" icon="party" {
+				
+				Text item=XM1SS16_temp 
+				Switch item=XM1SS16_switch mappings=[ON="ON", OFF="OFF"] 
+				Setpoint item=XM1SS16_sp label="Set Point [%.1f °C]" minValue=5 maxValue=30 step=1
+				Setpoint item=XM1SS16_hs label="Hysteresis [%.1f °C]" minValue=0.1 maxValue=1 step=0.1
+		}*/
+
+		Text label="CCTV" icon="camera" {
+	
+				Frame label="Front Door"{
+				//Switch item=gChristmas label="All"
+				//Image url="http://google.com/leaveLinkAsThis" item=cctv //refresh=5000
+				//Image url="https://192.168.0.110/cgi-bin/currentpic.cgi" refresh=500
+				//Video url="http://192.168.0.40:2541/ipcamera.mjpeg" encoding="mjpeg" 
+				//Text label="Cameras MJPEG Stream" icon="camera"{Video url="http://192.168.0.40:1234/ipcamera.jpg" encoding="mjpeg"}
+				//Image url="http://192.168.0.40:2541/ipcamera.jpg" refresh=1000
+				Switch item=BlueIris_Test
+				}
+		}
+
+		Text label="Irrigation System" icon="garden" {	
+
+			Frame label="Front" {
+				//Text  item=GH1MS1_temperature label="Hall"
+				Switch item=Iri_F_Switch mappings=[1="START", 2="CANCEL"]
+				Setpoint item=Iri_F_SP label="Set Point [%.1f l]" minValue=1 maxValue=50 step=1
+				Text  item=GY1SS27_flow label="Flow"
+				Text item=Iri_F_Total
+				Switch item=GY1SS26_switch mappings=[ON="OPEN", OFF="CLOSED"]
+				Text item=GY1SS28_moisture label="Moisture"
+			}
+			Frame label="Rear " {
+				//Text  item=GH1MS1_temperature label="Hall"
+				Switch item=Iri_F_Switch_R mappings=[1="START", 2="CANCEL"]
+				Setpoint item=Iri_F_SP_R label="Set Point [%.1f l]" minValue=1 maxValue=100 step=1
+				Text item=Iri_F_Total_R
+				Text item=GY1FT1_flow3
+				Text item=GY1FT1_level_pc
+				Text item=GY1FT1_level_vol
+				Switch item=GY1FT1_switch1 mappings=[OFF="OPEN", ON="CLOSED"]
+				Switch item=GY1FT1_switch2 mappings=[OFF="OPEN", ON="CLOSED"]
+				Switch item=GY1FT1_switch3 mappings=[OFF="OPEN", ON="CLOSED"]
+				Text item=GY1FT1_flow1
+
+			}                
+			Frame label="Front Moisture"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=GY1SS28_moisture period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=GY1SS28_moisture period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=GY1SS28_moisture period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=GY1SS28_moisture period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=GY1SS28_moisture period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+			Frame label="Water Butt Level"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=GY1FT1_level_pc period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=GY1FT1_level_pc period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=GY1FT1_level_pc period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=GY1FT1_level_pc period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=GY1FT1_level_pc period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+			
+
+			/*  Switch item=GY1SS22_switch mappings=[ON="ON", OFF="OFF"] 
+				Switch item=GY1SS23_switch mappings=[ON="OPEN", OFF="CLOSED"] 
+				//Text item=GY1SS22_distance
+				Text item=GY1SS22_level
+				Switch item=GY1SS22_MO mappings=[ON="ON",OFF="OFF"]
+				Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="1h", 1="4h", 2="12h", 3="24h", 4="36h"]
+				Chart item=GY1SS22_level_avg period=h refresh=60000 visibility=[Chart_Period==0]
+				Chart item=GY1SS22_level_avg period=4h refresh=60000 visibility=[Chart_Period==1]
+				Chart item=GY1SS22_level_avg period=12h refresh=60000 visibility=[Chart_Period==2]
+				Chart item=GY1SS22_level_avg period=d refresh=60000 visibility=[Chart_Period==3]
+				Chart item=GY1SS22_level_avg period=3D refresh=60000 visibility=[Chart_Period==4]
+			*/
+		}
+
+
+		Text label="Christmas" icon="snow" visibility=[Christmas_Menu == ON] {
+				Switch item=Christmas_Auto mappings=[ON="AUTO", OFF="MANUAL"] 
+				Switch item=Christmas_Override mappings=[1="OVERRIDE", 0="NORMAL"]
+				Switch item=gChristmas label="All"
+				Switch item=GS1SS17_switch label="Sun Room & Kitchen"
+				Switch item=GO1SS15_switch label="Office"
+				Switch item=GL1SS18_switch label="Living Room"
+				Switch item=FB1SS6_switch label="Bedroom"
+				//Switch item=FB1SS14_switch label="Bedroom"
+				Switch item=FB2SS7_switch label="Workshop"
+				//Switch item=GY1SS25_switch label="Yard Door"
+		}
+
+
+		/*Text label="Central Heating" icon="radiator" {
+
+			Text item=GO1HT1_temperature label="Current Temperature"
+			Setpoint item=GO1HT1_setpoint label="Target Temperature" minValue=5.0 maxValue=30 step=0.5
+			Switch item=GO1HT1_heating label="Heating On"
+			Text item=GO1HT1_mode label="Heating Mode"
+			Text item=GO1HT1_boost label="Remaining Boost Time"
+			Text item=GO1HT1_battery label="Battery Level"
+			
+		}*/		
+
+	}
+/*
+		Frame label="Rooms" {
+		Group item=GO1           label="Office"                        
+		Group item=GK1           label="Kitchen"  
+		Group item=GU1           label="Utility"     
+		Group item=GL1           label="Living Room"
+		Group item=GS1           label="Sun Room" 
+		Group item=GH1           label="Hall"
+	}*/
+
+Frame label="Data" {
+		Text label="Records" icon="temperature" {
+			Frame label="Outside Temperature" {
+				Text item=Temp_Today_Min_Time_Format 
+				Text item=Temp_Today_Max_Time_Format
+				Text item=Temp_Week_Min_Time_Format 
+				Text item=Temp_Week_Max_Time_Format
+				Text item=Temp_Month_Min_Time_Format 
+				Text item=Temp_Month_Max_Time_Format
+				Text item=Temp_Year_Min_Time_Format 
+				Text item=Temp_Year_Max_Time_Format
+				Text item=Temp_All_Min_Time_Format 
+				Text item=Temp_All_Max_Time_Format
+			}
+		}
+
+			Group item=gSetpoints label="Control" icon="settings"{
+		    Frame label="SwitchBot" {
+			Switch item=GK1SW04_switch label="Coffee Machine"
+			}
+		    Frame label="Menu" {
+			Switch item=Christmas_Menu label="Christmas Menu"
+			}			
+		    Frame label="BlueIris" {
+			Switch item=BlueIris_rearEnable label="Rear Motion Detection"
+			Setpoint item=HueFrontTrigger_Setpoint label="Blue Iris Trigger Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			Setpoint item=HueFrontTrigger_Timer label="Blue Iris Trigger Timeout [%.0f sec]" minValue=5 maxValue=300 step=5
+			Setpoint item=HueRearTrigger_Setpoint label="Rear Motion Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			Setpoint item=HueRearTrigger_Timer label="Blue Iris Trigger Timeout [%.0f sec]" minValue=5 maxValue=300 step=5
+			}
+			Frame label="Lighting Mode" {
+			Switch item=Lighting_Mode label="Mode Override" mappings=[1="Evening", 2="Night", 4="Morning", 3="Off"]
+			}
+			Frame label="Motion Lights (Hall)" {
+			Text item=Motion_Lights_Status label="Status"
+			Setpoint item=Motion_Setpoint label="Brightness [%.0f %%]" minValue=10.0 maxValue=100.0 step=5
+			Switch item=Motion_Lights label="Enable Status" mappings=[ON="ON", OFF="OFF"]
+			Setpoint item=Motion_Time label="Timeout [%.1f min]" minValue=0.5 maxValue=30.0 step=0.5 // min 0.5 min to allow motion sensor to reset
+			}
+			Frame label="Dark Daytime Lights Front" {
+			Setpoint item=Lux_Min_Hall label="Brightness Trigger [%.0f lx]" minValue=10 maxValue=200 step=2
+			Setpoint item=Lux_Max_Hall label="Brightness Reset [%.0f lx]" minValue=20 maxValue=250 step=2
+			//Setpoint item=Hall_Test_Lux label="Test Setpoint [%.0f lx]" minValue=20 maxValue=250 step=10
+			Setpoint item=DarkHall_Setpoint label="Hall Brightness [%.0f %%]" minValue=10.0 maxValue=100.0 step=5
+			}
+			Frame label="Dark Daytime Lights Rear" {
+			Setpoint item=Lux_Min_Kitchen label="Brightness Trigger [%.0f lx]" minValue=2 maxValue=200 step=2
+			Setpoint item=Lux_Max_Kitchen label="Brightness Reset [%.0f lx]" minValue=2 maxValue=250 step=2
+			Setpoint item=DarkKitchen_Setpoint label="Kitchen Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			//Setpoint item=Kitchen_Test_Lux label="Test Setpoint [%.0f lx]" minValue=0 maxValue=250 step=10
+			}
+			Frame label="Hall Schedule Setpoints" {
+			Setpoint item=DarkMorning_Setpoint label="Dark Morning Brightness [%.0f %%]" minValue=10.0 maxValue=100.0 step=5
+			Setpoint item=Dusk_Setpoint label="Dusk Brightness [%.0f %%]" minValue=10.0 maxValue=100.0 step=5
+			Setpoint item=Evening_Setpoint label="Evening Brightness [%.0f %%]" minValue=10.0 maxValue=100.0 step=5
+			Setpoint item=NightHallFront_Setpoint label="Night Front Brightness [%.0f %%]" minValue=0 maxValue=100.0 step=5
+			Setpoint item=NightHallMid_Setpoint label="Night Mid Brightness [%.0f %%]" minValue=0 maxValue=100.0 step=5
+			Setpoint item=NightHallRear_Setpoint label="Night Rear Brightness [%.0f %%]" minValue=0 maxValue=100.0 step=5
+			}
+			Frame label="Kitchen Schedule Setpoints" {
+			Setpoint item=KitDusk_Setpoint label="Dusk Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			Setpoint item=KitEvening_Setpoint label="Evening Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			}
+			Frame label="Front Outside Lights" {
+			Setpoint item=HueFrontDarkMorning_Setpoint label="Dark Morning Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			Setpoint item=HueFrontDarkDaytime_Setpoint label="Dark Daytime Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			Setpoint item=HueFrontDusk_Setpoint label="Dusk Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			Setpoint item=HueFrontEvening_Setpoint label="Evening Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			Setpoint item=HueFrontMidnight_Setpoint label="Midnight Brightness [%.0f %%]" minValue=5.0 maxValue=100.0 step=5
+			}
+			Frame label="Timers" {
+			Setpoint item=Bed_Time label="Bed Lamp Delay [%.0f min]" minValue=0 maxValue=30.0 step=1
+			Setpoint item=phoneChargingTimer label="Phone Charging Timer [%.0f min]" minValue=0 maxValue=30.0 step=1
+			}			
+			Frame label="Diagnostics" {
+			Group item=gVariables label="Variables" icon="settings"
+			Switch item=XM1AS1_presence label="Presence" mappings=["present" = "present", "not present" = "not present"]
+			Switch item=XM1AS1_presence_trig label="Presence Trigger"
+			Switch item=XM1AS1_presence_S label="Ste Present" mappings=[ON = "present", OFF = "not present"]
+			Switch item=XM1AS1_presence_J label="Jacqui Present" mappings=[ON = "present", OFF = "not present"]
+			Switch item=XM1DB1_doorbell label="Doorbell Test"
+			Switch item=remoteTempEnable label="Remote Temp. Push"
+			Switch item=BlueIris_motionFront label="Blue Iris Motion (Front)"
+			Switch item=phoneCharging label="Phone Charging"
+			Switch item=phoneChargingRelease label="Phone Charging Release (Delayed)"
+			Switch item=GH1MS1_motion label="Motion Test" mappings=["active" = "active", "inactive" = "inactive"]
+			Switch item=GH1MS1_illuminance_switch label="Hall Illuminance > Office"
+			}
+		}
+
+		Text label="Charts" icon="lightbulb" {
+				//Chart item=GH1MS1_temperature period=4h refresh=10
+				//Chart item=GO1SP1_voltage period=1h refresh=10
+                /*Frame label="Freezer"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=GY1MC1_temp period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=GY1MC1_temp period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=GY1MC1_temp period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=GY1MC1_temp period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=GY1MC1_temp period=Y refresh=60000 visibility=[Chart_Period==4]
+				}*/
+                Frame label="Room Temperatures"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=gTemperature period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=gTemperature period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=gTemperature period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=gTemperature period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=gTemperature period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+                Frame label="Boiler"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=gBoiler period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=gBoiler period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=gBoiler period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=gBoiler period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=gBoiler period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+                Frame label="Outside Temperature"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=gOutside period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=gOutside period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=gOutside period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=gOutside period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=gOutside period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+                Frame label="Atmospheric Pressure"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=gPressure period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=gPressure period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=gPressure period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=gPressure period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=gPressure period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+                /*Frame label="Illuminance"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=gIlluminance period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=gIlluminance period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=gIlluminance period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=gIlluminance period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=gIlluminance period=Y refresh=60000 visibility=[Chart_Period==4]
+				}*/
+                /*Frame label="Average Kitchen Temperature"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=gAverage period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=gAverage period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=gAverage period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=gAverage period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=gAverage period=Y refresh=60000 visibility=[Chart_Period==4]
+				}*/
+                Frame label="Humidity"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=gHumidity period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=gHumidity period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=gHumidity period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=gHumidity period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=gHumidity period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+                /*Frame label="Stove"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=GL1NM1_temp period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=GL1NM1_temp period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=GL1NM1_temp period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=GL1NM1_temp period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=GL1NM1_temp period=Y refresh=60000 visibility=[Chart_Period==4]
+				}*/
+                Frame label="Gas"{
+                        Switch item=Chart_Period label="Chart Period" icon="time" mappings=[0="Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+                        Chart item=FB1SS6_gas period=h refresh=60000 visibility=[Chart_Period==0]
+                        Chart item=FB1SS6_gas period=D refresh=60000 visibility=[Chart_Period==1]
+                        Chart item=FB1SS6_gas period=W refresh=60000 visibility=[Chart_Period==2]
+                        Chart item=FB1SS6_gas period=M refresh=60000 visibility=[Chart_Period==3]
+                        Chart item=FB1SS6_gas period=Y refresh=60000 visibility=[Chart_Period==4]
+				}
+		}
+
+	Text label="Sonoff Status" icon="qualityofservice"{
+		Frame label="Refresh"{
+			Switch item=Sonoff_Refresh mappings=[ON="TRIGGER", OFF="RESET"]
+		}
+		Frame label="Status"{
+			Switch item=GK1SS1_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GK1SS2_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GK1SS3_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GO1SS4_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GL1SS5_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=FB1SS6_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=FB2SS7_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GY1SS8_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GY1SS9_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GS1SS10_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GL1SS11_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=FB1SS13_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GO1SS12_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			//Switch item=GO1SS15_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GS1SS17_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			//Switch item=GL1SS18_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=FB3SS19_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=FB3SS20_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=XM1SS21_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GY1SS24_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GY1SS25_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+			Switch item=GY1SS26_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
+		}
+		Frame label="IP Addresses"{
+			Text item=GK1SS1_IPAddress
+			Text item=GK1SS2_IPAddress
+			Text item=GK1SS3_IPAddress
+			Text item=GO1SS4_IPAddress
+			Text item=GL1SS5_IPAddress
+			Text item=FB1SS6_IPAddress
+			Text item=FB2SS7_IPAddress
+			Text item=GY1SS8_IPAddress
+			Text item=GY1SS9_IPAddress
+			Text item=GS1SS10_IPAddress
+			Text item=GL1SS11_IPAddress
+			Text item=FB1SS13_IPAddress
+			Text item=GO1SS12_IPAddress
+			Text item=GS1SS17_IPAddress
+			Text item=GL1SS18_IPAddress
+			Text item=FB3SS19_IPAddress
+			Text item=FB3SS20_IPAddress
+			Text item=XM1SS21_IPAddress
+			Text item=GY1SS26_IPAddress
+			Text item=GY1SS27_IPAddress
+		}
+		Frame label="RSSI"{
+			Text item=GK1SS1_rssi
+			Text item=GK1SS2_rssi
+			Text item=GK1SS3_rssi
+			Text item=GO1SS4_rssi
+			Text item=GL1SS5_rssi
+			Text item=FB1SS6_rssi
+			Text item=FB2SS7_rssi
+			Text item=GY1SS8_rssi
+			Text item=GY1SS9_rssi
+			Text item=GS1SS10_rssi
+			Text item=GL1SS11_rssi
+			Text item=FB1SS13_rssi
+			Text item=GO1SS12_rssi
+			Text item=GS1SS17_rssi
+			Text item=GL1SS18_rssi
+			Text item=FB3SS19_rssi
+			Text item=FB3SS20_rssi
+			Text item=XM1SS21_rssi
+			Text item=GY1SS26_rssi
+			Text item=GY1SS27_rssi
+
+		}
+		Frame label="Uptime"{
+			Text item=GK1SS1_Uptime
+			Text item=GK1SS2_Uptime
+			Text item=GK1SS3_Uptime
+			Text item=GO1SS4_Uptime
+			Text item=GL1SS5_Uptime
+			Text item=FB1SS6_Uptime
+			Text item=FB2SS7_Uptime
+			Text item=GY1SS8_Uptime
+			Text item=GY1SS9_Uptime
+			Text item=GS1SS10_Uptime
+			Text item=GL1SS11_Uptime
+			Text item=FB1SS13_Uptime
+			Text item=GO1SS12_Uptime
+			Text item=GS1SS17_Uptime
+			Text item=GL1SS18_Uptime
+			Text item=FB3SS19_Uptime
+			Text item=FB3SS20_Uptime
+			Text item=XM1SS21_Uptime
+			Text item=GY1SS26_Uptime
+			Text item=GY1SS27_Uptime
+		}
+	}
+
+}
+}
+

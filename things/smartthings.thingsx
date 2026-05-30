@@ -1,0 +1,12 @@
+Bridge smartthings:hub:Home [ smartthingsIp="192.168.0.207", smartthingsPort=39500, smartthingsToken="2353ac79-52c4-4a04-905c-601a09358ab6" ] {
+    //Thing smartthings:temperatureMeasurement:Multisensor "Multisensor" (smartthings:smartthings:d5f94ca3) [ smartthingsId="860be36b-3bd6-47eb-8b16-0460829feadf" ]
+    //Thing temperatureMeasurement MultiSensor [ smartthingsName="Multisensor" ]
+    //Thing motionSensor MultiSensor1 [ smartthingsName="Multisensor" ]
+}
+
+//Bridge smartthings:smartthings:Home    [ smartthingsIp="192.168.0.205", smartthingsPort=39500 ] {
+//    Thing switch                   gateSamsungOpen             [ smartthingsName="Gate Open", smartthingsTimeout=10 ]
+//    Thing switch                   gateSamsungClosed             [ smartthingsName="Gate Open", smartthingsTimeout=10 ]
+//    Thing switch                   gateSamsung             [ smartthingsName="Gate Open/Close", smartthingsTimeout=10 ]
+//    Thing switch                   gateSamsungOnline             [ smartthingsName="Gate Online", smartthingsTimeout=10 ]
+//}

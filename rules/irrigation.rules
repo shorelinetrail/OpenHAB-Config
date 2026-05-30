@@ -1,0 +1,123 @@
+var Number front_flow_T = 0
+var Timer timerFront = null
+var Timer timerFront1 = null
+var Number totalStart = 0
+
+var Number rear_flow_T = 0
+var Timer timerRear = null
+var Timer timerRear1 = null
+var Number totalStart_R = 0
+
+rule "Front Irrigation Control"
+    when
+            Item Iri_F_Switch changed 
+    then
+        if(Iri_F_Switch.state == 1){
+            sendCommand(Iri_F_Total, 0)
+            sendCommand(GY1SS26_switch, ON)
+            timerFront = createTimer(now.plusSeconds(30), [ |
+            timerFront = null
+            totalStart = 1
+            val Number flow = (GY1SS27_flow.state as Number/2)
+                if (flow > 0) {
+                    Iri_F_Total.sendCommand(flow)
+                } else {
+                    Iri_F_Switch.sendCommand(2)
+                    sendPushoverMessage(pushoverBuilder("No front irrigation flow, cancelled."))
+                }
+            ])
+        }
+        else if(Iri_F_Switch.state == 2)
+        {
+            sendCommand(GY1SS26_switch, OFF)
+            totalStart = 0
+        }
+end
+
+rule "Front Irrigation Totaliser"
+    when
+            Time cron "0/10 * * * * ?"
+    then
+        if(totalStart == 1){
+            front_flow_T = Iri_F_Total.state as Number + (GY1SS27_flow.state as Number/6)
+            sendCommand(Iri_F_Total, front_flow_T)
+            }
+end
+
+rule "Front Irrigation Stop"
+    when
+            Item Iri_F_Total changed 
+    then
+        if(Iri_F_Total.state as Number >= Iri_F_SP.state as Number){
+            sendCommand(Iri_F_Switch, 2)
+            sendPushoverMessage(pushoverBuilder("Front irrigation complete."))
+            }
+end
+
+rule "Water Butt Level"
+    when
+            Item GY1FT1_level changed 
+    then
+            sendCommand(GY1FT1_level_mm, ((GY1FT1_level.state as Number) * 0.9775) - 66.5)
+            sendCommand(GY1FT1_level_pc, ((GY1FT1_level.state as Number) * 0.1283) - 8.7262)
+            sendCommand(GY1FT1_level_vol, ((GY1FT1_level.state as Number) * 0.1058) - 6.6877)
+            if((GY1FT1_level_pc.state as Number > 90) && (GY1FT1_switch3.state == OFF)){
+                sendCommand(GY1FT1_switch3, ON)
+            }
+            if((GY1FT1_level_pc.state as Number > 95) && (GY1FT1_switch2.state == ON)){
+                sendCommand(GY1FT1_switch2, OFF)
+            }            
+            if((GY1FT1_level_pc.state as Number) <= 90 && (GY1FT1_switch2.state == OFF)){
+                Thread::sleep(2500)
+                sendCommand(GY1FT1_switch2, ON)
+            }    
+end
+
+
+rule "Rear Irrigation Control"
+    when
+            Item Iri_F_Switch_R changed 
+    then
+        if(Iri_F_Switch_R.state == 1){
+            sendCommand(Iri_F_Total_R, 0)
+            sendCommand(GY1FT1_switch2, OFF)
+            Thread::sleep(2500)
+            sendCommand(GY1FT1_switch1, OFF)
+            timerRear = createTimer(now.plusSeconds(30), [ |
+            timerRear = null
+            totalStart_R = 1
+            val Number flow_R = (GY1FT1_flow3.state as Number/2)
+                if (flow_R > 0) {
+                    Iri_F_Total_R.sendCommand(flow_R)
+                } else {
+                    Iri_F_Switch_R.sendCommand(2)
+                    sendPushoverMessage(pushoverBuilder("No rear irrigation flow, cancelled."))
+                }
+            ])
+        }
+        else if(Iri_F_Switch_R.state == 2)
+        {
+            sendCommand(GY1FT1_switch1, ON)
+            totalStart_R = 0
+        }
+end
+
+rule "Rear Irrigation Totaliser"
+    when
+            Time cron "0/10 * * * * ?"
+    then
+        if(totalStart_R == 1){
+            rear_flow_T = Iri_F_Total_R.state as Number + (GY1FT1_flow3.state as Number/6)
+            sendCommand(Iri_F_Total_R, rear_flow_T)
+            }
+end
+
+rule "Rear Irrigation Stop"
+    when
+            Item Iri_F_Total_R changed 
+    then
+        if(Iri_F_Total_R.state as Number >= Iri_F_SP_R.state as Number){
+            sendCommand(Iri_F_Switch_R, 2)
+            sendPushoverMessage(pushoverBuilder("Rear irrigation complete."))
+            }
+end

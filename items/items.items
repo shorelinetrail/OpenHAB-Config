@@ -1,0 +1,690 @@
+/*============ GROUPS ============*/
+/* Floors */
+Group gF            "First Floor"                   <firstfloor>                ["FirstFloor"]
+Group gG            "Ground Floor"                  <groundfloor>               ["GroundFloor"]
+
+/* Rooms */
+
+Group GO1           "Office"                        <video>         (gG)       ["Office"] 
+Group GK1           "Kitchen"                       <kitchen>       (gG)       ["Kitchen"]
+Group GU1           "Utility"                       <bath>          (gG)       ["Utility"] 
+Group GL1           "Living Room"                   <corridor>      (gG)       ["LivingRoom"] { synonyms="Lounge" }
+Group GS1           "Sun Room"                      <corridor>      (gG)       ["SunRoom"]
+Group GH1           "Hall"                          <corridor>      (gG)       ["Hall"]
+
+Group FL1           "Landing"                       <video>         (gF)       ["Office"]
+Group FB1           "Master Bedroom"                <kitchen>       (gF)       ["Kitchen"]
+Group FB2           "Workshop"                      <bath>          (gF)       ["Utility"] 
+Group FB3           "Guest Bedroom"                 <corridor>      (gF)       ["LivingRoom"] { synonyms="Lounge" }
+
+Group XM1           "Mobile"                        <corridor>      (gG)       ["Hall"]
+
+/* General Groups */
+
+Group gDevices       "Devices"
+Group gLighting      "Lighting"                     <lightbulb>     (gDevices)   ["Lighting"]
+Group gWeather       "Weather"                      <sun>
+Group gVariables     "Variables"                    <settings>      
+Group gSetpoints     "Setpoints"                    <settings>     
+Group gCharts        "Charts"                       <settings>
+Group gTemperature   "Temperature"                  <temperature>    
+Group gPressure   "Temperature"                  <temperature>  
+Group gOutside   "Temperature"                  <temperature>  
+Group gIlluminance   "Iluminance"                   <lightbulb> 
+Group gHumidity      "Humidity"                     <humidity> 
+Group gPower        "Power"
+Group gAverage        "Average"
+Group:Number:MIN gTemperatureDelta "Temperature Delta" <temperature>
+
+
+/* Specific Devices */
+
+Group gHueColour                                     <colorlight>
+Group gHueGlass                                      <lightbulb>
+Group gSceneControl  "Scene Controller"              <settings>     (gDevices)    ["Scene Controller"]
+Group gMultisensor   "Multisensor"                   <lightbulb>     (gDevices)   ["Multisensor"]
+Group gPhilipsHue    "Philips Hue"                   <lightbulb>     (gDevices)   ["Hue"]
+Group gHueYard       "Yard Lighting"                 <lightbulb>     (gDevices)   ["Yard Lighting"]
+Group gHueYardColour "Yard Lighting"                 <colorlight>     (gDevices)   ["Yard Lighting"]
+Group gHueYardR       "Rear Yard Lighting"           <lightbulb>     (gDevices)   ["Yard Lighting"]
+Group gHueYardRColour "Rear Yard Lighting"           <colorlight>     (gDevices)   ["Yard Lighting"]
+Group gHueFront      "Front Door Lighting"           <lightbulb>     (gDevices)   ["Front Door Lighting"]
+Group gHueFrontColour "Front Door Lighting"          <colorlight>     (gDevices)  ["Front Door Lighting"] 
+Group gSmoke         "Smoke Detection"               <fire>          (gDevices)   ["Smoke"]
+Group gSmoke_GK1     "Smoke Detection Kitchen"       <fire>          (gSmoke)     ["Smoke"]
+Group gSmoke_FL1     "Smoke Detection Landing"       <fire>          (gSmoke)     ["Smoke"]
+Group gThermostat    "Central Heating"               <radiator>      (gDevices)   ["Thermostat"]
+Group gPlug_SP1      "Plug Office"                   <energy>        (gDevices)   ["Smart Plugs"]
+Group gPlug_SP2      "Plug Living Room"              <energy>        (gDevices)   ["Smart Plugs"]
+Group gPlug_SP3      "Plug Bedroom"                  <energy>        (gDevices)   ["Smart Plugs"]
+Group gChristmas     "Christmas Lights"              <lightbulb>
+Group gHeatingSP    <heating>
+Group gHeatingSP1
+Group gHeatingSP2
+Group gHeatingSP3
+Group gHeatingSP4
+Group gHeatingSP5
+Group gHeatingSP6
+Group gHeatingFault <heating>
+Group gSonoff_RSSI
+Group gSonoff_IP
+Group gSonoff_Uptime
+Group gBoiler
+
+Group:Switch:OR(ON, OFF)        gPlugs       "Smart Plugs [(%d)]"
+Group:Switch:OR(OFF, ON)        gHeating     "Radiators [(%d)]" <switch>
+Group:Switch:OR(ON, OFF)        gSonoff      "Sonoff Relays [(%d)]"
+Group:Dimmer                    gHueDimmer   "Dimmer [(%d)]"                <lightbulb>
+Group:Dimmer                    gHueKitchen   "Dimmer [(%d)]"                <lightbulb>
+Group:Dimmer                    gHueTable   "Dimmer [(%d)]"                <lightbulb>
+Group:Number:AVG                gTemperatureAvg "Average Indoor Temperature [%.1f °C]" 	<temperature>
+Group:Dimmer                    gBlinds    "Dimmer [(%d)]" <blinds>
+Group:Dimmer                    gGBlinds   "Dimmer [(%d)]" <blinds>
+
+/*============ ITEMS ============*/
+
+Number myClock
+
+/* Tasker */
+Switch phoneCharging "Phone Wireless Charging Status" <energy>
+Switch phoneChargingRelease "Phone Wireless Charging Status" <energy>
+Switch phoneChargingDelay "Phone Wireless Charging Status (delayed)" <energy>
+Number phoneChargingTimer "Phone Charging Delay Timer [%.0f min]" <energy>
+
+/* Arrival Sensor */
+
+Number XM1AS1_battery "Battery Status [%.0f %%]"   {channel="smartthings:presenceSensor:d5f94ca3:Arrival_Sensor_XM1-AS1:battery"}
+String XM1AS1_presence "Presence Sensor" <switch>
+String XM1AS1_presence_S "Ste Present" <switch>
+String XM1AS1_presence_J "Jacqui Present" <switch>
+Switch XM1AS1_presence_trig "Presence Trigger" <switch>
+
+/* Philips Hue */
+Number GK1HS1_event "Switch Event" <alarm> {channel="hue:0820:001788678581:2:dimmer_switch_event", autoupdate="true"}
+Dimmer GH1HB1_dimmer "Brightness [%d]" <lightbulb> (gHueDimmer, gPhilipsHue, gLighting) {channel="hue:0100:001788678581:1:brightness", autoupdate="true"}
+Switch GH1HB1_switch "Switch" <switch> (gPhilipsHue, gLighting) {channel="hue:0100:001788678581:1:brightness", autoupdate="true"}
+String GH1HB1_alert "Alert" <alarm> (gPhilipsHue, gLighting) {channel="hue:0100:001788678581:1:alert", autoupdate="true"}
+Dimmer FL1HB2_dimmer "Brightness [%d]" <lightbulb> (gHueDimmer, gPhilipsHue, gLighting) {channel="hue:0100:001788678581:3:brightness", autoupdate="true"}
+Switch FL1HB2_switch "Switch" <switch> (gPhilipsHue, gLighting) {channel="hue:0100:001788678581:3:brightness", autoupdate="true"}
+String FL1HB2_alert "Alert" <alarm> (gPhilipsHue, gLighting) {channel="hue:0100:001788678581:3:alert", autoupdate="true"}
+Dimmer FL1HB3_dimmer "Brightness [%d]" <lightbulb> (gHueDimmer, gPhilipsHue, gLighting) {channel="hue:0100:001788678581:2:brightness", autoupdate="true"}
+Switch FL1HB3_switch "Switch" <switch> (gPhilipsHue, gLighting) {channel="hue:0100:001788678581:2:brightness", autoupdate="true"}
+String FL1HB3_alert "Alert" <alarm> (gPhilipsHue, gLighting) {channel="hue:0100:001788678581:2:alert", autoupdate="true"}
+Dimmer GK1HB4_dimmer "Brightness" <lightbulb> (gHueKitchen, gPhilipsHue, gLighting) {channel="hue:0100:001788678581:7:brightness", autoupdate="true"}
+Dimmer GK1HB5_dimmer "Brightness" <lightbulb> (gHueKitchen, gPhilipsHue, gLighting) {channel="hue:0100:001788678581:9:brightness", autoupdate="true"}
+Dimmer GK1HB6_dimmer "Brightness" <lightbulb> (gHueKitchen, gPhilipsHue, gLighting) {channel="hue:0100:001788678581:5:brightness", autoupdate="true"}
+Dimmer GK1HB7_dimmer "Brightness" <lightbulb> (gHueKitchen, gPhilipsHue, gLighting) {channel="hue:0100:001788678581:10:brightness", autoupdate="true"}
+Dimmer GK1HB8_dimmer "Brightness" <lightbulb> (gHueKitchen, gPhilipsHue, gLighting) {channel="hue:0100:001788678581:4:brightness", autoupdate="true"}
+Dimmer GK1HB9_dimmer "Brightness" <lightbulb> (gHueKitchen, gPhilipsHue, gLighting) {channel="hue:0100:001788678581:8:brightness", autoupdate="true"}
+Dimmer GK1B10_dimmer "Brightness" <lightbulb> (gHueKitchen, gPhilipsHue, gLighting, gHueTable) {channel="hue:0100:001788678581:14:brightness", autoupdate="true"}
+Dimmer GK1B13_dimmer "Brightness" <lightbulb> (gHueKitchen, gPhilipsHue, gLighting, gHueTable) {channel="hue:0100:001788678581:15:brightness", autoupdate="true"}
+Dimmer GK1B14_dimmer "Brightness" <lightbulb> (gHueKitchen, gPhilipsHue, gLighting, gHueTable) {channel="hue:0100:001788678581:16:brightness", autoupdate="true"}
+Number GK1_mode "Kitchen Lighting Mode" <lightbulb>
+Dimmer GY1HB15_dimmer "Brightness" <lightbulb> {channel="hue:0220:001788678581:26:brightness", autoupdate="true"}
+Dimmer GY1HB15_colour "Colour" <colorlight> {channel="hue:0220:001788678581:26:color_temperature", autoupdate="true"}
+Dimmer GK1HB11_dimmer "Brightness" <lightbulb> (gHueGlass) {channel="hue:0220:001788678581:11:brightness", autoupdate="true"}
+Dimmer GK1HB11_colour "Colour" <colorlight> (gHueColour) {channel="hue:0220:001788678581:11:color_temperature", autoupdate="true"}
+Dimmer GK1HB12_dimmer "Brightness" <lightbulb> (gHueGlass) {channel="hue:0220:001788678581:12:brightness", autoupdate="true"}
+Dimmer GK1HB12_colour "Colour" <colorlight> (gHueColour) {channel="hue:0220:001788678581:12:color_temperature", autoupdate="true"}
+Dimmer GH1HB18_dimmer "Brightness" <lightbulb> (gHueFront) {channel="hue:0220:001788678581:25:brightness", autoupdate="true"}
+Dimmer GH1HB18_colour "Colour" <colorlight> (gHueFrontColour) {channel="hue:0220:001788678581:25:color_temperature", autoupdate="true"}
+Dimmer GH1HB19_dimmer "Brightness" <lightbulb> (gHueFront) {channel="hue:0220:001788678581:24:brightness", autoupdate="true"}
+Dimmer GH1HB19_colour "Colour" <colorlight> (gHueFrontColour) {channel="hue:0220:001788678581:24:color_temperature", autoupdate="true"}
+// Rear Yard
+Dimmer GY1HB16_dimmer "Brightness" <lightbulb> (gHueYard) {channel="hue:0220:001788678581:21:brightness", autoupdate="true"}
+Dimmer GY1HB17_dimmer "Brightness" <lightbulb> (gHueYard) {channel="hue:0220:001788678581:23:brightness", autoupdate="true"}
+Dimmer GY1HB16_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:001788678581:21:color_temperature", autoupdate="true"}
+Dimmer GY1HB17_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:001788678581:23:color_temperature", autoupdate="true"}
+Dimmer GY1HB20_dimmer "Brightness" <lightbulb> (gHueYard) {channel="hue:0220:001788678581:30:brightness", autoupdate="true"}
+Dimmer GY1HB20_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:001788678581:30:color_temperature", autoupdate="true"}
+Dimmer GY1HB21_dimmer "Brightness" <lightbulb> (gHueYard) {channel="hue:0220:001788678581:31:brightness", autoupdate="true"}
+Dimmer GY1HB21_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:001788678581:31:color_temperature", autoupdate="true"}
+Dimmer GY1HB22_dimmer "Brightness" <lightbulb> (gHueYard) {channel="hue:0220:001788678581:32:brightness", autoupdate="true"}
+Dimmer GY1HB22_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:001788678581:32:color_temperature", autoupdate="true"}
+Dimmer GY1HB23_dimmer "Brightness" <lightbulb> (gHueYard) {channel="hue:0220:001788678581:33:brightness", autoupdate="true"}
+Dimmer GY1HB23_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:001788678581:33:color_temperature", autoupdate="true"}
+Dimmer GY1HB24_dimmer "Brightness" <lightbulb> (gHueYard) {channel="hue:0220:001788678581:34:brightness", autoupdate="true"}
+Dimmer GY1HB24_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:001788678581:34:color_temperature", autoupdate="true"}
+
+/* Multisensor */
+
+Number GH1MS1_temperature "Temperature [%.1f °C]" (gMultisensor) {channel="smartthings:temperatureMeasurement:d5f94ca3:Multisensor_GH1-MS1:temperature"}
+Number GH1MS1_illuminance "Illuminance [%.0f lx]" <light> (gMultisensor, gIlluminance) {channel="smartthings:illuminanceMeasurement:d5f94ca3:Multisensor_GH1-MS1:illuminance"}
+Number GH1MS1_illuminance_avg "Average Illuminance Measurement [%.0f lx]" <light> (gMultisensor, gIlluminance)
+Switch GH1MS1_illuminance_switch "Front Illuminance Bypass"
+String GH1MS1_motion "Motion Sensor" <motion> (gMultisensor) {channel="smartthings:motionSensor:d5f94ca3:Multisensor_GH1-MS1:motion"}
+Number GH1MS1_humidity "Humidity Sensor [%.1f %%]" <humidity> (gMultisensor, gHumidity) {channel="smartthings:relativeHumidityMeasurement:d5f94ca3:Multisensor_GH1-MS1:humidity"}
+String GH1MS1_powersource "Power Source" <energy> (gMultisensor) {channel="smartthings:powerSource:d5f94ca3:Multisensor_GH1-MS1:powerSource"}
+Number GH1MS1_battery "Battery Status [%.0f %%]" <batterylevel> (gMultisensor) {channel="smartthings:battery:d5f94ca3:Multisensor_GH1-MS1:battery"}
+String GH1MS1_tamper "Tamper Alert" <alarm> (gMultisensor) {channel="smartthings:tamperAlert:d5f94ca3:Multisensor_GH1-MS1:tamper"}
+
+/* Fibaro Smoke Detectors */
+
+//String GK1SA1_tamper "Tamper Alert" <alarm> (gSmoke_GK1) {channel="smartthings:tamperAlert:d5f94ca3:Smoke_Alarm_Kitchen_GK1-SA1:tamper"}
+//String GK1SA1_smoke "Smoke Detected" <fire> (gSmoke_GK1) {channel="smartthings:smokeDetector:d5f94ca3:Smoke_Alarm_Kitchen_GK1-SA1:smoke"}
+//Number GK1SA1_temperature "Temperature [%.1f °C]" <temperature> (gSmoke_GK1) {channel="smartthings:temperatureMeasurement:d5f94ca3:Smoke_Alarm_Kitchen_GK1-SA1:temperature"}
+//Number GK1SA1_battery "Battery Status [%.0f %%]" <batterylevel> (gSmoke_GK1) {channel="smartthings:battery:d5f94ca3:Smoke_Alarm_Kitchen_GK1-SA1:battery"}
+
+//String FL1SA2_tamper "Tamper Alert" <alarm> (gSmoke_FL1) {channel="smartthings:tamperAlert:d5f94ca3:Smoke_Alarm_Landing_FL1-SA2:tamper"}
+//String FL1SA2_smoke "Smoke Detected" <fire> (gSmoke_FL1) {channel="smartthings:smokeDetector:d5f94ca3:Smoke_Alarm_Landing_FL1-SA2:smoke"}
+//Number FL1SA2_temperature "Temperature [%.1f °C]" <temperature> (gSmoke_FL1) {channel="smartthings:temperatureMeasurement:d5f94ca3:Smoke_Alarm_Landing_FL1-SA2:temperature"}
+//Number FL1SA2_battery "Battery Status [%.0f %%]" <batterylevel> (gSmoke_FL1) {channel="smartthings:battery:d5f94ca3:Smoke_Alarm_Landing_FL1-SA2:battery"}
+
+/* hive */
+
+/*Number GO1HT1_temperature "Current Temperature [%.1f °C]" <temperature> (gThermostat) {channel="hive:thermostat:73f8f16a-0891-4dfe-a269-2943b621ea8f:currenttemperature"}
+Number GO1HT1_setpoint "Set Temperature [%.1f °C]" <climate> (gThermostat) {channel="hive:thermostat:73f8f16a-0891-4dfe-a269-2943b621ea8f:targettemperature"}
+Switch GO1HT1_heating "Heating Status" <radiator> (gThermostat) {channel="hive:thermostat:73f8f16a-0891-4dfe-a269-2943b621ea8f:heatingon"}
+Switch GO1HT1_water "" <water> (gThermostat) {channel="hive:thermostat:73f8f16a-0891-4dfe-a269-2943b621ea8f:hotwateron"}
+String GO1HT1_mode "Heating Mode" <settings> (gThermostat) {channel="hive:thermostat:73f8f16a-0891-4dfe-a269-2943b621ea8f:mode"}
+String GO1HT1_boost "Boost Time Remaining" <flowpipe> (gThermostat) {channel="hive:thermostat:73f8f16a-0891-4dfe-a269-2943b621ea8f:boostremaining"}
+Number GO1HT1_battery "Battery Status [%.0f %%]" <batterylevel> (gThermostat) {channel="hive:thermostat:73f8f16a-0891-4dfe-a269-2943b621ea8f:thermostatbattery"}
+
+/* TP-Link Smart Plugs */
+
+Switch GO1SP1_switch "Switch" <wallswitch> (gPlugSP1, gPlugs) {channel="tplinksmarthome:hs110:26D077:switch", autoupdate="true"}
+Number GO1SP1_power "Current Power [%.2f W]" <energy> (gPlugSP1) {channel="tplinksmarthome:hs110:26D077:power"}
+Number GO1SP1_energy "Total Consumption [%.2f kWh]" <energy> (gPlugSP1) {channel="tplinksmarthome:hs110:26D077:energyUsage"}
+Switch GO1SP1_led "LED On/Off" <light> (gPlugSP1) {channel="tplinksmarthome:hs110:26D077:led", autoupdate="true"}
+Number GO1SP1_rssi "Signal" <qualityofservice> (gPlugSP1) {channel="tplinksmarthome:hs110:26D077:rssi"}
+Number GO1SP1_current "Current [%.2f A]" <energy> (gPlugSP1) {channel="tplinksmarthome:hs110:26D077:current"}
+Number GO1SP1_voltage "Voltage [%.2f V]" <energy> (gPlugSP1) {channel="tplinksmarthome:hs110:26D077:voltage"}
+Switch GL1SP2_switch "Switch" <wallswitch> (gPlugSP2, gPlugs) {channel="tplinksmarthome:hs110:26249D:switch", autoupdate="true"}
+Number GL1SP2_power "Current Power [%.2f W]" <energy> (gPlugSP2) {channel="tplinksmarthome:hs110:26249D:power"}
+Number GL1SP2_energy "Total Consumption [%.2f kWh]" <energy> (gPlugSP2) {channel="tplinksmarthome:hs110:26249D:energyUsage"}
+Switch GL1SP2_led "LED On/Off" <light> (gPlugSP2) {channel="tplinksmarthome:hs110:26249D:led", autoupdate="true"}
+Number GL1SP2_rssi "Signal" <qualityofservice> (gPlugSP2) {channel="tplinksmarthome:hs110:26249D:rssi"}
+Number GL1SP2_current "Current [%.2f A]" <energy> (gPlugSP2) {channel="tplinksmarthome:hs110:26249D:current"}
+Number GL1SP2_voltage "Voltage [%.2f V]" <energy> (gPlugSP2) {channel="tplinksmarthome:hs110:26249D:voltage"}
+Switch FB1SP3_switch "Switch" <wallswitch> (gPlugSP3, gPlugs) {channel="tplinksmarthome:hs110:2647A8:switch", autoupdate="true"}
+Number FB1SP3_power "Current Power [%.2f W]" <energy> (gPlugSP3) {channel="tplinksmarthome:hs110:2647A8:power"}
+Number FB1SP3_energy "Total Consumption [%.2f kWh]" <energy> (gPlugSP3) {channel="tplinksmarthome:hs110:2647A8:energyUsage"}
+Switch FB1SP3_led "LED On/Off" <light> (gPlugSP3) {channel="tplinksmarthome:hs110:2647A8:led", autoupdate="true"}
+Number FB1SP3_rssi "Signal" <qualityofservice> (gPlugSP3) {channel="tplinksmarthome:hs110:2647A8:rssi"}
+Number FB1SP3_current "Current [%.2f A]" <energy> (gPlugSP3) {channel="tplinksmarthome:hs110:2647A8:current"}
+Number FB1SP3_voltage "Voltage [%.2f V]" <energy> (gPlugSP3) {channel="tplinksmarthome:hs110:2647A8:voltage"}
+
+/* Sonoff Devices */
+
+
+
+
+
+//(gTemperatureAvg, gTemperature)
+
+
+
+Number GK1SS3_temp_avg "Kitchen Average [%.1f °C]" <temperature> (gAverage)
+
+
+
+
+Switch BlueIris_Test "Blue Iris" <wallswitch> 
+Switch BlueIris_rearEnable "Enable Rear Motion Detection"
+Dimmer HueFrontTemp "Brightness" <lightbulb>
+
+
+
+
+Number XM1SS16_sp "Set Point [%.1f °C]" <temperature>
+Number XM1SS16_hs "Hysteresis [%.1f °C]" <temperature>
+
+
+
+
+
+
+Number GY1NM2_delta "Temperature Delta [%.2f °C]" <temperature> (gBoiler)
+
+Number GY1SS22_level "Water Butt Level [%.2f %%]" <flow>
+Switch GY1SS22_MO "Level Override"
+Number GY1SS22_level_avg "Water Butt Level [%.2f %%]" <flow>
+
+
+
+Number GO1SS4_temp_delta "Office Delta [%.1f °C]" <temperature> (gTemperatureDelta) 
+Number GK1SS3_temp_delta "Kitchen Delta [%.1f °C]" <temperature> (gTemperatureDelta) 
+Number GL1SS5_temp_delta "Living Room Delta [%.1f °C]" <temperature> (gTemperatureDelta) 
+Number GS1SS10_temp_delta "Sun Room Delta [%.1f °C]" <temperature> (gTemperatureDelta) 
+Number FB1SS6_temp_delta "Master Bedroom Delta [%.1f °C]" <temperature> (gTemperatureDelta) 
+Number FB2SS7_temp_delta "Workshop Delta [%.1f °C]" <temperature> (gTemperatureDelta) 
+Number FB3SS20_temp_delta "Guest Bedroom Delta [%.1f °C]" <temperature> (gTemperatureDelta) 
+Number hStandby "Actuator Standby" <temperature>
+Number hStandbyNumber "Standby" <switch>
+
+// Sonoff IP Addresses
+
+// Sonoff Uptime
+
+
+
+
+Switch GK1SS1_Online "GK1-SS1"
+Switch GK1SS2_Online "GK1-SS2"
+Switch GK1SS3_Online "GK1-SS3"
+Switch GO1SS4_Online "GO1-SS4"
+Switch GL1SS5_Online "GL1-SS5"
+Switch FB1SS6_Online "FB1-SS6"
+Switch FB2SS7_Online "FB2-SS7"
+Switch GY1SS8_Online "GY1-SS8"
+Switch GY1SS9_Online "GY1-SS9"
+Switch GS1SS10_Online "GS1-SS10"
+Switch GL1SS11_Online "GL1-SS11"
+Switch FB1SS13_Online "FB1-SS13"
+Switch GO1SS12_Online "GO1-SS12"
+Switch GO1SS15_Online "GO1-SS15"
+Switch XM1SS16_Online "XM1-SS16"
+Switch GS1SS17_Online "GO1-SS17"
+Switch GL1SS18_Online "GL1-SS18"
+Switch FB3SS19_Online "FB3-SS19"
+Switch FB3SS20_Online "FB3-SS20"
+Switch XM1SS21_Online "XM1-SS21"
+Switch GY1SS24_Online "GY1-SS24"
+Switch GY1SS25_Online "GY1-SS25"
+Switch GY1SS26_Online "GY1-SS25"
+
+Switch Sonoff_Refresh "Refresh" <network>
+
+// Heating
+
+Number hSP_GO1 "Heating Set Point Office [%.1f °C]" <radiator> (gHeatingSP)
+Number hSP_GK1 "Heating Set Point Kitchen [%.1f °C]" <radiator> (gHeatingSP)
+Number hSP_GL1 "Heating Set Point Living Room [%.1f °C]" <radiator> (gHeatingSP)
+Number hSP_GS1 "Heating Set Point Sun Room [%.1f °C]" <radiator> (gHeatingSP)
+Number hSP_FB1 "Heating Set Point Master Bedroom [%.1f °C]" <radiator> (gHeatingSP)
+Number hSP_FB2 "Heating Set Point Workshop [%.1f °C]" <radiator> (gHeatingSP)
+Number hSP_FB3 "Heating Set Point Guest Bedroom [%.1f °C]" <radiator> (gHeatingSP)
+
+Number hSPm_GO1 "Heating Set Point Office (Morning) [%.1f °C]" <sunrise> (gHeatingSP1)
+Number hSPm_GK1 "Heating Set Point Kitchen (Morning) [%.1f °C]" <sunrise> (gHeatingSP1)
+Number hSPm_GL1 "Heating Set Point Living Room (Morning) [%.1f °C]" <sunrise> (gHeatingSP1)
+Number hSPm_GS1 "Heating Set Point Sun Room (Morning) [%.1f °C]" <sunrise> (gHeatingSP1)
+Number hSPm_FB1 "Heating Set Point Master Bedroom (Morning) [%.1f °C]" <sunrise> (gHeatingSP1)
+Number hSPm_FB2 "Heating Set Point Workshop (Morning) [%.1f °C]" <sunrise> (gHeatingSP1)
+Number hSPm_FB3 "Heating Set Point Guest Bedroom (Morning) [%.1f °C]" <sunrise> (gHeatingSP1)
+
+Number hSPd_GO1 "Heating Set Point Office (Daytime) [%.1f °C]" <sun> (gHeatingSP2)
+Number hSPd_GK1 "Heating Set Point Kitchen (Daytime) [%.1f °C]" <sun> (gHeatingSP2)
+Number hSPd_GL1 "Heating Set Point Living Room (Daytime) [%.1f °C]" <sun> (gHeatingSP2)
+Number hSPd_GS1 "Heating Set Point Sun Room (Daytime) [%.1f °C]" <sun> (gHeatingSP2)
+Number hSPd_FB1 "Heating Set Point Master Bedroom (Daytime) [%.1f °C]" <sun> (gHeatingSP2)
+Number hSPd_FB2 "Heating Set Point Workshop (Daytime) [%.1f °C]" <sun> (gHeatingSP2)
+Number hSPd_FB3 "Heating Set Point Guest Bedroom (Daytime) [%.1f °C]" <sun> (gHeatingSP2)
+
+Number hSPe_GO1 "Heating Set Point Office (Evening) [%.1f °C]" <sunset> (gHeatingSP3)
+Number hSPe_GK1 "Heating Set Point Kitchen (Evening) [%.1f °C]" <sunset> (gHeatingSP3)
+Number hSPe_GL1 "Heating Set Point Living Room (Evening) [%.1f °C]" <sunset> (gHeatingSP3)
+Number hSPe_GS1 "Heating Set Point Sun Room (Evening) [%.1f °C]" <sunset> (gHeatingSP3)
+Number hSPe_FB1 "Heating Set Point Master Bedroom (Evening) [%.1f °C]" <sunset> (gHeatingSP3)
+Number hSPe_FB2 "Heating Set Point Workshop (Evening) [%.1f °C]" <sunset> (gHeatingSP3)
+Number hSPe_FB3 "Heating Set Point Guest Bedroom (Evening) [%.1f °C]" <sunset> (gHeatingSP3)
+
+Number hSPn_GO1 "Heating Set Point Office (Night) [%.1f °C]" <moon> (gHeatingSP4)
+Number hSPn_GK1 "Heating Set Point Kitchen (Night) [%.1f °C]" <moon> (gHeatingSP4)
+Number hSPn_GL1 "Heating Set Point Living Room (Night) [%.1f °C]" <moon> (gHeatingSP4)
+Number hSPn_GS1 "Heating Set Point Sun Room (Night) [%.1f °C]" <moon> (gHeatingSP4)
+Number hSPn_FB1 "Heating Set Point Master Bedroom (Night) [%.1f °C]" <moon> (gHeatingSP4)
+Number hSPn_FB2 "Heating Set Point Workshop (Night) [%.1f °C]" <moon> (gHeatingSP4)
+Number hSPn_FB3 "Heating Set Point Guest Bedroom (Night) [%.1f °C]" <moon> (gHeatingSP4)
+
+Number hSPw_GO1 "Heating Set Point Office (Weekend) [%.1f °C]" <terrace> (gHeatingSP5)
+Number hSPw_GK1 "Heating Set Point Kitchen (Weekend) [%.1f °C]" <terrace> (gHeatingSP5)
+Number hSPw_GL1 "Heating Set Point Living Room (Weekend) [%.1f °C]" <terrace> (gHeatingSP5)
+Number hSPw_GS1 "Heating Set Point Sun Room (Weekend) [%.1f °C]" <terrace> (gHeatingSP5)
+Number hSPw_FB1 "Heating Set Point Master Bedroom (Weekend) [%.1f °C]" <terrace> (gHeatingSP5)
+Number hSPw_FB2 "Heating Set Point Workshop (Weekend) [%.1f °C]" <terrace> (gHeatingSP5)
+Number hSPw_FB3 "Heating Set Point Guest Bedroom (Weekend) [%.1f °C]" <terrace> (gHeatingSP5)
+
+Number hSPh_GO1 "Heating Set Point Office (Holiday) [%.1f °C]" <vacation> (gHeatingSP6)
+Number hSPh_GK1 "Heating Set Point Kitchen (Holiday) [%.1f °C]" <vacation> (gHeatingSP6)
+Number hSPh_GL1 "Heating Set Point Living Room (Holiday) [%.1f °C]" <vacation> (gHeatingSP6)
+Number hSPh_GS1 "Heating Set Point Sun Room (Holiday) [%.1f °C]" <vacation> (gHeatingSP6)
+Number hSPh_FB1 "Heating Set Point Master Bedroom (Holiday) [%.1f °C]" <vacation> (gHeatingSP6)
+Number hSPh_FB2 "Heating Set Point Workshop (Holiday) [%.1f °C]" <vacation> (gHeatingSP6)
+Number hSPh_FB3 "Heating Set Point Guest Bedroom (Holiday) [%.1f °C]" <vacation> (gHeatingSP6)
+
+Number hOP_GO1 "Heating Output Office [%.0f]" <radiator>
+Number hOP_GK1 "Heating Output Kitchen [%.0f]" <radiator>
+Number hOP_GL1 "Heating Output Living Room [%.0f]" <radiator>
+Number hOP_GS1 "Heating Output Sun Room [%.0f]" <radiator>
+Number hOP_FB1 "Heating Output Master Bedroom [%.0f]" <radiator>
+Number hOP_FB2 "Heating Output Workshop [%.0f]" <radiator>
+Number hOP_FB3 "Heating Output Guest Bedroom [%.0f]" <radiator>
+
+Number hHysteresis "Heating Hysteresis [%.1f °C]" <radiator>
+
+Number hMode "Heating Status" <radiator>
+Number hSchedule "Schedule Code"
+
+Switch hAway "Heating Away" <vacation>
+
+Switch hWork "Work Mode" <suitcase>
+
+String hStatus "Heating Mode [%s]" <radiator>
+
+Number hOverride "Heating Mode [%s]" <radiator>
+
+Number hRuntimeToday "Boiler Run Time [%.0f min]" <time>
+Number hRuntimeYesterday "Boiler Run Time [%.0f min]" <time>
+Number hRuntimeThisWeek "Boiler Run Time [%.1f hr]" <time>
+Number hRuntimeLastWeek "Boiler Run Time [%.1f hr]" <time>
+Number hRuntimeThisMonth "Boiler Run Time [%.1f hr]" <time>
+Number hRuntimeLastMonth "Boiler Run Time [%.1f hr]" <time>
+
+Number hRetryFlag "Boiler Retry"
+
+Number hGO1_Radiator "Office Radiator" <radiator> (gHeatingFault)
+Number hGL1_Radiator "Living Room Radiator" <radiator> (gHeatingFault)
+Number hGK1_Radiator "Kitchen Radiator" <radiator> (gHeatingFault)
+Number hGS1_Radiator "Sun Room Radiator" <radiator> (gHeatingFault)
+Number hFB1_Radiator "Master Bedroom Radiator" <radiator> (gHeatingFault)
+Number hFB2_Radiator "Workshop Radiator" <radiator> (gHeatingFault)
+Number hFB3_Radiator "Guest Bedroom Radiator" <radiator> (gHeatingFault)
+
+/* Hank Scene Controller */
+
+Number FB1SC1_battery "Battery Status" <batterylevel> (gSceneControl) {channel="smartthings:battery:d5f94ca3:Scene_Controller_FB1-SC1:battery"}
+String FB1SC1_button "Button Status" <settings> (gSceneControl) {channel="smartthings:button:d5f94ca3:Scene_Controller_FB1-SC1:button"}
+Number FB1SC1_power "Scene No." <settings> (gSceneControl) {channel="smartthings:powerMeter:d5f94ca3:Scene_Controller_FB1-SC1:power"}
+
+/* Astro */
+
+DateTime Astro_SunriseEnd "Sunrise End" (gWeather, gVariables) {channel="astro:sun:local:rise#end"}
+
+// Misc. Variables
+
+Number Scene "Scene"
+Number A "Variable A [%.0f]" <settings> (gVariables)
+Number B "Variable B [%.0f]" <settings> (gVariables)
+Number C "Variable C [%.0f]" <settings> (gVariables)
+Number D "Variable D [%.0f]" <settings> (gVariables)
+Number Motion_Time "Motion Timeout [%.1f]" <settings> (gSetpoints)
+Number Bed_Time "Bed Lamp Delay [%.1f]" <settings> (gSetpoints)
+Switch Motion_Lights "Motion Lights" <settings> (gSetpoints)
+String Chart_Period "Chart Period" <settings> (gCharts)
+String Lighting_Mode "Lighting Mode" <settings> (gSetpoints)
+String Light_Status "Lighting Mode [%s]" <time>
+String Motion_Lights_Status "Status [%s]" <time>
+Number Motion_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number DarkKitchen_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number DarkHall_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number DarkMorning_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number Dusk_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number Evening_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number KitDusk_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number KitEvening_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number NightHallFront_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number NightHallMid_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number NightHallRear_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number Lux_Min_Hall "Brightness Trigger [%.0f lx]" <lightbulb> (gSetpoints)
+Number Lux_Max_Hall "Brightness Reset [%.0f lx]" <lightbulb> (gSetpoints)
+Number Lux_Min_Kitchen "Brightness Trigger [%.0f lx]" <lightbulb> (gSetpoints)
+Number Lux_Max_Kitchen "Brightness Reset [%.0f lx]" <lightbulb> (gSetpoints)
+Number Hall_Test_Lux "Test Lux [%.0f lx]" <lightbulb> (gSetpoints)
+Number Kitchen_Test_Lux "Test Lux [%.0f lx]" <lightbulb> (gSetpoints)
+
+Number HueFrontTrigger_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number HueFrontMidnight_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number HueFrontDusk_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number HueFrontDarkDaytime_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number HueFrontDarkMorning_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number HueFrontEvening_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number HueFrontTrigger_Timer "Timeout [%.0f %]" <lightbulb> (gSetpoints)
+
+Number HueRearTrigger_Setpoint "Brightness [%.0f %]" <lightbulb> (gSetpoints)
+Number HueRearTrigger_Timer "Timeout [%.0f %]" <lightbulb> (gSetpoints)
+
+// Gate Control
+
+//Switch Gate_Auto_Reclose
+//Number Gate_Reclose_Timer
+//Switch GY1SS9_switch1A
+
+// Temperature Min/Max
+
+Number Temp_Today_Max "Daily Max. Temperature [%.1f °C]" <temperature> 
+String Temp_Today_Max_Time "Daily Max. Temperature [%s]" <temperature> 
+String Temp_Today_Max_Time_Format "Daily Max. Temperature [%s]" <temperature> 
+
+Number Temp_Today_Min "Daily Min. Temperature [%.1f °C]" <temperature>
+String Temp_Today_Min_Time "Daily Min. Temperature [%s]" <temperature>
+String Temp_Today_Min_Time_Format "Daily Min. Temperature [%s]" <temperature>
+
+Number Temp_Week_Max "Weekly Max. Temperature [%.1f °C]" <temperature> 
+String Temp_Week_Max_Time "Weekly Max. Temperature [%s]" <temperature> 
+String Temp_Week_Max_Time_Format "Weekly Max. Temperature [%s]" <temperature> 
+
+Number Temp_Week_Min "Weekly Min. Temperature [%.1f °C]" <temperature>
+String Temp_Week_Min_Time "Weekly Min. Temperature [%s]" <temperature>
+String Temp_Week_Min_Time_Format "Weekly Min. Temperature [%s]" <temperature>
+
+Number Temp_Month_Max "Monthly Max. Temperature [%.1f °C]" <temperature> 
+String Temp_Month_Max_Time "Monthly Max. Temperature [%s]" <temperature> 
+String Temp_Month_Max_Time_Format "Monthly Max. Temperature [%s]" <temperature> 
+
+Number Temp_Month_Min "Monthly Min. Temperature [%.1f °C]" <temperature>
+String Temp_Month_Min_Time "Monthly Min. Temperature [%s]" <temperature>
+String Temp_Month_Min_Time_Format "Monthly Min. Temperature [%s]" <temperature>
+
+Number Temp_Year_Max "Yearly Max. Temperature [%.1f °C]" <temperature> 
+String Temp_Year_Max_Time "Yearly Max. Temperature [%s]" <temperature> 
+String Temp_Year_Max_Time_Format "Yearly Max. Temperature [%s]" <temperature> 
+
+Number Temp_Year_Min "Yearly Min. Temperature [%.1f °C]" <temperature>
+String Temp_Year_Min_Time "Yearly Min. Temperature [%s]" <temperature>
+String Temp_Year_Min_Time_Format "Yearly Min. Temperature [%s]" <temperature>
+
+Number Temp_All_Max "All Time Max. Temperature [%.1f °C]" <temperature> 
+String Temp_All_Max_Time "All Time Max. Temperature [%s]" <temperature> 
+String Temp_All_Max_Time_Format "All Time Max. Temperature [%s]" <temperature> 
+
+Number Temp_All_Min "All Time Min. Temperature [%.1f °C]" <temperature>
+String Temp_All_Min_Time "All Time Min. Temperature [%s]" <temperature>
+String Temp_All_Min_Time_Format "All Time Min. Temperature [%s]" <temperature>
+
+/* Blind Engines */
+
+//Switch GO1BE1_switch "Switch" <blinds>  {channel="smartthings:switchLevel:d5f94ca3:Blind_Engine_Office_GO1-BE1:switch"}
+//Switch GL1BE2_switch "Switch" <blinds>  {channel="smartthings:switchLevel:d5f94ca3:Blind_Engine_Living_Room_GO1-BE2:switch"}
+//Switch FB1BE3_switch "Switch" <blinds>  {channel="smartthings:switchLevel:d5f94ca3:Blind_Engine_Bedroom_FB1-BE3:switch"}
+Number FB1BE3_release "Release" <blinds>
+Number FB1BE3_block "Block" <blinds>
+
+Switch Blinds_Auto "Mode" <blinds>
+Switch Blinds_Bedroom_Mode "Bedroom Sunrise Mode" <blinds>
+Number Blinds_Sunset "Sunset Set Point [%.0f %%]" <blinds>
+Number Blinds_Pre_Sunset "Pre-Sunset (30m) Set Point [%.0f %%]" <blinds>
+//Number Blinds_Pre_Sunset_T "Pre-Sunset Timer [%.0f min]" <blinds>
+Number Blinds_Post_Sunset_T "Post-Sunset Timer [%.0f min]" <blinds>
+Number Blinds_Post_Sunset "Post-Sunset Set Point [%.0f %%]" <blinds>
+Number Blinds_Sunrise "Sunrise Set Point [%.0f %%]" <blinds> (gVariables)
+Number Blinds_Sunrise_Trigger <blinds> (gVariables)
+Number Blinds_Sunrise_After <blinds> (gVariables)
+Number Blinds_Post_Sunrise "Post-Sunrise Set Point [%.0f %%]" <blinds>
+Number Blinds_Post_Sunrise_T "Post-Sunrise Timer [%.0f min]" <blinds>
+Switch Blinds_Lux_On "Auto Sun Shade" <sun>
+Number Blinds_Lux "Brightness Threshold [%.0f lux]" <sun>
+Number Blinds_Lux_Hys "Brightness Hysteresis [%.0f lux]" <sun>
+
+Switch Blinds_Christmas "Christmas Mode" <snow>
+
+// Christmas
+Switch Christmas_Auto "Schedule" <time>
+Number Christmas_Override "Override Lights (Today)" <time>
+Switch Christmas_Menu "Christmas Menu" <snow> 
+
+Switch Presence_Override "Presence Override (Today)" <time>
+
+// Power
+
+Number Power_Day "Power Consumed Yesterday [%.2f kWh]" <settings>
+Number Power_Start "Power Consumed Yesterday [%.0f kWh]" <settings>
+Number Power_End "Power Consumed Yesterday [%.2f kWh]" <settings>
+Number Power_Today "Power Consumed Today [%.2f kWh]" <settings>
+Number Power_Cost "Cost Yesterday [£%.2f]" <settings>
+Number Power_CostToday "Cost Today [£%.2f]" <settings>
+Number Power_EUnit "Electricity Unit [%.2f p/kWh]" <price>
+Number Power_EStand "Electricity Standing Charge [%.2f p/day]" <price>
+Number Power_GUnit "Gas Unit [%.2f p/kWh]" <price>
+Number Power_GStand "Gas Standing Charge [%.2f p/day]" <price>
+
+Image cctv {channel="ipcamera:HTTPONLY:cd166936:image"}
+
+
+// Gate
+
+Switch gateRemoteControl "Gate Remote Command"
+Switch gateRemoteSingle "Gate Remote Command"
+Switch gateRemoteEnable "Auto Open"
+Switch gateRecloseEnable "Auto Reclose"
+Switch gateTimerActive "Timer Status"
+Number gateRemoteTimer "Gate Remote Auto-Reclose Timer [%.1f]" <time>
+Number gatePosition "Gate Position" <motion>
+Number gatePositionHold "Gate Position" <motion>
+//Switch gateSamsungOpen "Gate Open Switch" {channel="smartthings:switch:d5f94ca3:Gate_Open:switch", autoupdate="true"}
+//Switch gateSamsungClosed "Gate Closed Switch" {channel="smartthings:switch:d5f94ca3:Gate_Closed:switch", autoupdate="true"}
+Switch gateBinDay "Bin Day" <motion>
+
+// SwitchBot
+
+Switch GK1SW04_switch "Coffee Machine" {channel="smartthings:switch:d5f94ca3:Coffee_Machine_Switch_GK1-SW04:switch", autoupdate="true"}
+
+// Electric Blanket
+
+Number Blanket_autotime "Auto timeout delay [%.0f min]" <time>
+Number Blanket_expiretime "Backup timeout delay [%.0f min]" <time>
+String Blanket_status "Status[%s]" <bedroom>
+Number Blanket_control "Control" <switch>
+//String Blanket_test "Test switch"
+
+Switch remoteTempEnable "Notify Remote Temperature"
+
+Number  HallTemp "Multisensor Temp" <slider> { channel="smartthings:temperatureMeasurement:Home:Multisensor:temperature" }
+String  HallMotion "Multisensor Motion" <slider> { channel="smartthings:motionSensor:Home:Multisensor1:motion" }
+
+Number GO1EM1_M "Meter Reading [%.1f kWh]" <energy>
+
+// Irrigation
+
+Number Iri_F_SP "Volume Set Point [%.2f l]" <water>
+Number Iri_F_Total "Volume Totaliser [%.2f l]" <water>
+Number Iri_F_Switch "Irrigation Control" <faucet>
+Number GY1FT1_level_mm "Water Butt Level [%.2f mm]" <water>
+Number GY1FT1_level_pc "Water Butt Level [%.2f %%]" <water>
+Number GY1FT1_level_vol "Water Butt Volume [%.2f l]" <water>
+
+Number Iri_F_SP_R "Set Point [%.1f l]" <water>
+Number Iri_F_Total_R "Volume Totaliser [%.2f l]" <water>
+Number Iri_F_Switch_R "Irrigation Control" <faucet>
+
+// ========================================
+//  SONOS CORE ITEMS (1 per speaker)
+// ========================================
+
+// Sun Room (Aux) - CONNECT
+Player Sonos_Aux_Control         "Sun Room (Aux) Control"       { channel="sonos:CONNECT:RINCON_B8E93790762601400:control" }
+Dimmer Sonos_Aux_Volume          "Volume [%d %%]"               { channel="sonos:CONNECT:RINCON_B8E93790762601400:volume" }
+Switch Sonos_Aux_Mute            "Mute"                         { channel="sonos:CONNECT:RINCON_B8E93790762601400:mute" }
+String Sonos_Aux_CurrentTrack    "Now Playing [%s]"             { channel="sonos:CONNECT:RINCON_B8E93790762601400:currenttrack" }
+String Sonos_Aux_Coordinator     "Coordinator [%s]"             { channel="sonos:CONNECT:RINCON_B8E93790762601400:coordinator" }
+String Sonos_Aux_Add             "Add [%s]"                     { channel="sonos:CONNECT:RINCON_B8E93790762601400:add" }
+Switch Sonos_Aux_Standalone      "Standalone"                   { channel="sonos:CONNECT:RINCON_B8E93790762601400:standalone" }
+
+// Living Room - CONNECT:AMP
+Player Sonos_LivingRoom_Control  "Living Room Control"          { channel="sonos:CONNECTAMP:RINCON_B8E937A0059601400:control" }
+Dimmer Sonos_LivingRoom_Volume   "Volume [%d %%]"               { channel="sonos:CONNECTAMP:RINCON_B8E937A0059601400:volume" }
+Switch Sonos_LivingRoom_Mute     "Mute"                         { channel="sonos:CONNECTAMP:RINCON_B8E937A0059601400:mute" }
+String Sonos_LivingRoom_CurrentTrack "Now Playing [%s]"         { channel="sonos:CONNECTAMP:RINCON_B8E937A0059601400:currenttrack" }
+String Sonos_LivingRoom_Coordinator "Coordinator [%s]"          { channel="sonos:CONNECTAMP:RINCON_B8E937A0059601400:coordinator" }
+String Sonos_LivingRoom_Add      "Add [%s]"                     { channel="sonos:CONNECTAMP:RINCON_B8E937A0059601400:add" }
+Switch Sonos_LivingRoom_Standalone "Standalone"                { channel="sonos:CONNECTAMP:RINCON_B8E937A0059601400:standalone" }
+
+// Bedroom - PLAY:1
+Player Sonos_Bedroom_Control     "Bedroom Control"              { channel="sonos:PLAY1:RINCON_5CAAFD78130601400:control" }
+Dimmer Sonos_Bedroom_Volume      "Volume [%d %%]"               { channel="sonos:PLAY1:RINCON_5CAAFD78130601400:volume" }
+Switch Sonos_Bedroom_Mute        "Mute"                         { channel="sonos:PLAY1:RINCON_5CAAFD78130601400:mute" }
+String Sonos_Bedroom_CurrentTrack "Now Playing [%s]"            { channel="sonos:PLAY1:RINCON_5CAAFD78130601400:currenttrack" }
+String Sonos_Bedroom_Coordinator "Coordinator [%s]"             { channel="sonos:PLAY1:RINCON_5CAAFD78130601400:coordinator" }
+String Sonos_Bedroom_Add         "Add [%s]"                     { channel="sonos:PLAY1:RINCON_5CAAFD78130601400:add" }
+Switch Sonos_Bedroom_Standalone  "Standalone"                   { channel="sonos:PLAY1:RINCON_5CAAFD78130601400:standalone" }
+
+// Sun Room - PLAY:1
+Player Sonos_SunRoom_Control     "Sun Room Control"             { channel="sonos:PLAY1:RINCON_949F3E0A318401400:control" }
+Dimmer Sonos_SunRoom_Volume      "Volume [%d %%]"               { channel="sonos:PLAY1:RINCON_949F3E0A318401400:volume" }
+Switch Sonos_SunRoom_Mute        "Mute"                         { channel="sonos:PLAY1:RINCON_949F3E0A318401400:mute" }
+String Sonos_SunRoom_CurrentTrack "Now Playing [%s]"            { channel="sonos:PLAY1:RINCON_949F3E0A318401400:currenttrack" }
+String Sonos_SunRoom_Coordinator "Coordinator [%s]"             { channel="sonos:PLAY1:RINCON_949F3E0A318401400:coordinator" }
+String Sonos_SunRoom_Add         "Add [%s]"                     { channel="sonos:PLAY1:RINCON_949F3E0A318401400:add" }
+Switch Sonos_SunRoom_Standalone  "Standalone"                   { channel="sonos:PLAY1:RINCON_949F3E0A318401400:standalone" }
+
+// Workshop - PLAY:1
+Player Sonos_Workshop_Control    "Workshop Control"             { channel="sonos:PLAY1:RINCON_B8E93786DBE001400:control" }
+Dimmer Sonos_Workshop_Volume     "Volume [%d %%]"               { channel="sonos:PLAY1:RINCON_B8E93786DBE001400:volume" }
+Switch Sonos_Workshop_Mute       "Mute"                         { channel="sonos:PLAY1:RINCON_B8E93786DBE001400:mute" }
+String Sonos_Workshop_CurrentTrack "Now Playing [%s]"           { channel="sonos:PLAY1:RINCON_B8E93786DBE001400:currenttrack" }
+String Sonos_Workshop_Coordinator "Coordinator [%s]"            { channel="sonos:PLAY1:RINCON_B8E93786DBE001400:coordinator" }
+String Sonos_Workshop_Add        "Add [%s]"                     { channel="sonos:PLAY1:RINCON_B8E93786DBE001400:add" }
+Switch Sonos_Workshop_Standalone "Standalone"                   { channel="sonos:PLAY1:RINCON_B8E93786DBE001400:standalone" }
+
+// Kitchen - PLAY:3
+Player Sonos_Kitchen_Control     "Kitchen Control"              { channel="sonos:PLAY3:RINCON_B8E93733144401400:control" }
+Dimmer Sonos_Kitchen_Volume      "Volume [%d %%]"               { channel="sonos:PLAY3:RINCON_B8E93733144401400:volume" }
+Switch Sonos_Kitchen_Mute        "Mute"                         { channel="sonos:PLAY3:RINCON_B8E93733144401400:mute" }
+String Sonos_Kitchen_CurrentTrack "Now Playing [%s]"            { channel="sonos:PLAY3:RINCON_B8E93733144401400:currenttrack" }
+String Sonos_Kitchen_Coordinator "Coordinator [%s]"             { channel="sonos:PLAY3:RINCON_B8E93733144401400:coordinator" }
+String Sonos_Kitchen_Add         "Add [%s]"                     { channel="sonos:PLAY3:RINCON_B8E93733144401400:add" }
+Switch Sonos_Kitchen_Standalone  "Standalone"                   { channel="sonos:PLAY3:RINCON_B8E93733144401400:standalone" }
+
+// Office - PLAY:3
+Player Sonos_Office_Control      "Office Control"               { channel="sonos:PLAY3:RINCON_000E587143F201400:control" }
+Dimmer Sonos_Office_Volume       "Volume [%d %%]"               { channel="sonos:PLAY3:RINCON_000E587143F201400:volume" }
+Switch Sonos_Office_Mute         "Mute"                         { channel="sonos:PLAY3:RINCON_000E587143F201400:mute" }
+String Sonos_Office_CurrentTrack "Now Playing [%s]"             { channel="sonos:PLAY3:RINCON_000E587143F201400:currenttrack" }
+String Sonos_Office_Coordinator  "Coordinator [%s]"             { channel="sonos:PLAY3:RINCON_000E587143F201400:coordinator" }
+String Sonos_Office_Add          "Add [%s]"                     { channel="sonos:PLAY3:RINCON_000E587143F201400:add" }
+Switch Sonos_Office_Standalone   "Standalone"                   { channel="sonos:PLAY3:RINCON_000E587143F201400:standalone" }
+
+// ========================================
+//  GLOBAL + GROUP CONTROL ITEMS
+// ========================================
+
+// Buttons in sitemap send commands to these; rules translate them
+
+// Global transport
+Switch Sonos_All_PlayPause   "Play / Pause All"
+Switch Sonos_All_Next        "Next All"
+Switch Sonos_All_Prev        "Prev All"
+Switch Sonos_All_Mute        "Mute All"
+Switch Sonos_All_Unmute      "Unmute All"
+
+// Global volume nudge (you can step up/down everyone)
+Switch Sonos_All_VolUp       "Vol + All"
+Switch Sonos_All_VolDown     "Vol - All"
+
+// ========================================
+//  GROUP CONTROL (dynamic leader)
+// ========================================
+
+// Each room gets a "Join Group" and "Leave Group" button.
+// These are proxy switches the rules react to.
+
+Switch Sonos_Bedroom_JoinGroup     "Join Group"
+Switch Sonos_Bedroom_LeaveGroup    "Leave Group"
+
+Switch Sonos_Kitchen_JoinGroup     "Join Group"
+Switch Sonos_Kitchen_LeaveGroup    "Leave Group"
+
+Switch Sonos_Office_JoinGroup      "Join Group"
+Switch Sonos_Office_LeaveGroup     "Leave Group"
+
+Switch Sonos_SunRoom_JoinGroup     "Join Group"
+Switch Sonos_SunRoom_LeaveGroup    "Leave Group"
+
+Switch Sonos_Aux_JoinGroup         "Join Group"
+Switch Sonos_Aux_LeaveGroup        "Leave Group"
+
+Switch Sonos_Workshop_JoinGroup    "Join Group"
+Switch Sonos_Workshop_LeaveGroup   "Leave Group"
+
+// optional helper so we can see who we chose as "master"
+String Sonos_CurrentMaster         "Current Master [%s]"

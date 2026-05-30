@@ -1,0 +1,651 @@
+
+// HEATING ZONES
+// Office
+
+var Timer timerHeating = null
+var String h_status
+var Timer timerSonoffReset = null
+
+rule "Office"
+    when 
+            Item GO1SS4_temp changed 
+            or
+            Item hSP_GO1 changed
+            or
+            Item hMode changed to 1 
+            or
+            Item hGO1_Radiator changed
+    then 
+            if (((GO1SS4_temp.state as Number) <= ((hSP_GO1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (GO1SS12_switch.state == ON) && (hMode.state == 1) && (hGO1_Radiator.state == 1)) {
+                    sendCommand(GO1SS12_switch, OFF)
+            }
+            else if ((((GO1SS4_temp.state as Number) >= ((hSP_GO1.state as Number) + (hHysteresis.state as Number))) && (GO1SS12_switch.state == OFF) && (hMode.state == 1)) || (hGO1_Radiator.state == 0))  {
+                    if(hStandby.state == 0 || ((GO1SS4_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+                    {
+                        sendCommand (GO1SS12_switch, ON)
+                    }
+            }
+    end
+
+rule "Kitchen"
+    when 
+            Item GK1SS3_temp changed 
+            or
+            Item hSP_GK1 changed
+            or
+            Item hMode changed to 1
+            or
+            Item hGK1_Radiator changed
+    then 
+            if (((GK1SS3_temp.state as Number) <= ((hSP_GK1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (GL1SS5_switch.state == ON) && (hMode.state == 1) && (hGK1_Radiator.state == 1)) {
+                    sendCommand (GL1SS5_switch, OFF)
+            }
+            else if ((((GK1SS3_temp.state as Number) >= ((hSP_GK1.state as Number) + (hHysteresis.state as Number))) && (GL1SS5_switch.state == OFF) && (hMode.state == 1)) || (hGK1_Radiator.state == 0)) {
+                    if(hStandby.state == 0 || ((GK1SS3_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+                    {
+                        sendCommand (GL1SS5_switch, ON)
+                    }
+            }
+    end
+
+rule "Living Room"
+    when 
+            Item GL1SS5_temp changed 
+            or
+            Item hSP_GL1 changed
+            or
+            Item hMode changed to 1
+            or
+            Item hGL1_Radiator changed
+    then 
+            if (((GL1SS5_temp.state as Number) <= ((hSP_GL1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (GL1SS11_switch.state == ON) && (hMode.state == 1) && (hGL1_Radiator.state == 1)) {
+                    sendCommand (GL1SS11_switch, OFF)
+            }
+            else if ((((GL1SS5_temp.state as Number) >= ((hSP_GL1.state as Number) + (hHysteresis.state as Number))) && (GL1SS11_switch.state == OFF) && (hMode.state == 1)) || (hGL1_Radiator.state == 0)) {
+                    if(hStandby.state == 0 || ((GL1SS5_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+                    {
+                        sendCommand (GL1SS11_switch, ON)
+                    }
+            }
+    end
+
+rule "Sun Room"
+    when 
+            Item GS1SS10_temp changed 
+            or
+            Item hSP_GS1 changed
+            or
+            Item hMode changed to 1
+            or
+            Item hGS1_Radiator changed
+    then 
+            if (((GS1SS10_temp.state as Number) <= ((hSP_GS1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (GS1SS10_switch.state == ON) && (hMode.state == 1) && (hGS1_Radiator.state == 1)) {
+                    sendCommand (GS1SS10_switch, OFF)
+            }
+            else if ((((GS1SS10_temp.state as Number) >= ((hSP_GS1.state as Number) + (hHysteresis.state as Number))) && (GS1SS10_switch.state == OFF) && (hMode.state == 1)) || (hGS1_Radiator.state == 0)) {
+                    if(hStandby.state == 0 || ((GS1SS10_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+                    {
+                        sendCommand (GS1SS10_switch, ON)
+                    }
+            }
+    end
+
+rule "Master Bedroom"
+    when 
+            Item FB1SS6_temp changed 
+            or
+            Item hSP_FB1 changed
+            or
+            Item hMode changed to 1
+            or
+            Item hFB1_Radiator changed
+    then 
+            //Switch ON
+            if (((FB1SS6_temp.state as Number) <= ((hSP_FB1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (FB1SS13_switch1.state == ON) && (hMode.state == 1) && (hFB1_Radiator.state == 1)) {
+                    sendCommand (FB1SS13_switch1, OFF)
+            }
+            //Switch OFF
+            else if ((((FB1SS6_temp.state as Number) >= ((hSP_FB1.state as Number) + (hHysteresis.state as Number))) && (FB1SS13_switch1.state == OFF) && (hMode.state == 1)) || (hFB1_Radiator.state == 0)) {
+                    if(hStandby.state == 0 || ((FB1SS6_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+                    {
+                        sendCommand (FB1SS13_switch1, ON)
+                    }
+            }
+    end
+
+rule "Workshop"
+    when 
+            Item FB2SS7_temp changed 
+            or
+            Item hSP_FB2 changed
+            or
+            Item hMode changed to 1
+            or
+            Item hFB2_Radiator changed
+    then 
+            if (((FB2SS7_temp.state as Number) <= ((hSP_FB2.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (FB1SS13_switch2.state == ON) && (hMode.state == 1) && (hFB2_Radiator.state == 1)) {
+                    sendCommand (FB1SS13_switch2, OFF)
+            }
+            else if ((((FB2SS7_temp.state as Number) >= ((hSP_FB2.state as Number) + (hHysteresis.state as Number))) && (FB1SS13_switch2.state == OFF) && (hMode.state == 1)) || (hFB2_Radiator.state == 0)){
+                    if(hStandby.state == 0 || ((FB2SS7_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+                    {
+                        sendCommand (FB1SS13_switch2, ON)
+                    }
+            }
+    end
+
+rule "Guest Bedroom"
+    when 
+            Item FB3SS20_temp changed 
+            or
+            Item hSP_FB3 changed
+            or
+            Item hMode changed to 1
+            or
+            Item hFB3_Radiator changed
+    then 
+            if (((FB3SS20_temp.state as Number) <= ((hSP_FB3.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (FB3SS19_switch.state == ON) && (hMode.state == 1) && (hFB3_Radiator.state == 1)) {
+                    sendCommand (FB3SS19_switch, OFF)
+            }
+            else if ((((FB3SS20_temp.state as Number) >= ((hSP_FB3.state as Number) + (hHysteresis.state as Number))) && (FB3SS19_switch.state == OFF) && (hMode.state == 1)) || (hFB3_Radiator.state == 0)){
+                    if(hStandby.state == 0 || ((FB3SS20_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+                    {
+                        sendCommand (FB3SS19_switch, ON)
+                    }
+            }
+    end
+
+rule "Heating Deltas"
+    when 
+            Time cron "0 0/10 * 1/1 * ? *"
+            or
+            Item gHeatingSP changed
+    then 
+            sendCommand(GO1SS4_temp_delta, (GO1SS4_temp.state as Number) - (hSP_GO1.state as Number))
+            sendCommand(GK1SS3_temp_delta, (GK1SS3_temp.state as Number) - (hSP_GK1.state as Number))
+            sendCommand(GL1SS5_temp_delta, (GL1SS5_temp.state as Number) - (hSP_GL1.state as Number))
+            sendCommand(GS1SS10_temp_delta, (GS1SS10_temp.state as Number) - (hSP_GS1.state as Number))
+            sendCommand(FB1SS6_temp_delta, (FB1SS6_temp.state as Number) - (hSP_FB1.state as Number))
+            sendCommand(FB2SS7_temp_delta, (FB2SS7_temp.state as Number) - (hSP_FB2.state as Number))
+            sendCommand(FB3SS20_temp_delta, (FB3SS20_temp.state as Number) - (hSP_FB3.state as Number))
+    end
+
+rule "Heating Relax"
+    when 
+            Time cron "0 0/10 * 1/1 * ? *"
+            or
+            Item gHeatingSP changed
+    then 
+            sendCommand(hStandbyNumber, 0)
+            //Enable Standby
+            if((GY1SS8_temp.state > 25)||(gTemperatureDelta.state > 1.5 && gTemperatureDelta.state < 20 && (hMode.state == 1) && GY1SS8_switch.state == OFF && hStandby.state == 0))
+            {
+                sendCommand(gHeating, OFF)
+                sendCommand(hStandby, 1)
+            }
+            //Disable
+            else if(gTemperatureDelta.state < 1 && GY1SS8_switch.state == OFF && hStandby.state == 1)
+            {
+                sendCommand(gHeating, ON)
+                sendCommand(hStandby, 0)
+            }
+    end
+
+rule "Heating ON"
+    when
+            Item gHeating changed to OFF
+    then
+                timerHeating = createTimer(now.plusMinutes(6), [ |     // delay to allow thermal actuator to open
+                if((hMode.state == 1) && (gHeating.state == OFF) && (hStandby.state == 0)){
+                sendCommand(GY1SS8_switch, ON)
+                Thread::sleep(20000)
+                if(GY1SS8_power.state == "ON"){
+                        logInfo("heating.rules", "Boiler call for heat success")
+                }
+                if(GY1SS8_power.state == "OFF" && GY1SS8_switch.state == ON){
+                        logInfo("heating.rules", "Boiler call for heat failed, retrying...")
+                        sendCommand(GY1SS8_switch, ON)
+                        Thread::sleep(20000)
+                        if(GY1SS8_power.state == "ON"){
+                                logInfo("heating.rules", "Boiler call for heat success")
+                        }
+                        if(GY1SS8_power.state == "OFF" && GY1SS8_switch.state == ON){
+                                logInfo("heating.rules", "Boiler call for heat failed, retrying...")
+                                sendCommand(GY1SS8_switch, ON)
+                                Thread::sleep(20000)
+                                if(GY1SS8_power.state == "ON"){
+                                        logInfo("heating.rules", "Boiler call for heat success")
+                                }
+                                if(GY1SS8_power.state == "OFF" && GY1SS8_switch.state == ON){
+                                        logInfo("heating.rules", "Boiler call for heat failed")
+                                        sendPushoverMessage(pushoverBuilder("Boiler call for heat failed").withEmergencyPriority())
+                                }                      
+                        }
+                }
+                timerHeating = null       
+                }
+                ])
+end
+
+rule "Heating OFF"
+    when
+            Item gHeating changed to ON
+    then
+            if(hMode.state == 1 && hStandby.state == 0){
+                sendCommand(GY1SS8_switch, OFF)
+                Thread::sleep(20000)
+                if(GY1SS8_power.state == "OFF"){
+                        logInfo("heating.rules", "Boiler switched off")
+                }
+                if(GY1SS8_power.state == "ON" && GY1SS8_switch.state == OFF){
+                        logInfo("heating.rules", "Boiler failed to switch off, retrying...")
+                        sendCommand(GY1SS8_switch, OFF)
+                        Thread::sleep(20000)
+                        if(GY1SS8_power.state == "OFF"){
+                                logInfo("heating.rules", "Boiler switched off")
+                        }
+                        if(GY1SS8_power.state == "ON" && GY1SS8_switch.state == OFF){
+                                logInfo("heating.rules", "Boiler failed to switch off, retrying...")
+                                sendCommand(GY1SS8_switch, OFF)
+                                Thread::sleep(20000)
+                                if(GY1SS8_power.state == "OFF"){
+                                        logInfo("heating.rules", "Boiler switched off")
+                                }
+                                if(GY1SS8_power.state == "ON" && GY1SS8_switch.state == OFF){
+                                        logInfo("heating.rules", "Boiler failed to switch off")
+                                        sendPushoverMessage(pushoverBuilder("Boiler failed to switch off").withEmergencyPriority())
+                                }                      
+                        }
+                }
+                timerHeating = null
+            }
+    end
+
+rule "Auto Resume"
+    when
+            Item hMode changed to 1
+    then
+            Thread::sleep(500)
+            if(gHeating.state == ON){
+                sendCommand(GY1SS8_switch, OFF)
+            }
+            else if(gHeating.state == OFF){
+                timerHeating = createTimer(now.plusMinutes(6), [ |     // delay to allow thermal actuator to open              
+                timerHeating = null
+                if(hMode.state == 1){
+                        sendCommand(GY1SS8_switch, ON)
+                }])
+            }
+    end
+
+rule "Schedule Morning"
+        when
+                Time cron "0 15 6 ? * MON,TUE,WED,THU,FRI *"
+        then
+        sendCommand(hSchedule, 1)
+        if(hMode.state == 1 && hAway.state == OFF)
+        {
+                h_status = "Weekday morning"
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPm_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPm_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPm_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPm_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPm_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPm_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPm_FB3.state as Number)             
+        }
+end
+
+rule "Schedule Daytime"
+        when
+                Time cron "0 30 8 ? * MON,TUE,WED,THU,FRI *"
+                or
+                Item XM1AS1_presence changed to "not present"
+        then
+        if(hSchedule.state == 1)
+        {
+        sendCommand(hSchedule, 2)      
+        if(hMode.state == 1 && hAway.state == OFF)
+        {
+                h_status = "Weekday daytime"                
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPd_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPd_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPd_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPd_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPd_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPd_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPd_FB3.state as Number)             
+        }
+        }
+end
+
+rule "Schedule Evening"
+        when
+                Time cron "0 0 16 1/1 * ? *"
+                or
+                Time cron "0 32 21 1/1 * ? *"
+                or
+                Item hOverride changed to 3
+        then
+        sendCommand(hSchedule, 3)
+        if(hMode.state == 1 && hAway.state == OFF)
+        {
+                h_status = "Evening"                
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPe_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPe_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPe_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPe_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPe_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPe_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPe_FB3.state as Number)             
+        }
+end
+
+rule "Schedule Night"
+        when
+                Item A changed to 3
+        then
+        sendCommand(hSchedule, 4)
+        if(hMode.state == 1 && hAway.state == OFF)
+        {
+                h_status = "Night"                
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPn_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPn_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPn_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPn_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPn_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPn_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPn_FB3.state as Number)             
+        }
+end    
+
+rule "Schedule Weekend Morning & Daytime"
+        when
+                Time cron "0 30 7 ? * SAT,SUN *"
+        then
+        sendCommand(hSchedule, 5)
+        if(hMode.state == 1 && hAway.state == OFF)
+        {
+                h_status = "Weekend morning/daytime"                
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPw_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPw_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPw_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPw_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPw_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPw_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPw_FB3.state as Number)             
+        }
+end   
+
+rule "Schedule Holiday ON"
+        when
+                Item hAway changed to ON
+        then
+                h_status = "Holiday"               
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPh_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPh_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPh_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPh_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPh_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPh_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPh_FB3.state as Number)             
+end 
+
+rule "Schedule Holiday OFF"
+        when
+                Item hAway changed to OFF
+        then
+        if(hSchedule.state == 1)
+        {
+                h_status = "Weekday morning"
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPm_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPm_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPm_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPm_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPm_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPm_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPm_FB3.state as Number)             
+        }
+        else if(hSchedule.state == 2)
+        {
+                h_status = "Weekday daytime"                
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPd_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPd_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPd_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPd_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPd_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPd_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPd_FB3.state as Number)             
+        }
+        else if(hSchedule.state == 3)
+        {
+                h_status = "Evening"                
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPe_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPe_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPe_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPe_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPe_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPe_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPe_FB3.state as Number)             
+        }
+        else if(hSchedule.state == 4)
+        {
+                h_status = "Night"                
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPn_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPn_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPn_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPn_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPn_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPn_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPn_FB3.state as Number)             
+        }
+        else if(hSchedule.state == 5)
+        {
+                h_status = "Weekend morning/daytime"                
+                postUpdate(hStatus, h_status)
+                sendCommand(hSP_GO1, hSPw_GO1.state as Number)
+                sendCommand(hSP_GK1, hSPw_GK1.state as Number)
+                sendCommand(hSP_GL1, hSPw_GL1.state as Number)
+                sendCommand(hSP_GS1, hSPw_GS1.state as Number)
+                sendCommand(hSP_FB1, hSPw_FB1.state as Number)
+                sendCommand(hSP_FB2, hSPw_FB2.state as Number)
+                sendCommand(hSP_FB3, hSPw_FB3.state as Number)             
+        }
+end 
+
+rule "Heating Manual Status"
+        when
+                Item hMode changed to 0
+        then
+                h_status = "Manual"
+                postUpdate(hStatus, h_status)
+ 
+end               
+
+rule "Heating Auto Status"
+        when
+                Item hMode changed to 1
+        then
+        if(hSchedule.state == 1)
+        {
+                h_status = "Weekday morning"
+                postUpdate(hStatus, h_status)
+        }
+        else if(hSchedule.state == 2)
+        {
+                h_status = "Weekday daytime"
+                postUpdate(hStatus, h_status)                
+        }
+        else if(hSchedule.state == 3)
+        {
+                h_status = "Evening"         
+                postUpdate(hStatus, h_status)       
+        }
+        else if(hSchedule.state == 4)
+        {
+                h_status = "Night"  
+                postUpdate(hStatus, h_status)              
+        }
+        else if(hSchedule.state == 5)
+        {
+                h_status = "Weekend morning/daytime" 
+                postUpdate(hStatus, h_status)               
+        }
+end
+/*
+rule "Schedule Manual"
+        when
+                Time cron "0 0 23 1/1 * ? *"
+                or
+                Time cron "0 30 8 1/1 * ? *"
+        then
+                if(hAway.state == OFF)
+                {
+                        sendCommand(hMode, 0)
+                        sendCommand(GY1SS8_switch, OFF)
+                        sendCommand(gHeating, OFF)
+                }
+        end
+
+rule "Schedule Auto"
+        when
+                Time cron "0 15 6 1/1 * ? *"
+                or
+                Time cron "0 0 16 1/1 * ? *"
+        then
+                if(hAway.state == OFF)
+                {
+                        sendCommand(hMode, 1)
+                }           
+        end
+*/
+
+// Sensor Faults
+rule "Sensor Office"
+        when
+                Item GO1SS4_temp changed
+        then
+                if((GO1SS4_temp.state > 40)||(GO1SS4_temp.state < 10)){
+                        publish("mosquitto", "cmnd/GO1-SS4/restart", "1")
+                        timerSonoffReset = createTimer(now.plusMinutes(2), [ |
+                                if((GO1SS4_temp.state > 40)||(GO1SS4_temp.state < 2))
+                                {
+                                        timerSonoffReset = null
+                                        sendCommand(hGO1_Radiator, 0)
+                                        sendPushoverMessage(pushoverBuilder("GO1-SS4 temperature bad"))
+                                }
+                        ])
+                }
+        end
+
+rule "Sensor Living Room"
+        when
+                Item GL1SS5_temp changed
+        then
+                if((GL1SS5_temp.state > 40)||(GL1SS5_temp.state < 10)){
+                        publish("mosquitto", "cmnd/GL1-SS5/restart", "1")
+                        timerSonoffReset = createTimer(now.plusMinutes(2), [ |
+                                if((GL1SS5_temp.state > 40)||(GL1SS5_temp.state < 2))
+                                {
+                                        timerSonoffReset = null
+                                        sendCommand(hGL1_Radiator, 0)
+                                        sendPushoverMessage(pushoverBuilder("GL1-SS5 temperature bad"))
+                                }
+                        ])
+                }
+        end
+
+rule "Sensor Master Bedroom"
+        when
+                Item FB1SS6_temp changed
+        then
+                if((FB1SS6_temp.state > 40)||(FB1SS6_temp.state < 10)){
+                        publish("mosquitto", "cmnd/FB1-SS6/restart", "1")
+                        timerSonoffReset = createTimer(now.plusMinutes(2), [ |
+                                if((FB1SS6_temp.state > 40)||(FB1SS6_temp.state < 2))
+                                {
+                                        timerSonoffReset = null
+                                        sendCommand(hFB1_Radiator, 0)
+                                        sendPushoverMessage(pushoverBuilder("FB1-SS6 temperature bad"))
+                                }
+                        ])
+                }
+        end
+
+rule "Sensor Workshop"
+        when
+                Item FB2SS7_temp changed
+        then
+                if((FB2SS7_temp.state > 40)||(FB2SS7_temp.state < 10)){
+                        publish("mosquitto", "cmnd/FB2-SS7/restart", "1")
+                        timerSonoffReset = createTimer(now.plusMinutes(2), [ |
+                                if((FB2SS7_temp.state > 40)||(FB2SS7_temp.state < 2))
+                                {
+                                        timerSonoffReset = null
+                                        sendCommand(hFB2_Radiator, 0)
+                                        sendPushoverMessage(pushoverBuilder("FB2-SS7 temperature bad"))
+                                }
+                        ])
+                }
+        end
+
+rule "Sensor Guest Bedroom"
+        when
+                Item FB3SS20_temp changed
+        then
+                if((FB3SS20_temp.state > 40)||(FB3SS20_temp.state < 10)){
+                        publish("mosquitto", "cmnd/FB3-SS20/restart", "1")
+                        timerSonoffReset = createTimer(now.plusMinutes(2), [ |
+                                if((FB3SS20_temp.state > 40)||(FB3SS20_temp.state < 2))
+                                {
+                                        timerSonoffReset = null
+                                        sendCommand(hFB3_Radiator, 0)
+                                        sendPushoverMessage(pushoverBuilder("FB3-SS20 temperature bad"))
+                                }
+                        ])
+                }
+        end
+
+rule "Sensor Kitchen"
+        when
+                Item GK1SS3_temp changed
+        then
+                if((GK1SS3_temp.state > 40)||(GK1SS3_temp.state < 10)){
+                        publish("mosquitto", "cmnd/GK1-SS3/restart", "1")
+                        timerSonoffReset = createTimer(now.plusMinutes(2), [ |
+                                if((GK1SS3_temp.state > 40)||(GK1SS3_temp.state < 2))
+                                {
+                                        timerSonoffReset = null
+                                        sendCommand(hGK1_Radiator, 0)
+                                        sendPushoverMessage(pushoverBuilder("GK1-SS3 temperature bad"))
+                                }
+                        ])
+                }
+        end
+
+rule "Sensor Sun Room"
+        when
+                Item GS1SS10_temp changed
+        then
+                if((GS1SS10_temp.state > 40)||(GS1SS10_temp.state < 10)){
+                        publish("mosquitto", "cmnd/GS1-SS10/restart", "1")
+                        timerSonoffReset = createTimer(now.plusMinutes(2), [ |
+                                if((GS1SS10_temp.state > 40)||(GS1SS10_temp.state < 2))
+                                {
+                                        timerSonoffReset = null
+                                        sendCommand(hGS1_Radiator, 0)
+                                        sendPushoverMessage(pushoverBuilder("GS1-SS10 temperature bad"))
+                                }
+                        ])
+                }
+        end

@@ -1,0 +1,151 @@
+// Status
+
+// Add WiFi RSSI
+// Add a check of up time to provide status alarm
+// Refresh button
+
+import org.eclipse.smarthome.core.types.UnDefType  // OH2; for OH3 use org.openhab.core.types.UnDefType
+import org.eclipse.smarthome.model.script.ScriptServiceUtil
+
+var Timer GK1SS1_timer = null
+var Number phoneDelay
+var Timer timerPhoneCharging = null
+
+/*rule "GK1-SS1 Status"
+    when   
+            Time cron "0 0/1 * 1/1 * ? *"
+    then 
+        postUpdate(GK1SS1_status, NULL)
+        GK1SS1_timer = createTimer(now.plusSeconds(10), [ |
+        GK1SS1_timer = null
+        if(GK1SS1_status.state == NULL)
+        {
+            postUpdate(GK1SS1_ok, "Error")
+        }
+        else
+        {
+            postUpdate(GK1SS1_ok, "OK")
+        }
+        ])
+        //var String GK1SS1_status_prev = GK1SS1_status.state.toString() 
+end*/
+
+rule "Hall Illuminance Bypass"
+    when
+            Item GO1SS4_illuminance changed 
+    then
+                if(GH1MS1_illuminance_switch.state == ON)
+                {
+                        sendCommand(GH1MS1_illuminance, GO1SS4_illuminance.state as Number)
+                }
+end
+
+rule "Phone Charging Status (OFF)"
+    when
+            Item phoneCharging changed to OFF
+    then
+                phoneDelay = phoneChargingTimer.state as Number
+                timerPhoneCharging = createTimer(now.plusMinutes(phoneDelay.intValue), [ |
+                        timerPhoneCharging = null
+                        sendCommand(phoneChargingRelease, ON)
+                ])
+end
+
+rule "Phone Charging Status (ON)"
+    when
+            Item phoneCharging changed to ON
+    then
+            sendCommand(phoneChargingRelease, OFF)
+end
+
+rule "Sonoff Refresh"
+    when
+            Item Sonoff_Refresh changed to ON
+    then
+            sendCommand(Sonoff_Refresh, OFF)
+end
+
+rule "Shed Power On Notification"
+    when
+            Item GY1SS24_Online changed to ON
+    then
+            sendPushoverMessage(pushoverBuilder("Shed power on"))
+end
+
+rule "Shed Power Off Notification"
+    when
+            Item GY1SS24_Online changed to OFF
+    then
+            sendPushoverMessage(pushoverBuilder("Shed power off"))
+end
+
+rule "Gate Offline"
+    when
+            Item GY1SS9_Online changed to OFF
+    then
+            sendPushoverMessage(pushoverBuilder("Gate offline"))
+            sendCommand(gateSamsungOnline, OFF)
+end
+
+rule "Gate Offline"
+    when
+            Item GY1SS9_Online changed to ON
+    then
+            sendPushoverMessage(pushoverBuilder("Gate online"))
+            sendCommand(gateSamsungOnline, ON)
+end
+
+rule "Boiler Online"
+    when
+            Item GY1SS8_Online changed to ON
+    then
+            sendPushoverMessage(pushoverBuilder("Boiler connected"))
+end
+
+rule "Boiler Offline"
+    when
+            Item GY1SS8_Online changed to OFF
+    then
+            sendPushoverMessage(pushoverBuilder("Boiler disconnected").withEmergencyPriority())
+end
+
+rule "Poll Sonoff"
+when
+  Time cron "0 0/15 * * * ?" or
+  Item Sonoff_Refresh changed to ON
+then
+  // clear
+  gSonoff_IP.members.forEach    [ i | i.postUpdate(UNDEF) ]
+  gSonoff_RSSI.members.forEach  [ i | i.postUpdate(UNDEF) ]   // was casting to StringItem (wrong)
+  gSonoff_Uptime.members.forEach[ i | i.postUpdate(UNDEF) ]
+
+  Thread::sleep(300)
+
+  // request IPs (STATUS 5)
+  gSonoff_IP.members.forEach[ i |
+    i.sendCommand("5")
+    Thread::sleep(200)
+  ]
+
+  Thread::sleep(800)
+
+  // request uptime/RSSI (STATUS 11) – send to the uptime items
+  gSonoff_Uptime.members.forEach[ u |
+    u.sendCommand("11")
+    Thread::sleep(200)
+  ]
+end
+
+rule "Sonoff Status"
+when
+    Time cron "0 1/15 * * * ?"    // minute 1,16,31,46
+then
+    gSonoff_IP.members.forEach[ ip |
+        val onlineName = ip.name.replace("_IPAddress", "_Online")
+        val online = ScriptServiceUtil.getItemRegistry.getItem(onlineName)
+
+        val target = if (ip.state instanceof UnDefType) OFF else ON
+
+        if(online.state != target) online.postUpdate(target)
+    ]
+end

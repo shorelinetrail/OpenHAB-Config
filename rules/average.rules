@@ -1,0 +1,8 @@
+rule "Average Values"
+    when
+        Time cron "0 0/1 * 1/1 * ? *"
+    then
+        postUpdate(GH1MS1_illuminance_avg, GH1MS1_illuminance.averageSince(now.minusMinutes(15)) as Number)
+        postUpdate(GK1SS3_temp_avg, GK1SS3_temp.averageSince(now.minusMinutes(15)) as Number)
+        postUpdate(GY1SS22_level_avg, GY1SS22_level.averageSince(now.minusMinutes(3)) as Number)
+end

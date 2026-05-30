@@ -1,0 +1,34 @@
+/*
+rule "Outside Temperature"
+        when
+                Time cron "0 0 0/1 1/1 * ? *"
+        then
+
+            if(GY1SS24_Online.state == ON && (now.getHourOfDay > 6) && (now.getHourOfDay < 24)){
+                sendPushoverMessage(pushoverBuilder("T: " + GY1SS24_temp.state + " °C, RH: " + GY1SS24_humid.state + " %, P: " + GY1SS24_press.state + " mbar"))
+            }
+
+        end
+*/
+
+rule "BBQ Temperature"
+        when
+                Time cron "0 0/20 * 1/1 * ? *"
+        then
+
+            if(remoteTempEnable.state == ON){
+                sendPushoverMessage(pushoverBuilder("BBQ Temperature: " + GL1NM1_temp.state + " °C"))
+            }
+
+        end
+
+/*
+rule "Daily Electricity"
+        when
+                Time cron "0 0 12 1/1 * ? *"
+        then
+
+        sendPushoverMessage(pushoverBuilder("Power used yesterday: " + Power_Day.state.format("%.2f") + " kWh, £" + Power_Cost.state.format("%.2f")))
+
+        end
+*/

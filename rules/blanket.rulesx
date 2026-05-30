@@ -1,0 +1,56 @@
+var Timer blanketTimer = null
+var Number blanketAutoTimeoutMins
+var Number blanketExpireTimeoutMins
+var String blanketStatus
+
+rule "Blanket start"
+        when
+                Item Blanket_control changed to 1
+        then
+                sendCommand(FB1SS6_switch, ON)
+                blanketStatus = "Pre-heat"
+                postUpdate(Blanket_status, blanketStatus)
+                blanketExpireTimeoutMins = Blanket_expiretime.state as Number
+                blanketTimer = createTimer(now.plusMinutes(blanketExpireTimeoutMins.intValue), [ |
+                    blanketTimer = null
+                        sendPushoverMessage(pushoverBuilder("Blanket pre-heat expired!"))
+                        sendCommand(FB1SS6_switch, OFF)
+                        sendCommand(Blanket_control, 0)
+                        blanketStatus = "Off"
+                        postUpdate(Blanket_status, blanketStatus)
+                ])
+        end
+
+
+rule "Phone charging"
+        when
+                Item A changed to 3
+//                or
+//                Item Blanket_test changed to ON
+        then
+                if(Blanket_control.state == 1){
+                        blanketTimer.cancel()
+                        blanketStatus = "Timer active"
+                        postUpdate(Blanket_status, blanketStatus)
+                        blanketAutoTimeoutMins = Blanket_autotime.state as Number
+                        blanketTimer = createTimer(now.plusMinutes(blanketAutoTimeoutMins.intValue), [ |
+                        blanketTimer = null
+                                sendCommand(FB1SS6_switch, OFF)
+                                sendCommand(Blanket_control, 0)
+                                blanketStatus = "Off"
+                                postUpdate(Blanket_status, blanketStatus)
+                        ])
+                }
+        end
+
+rule "Blanket cancel"
+        when
+                Item Blanket_control changed to 2
+        then
+                blanketTimer.cancel()
+                blanketStatus = "Off"
+                postUpdate(Blanket_status, blanketStatus)
+                sendCommand(FB1SS6_switch, OFF)
+                Thread::sleep(1000)
+                sendCommand(Blanket_control, 0)
+        end

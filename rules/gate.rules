@@ -1,0 +1,212 @@
+// GATE
+
+var Timer gateTimer = null
+var Timer gateOpen = null
+var Timer gateTravel = null
+var Timer gateMoving = null
+var Timer gateDeBounce = null
+var Timer gateCheckTimer = null
+
+rule "Gate Pulse"
+    when   
+            Item GY1SS9_switch changed to "ON"
+    then 
+            gateTravel = createTimer(now.plusMillis(200), [ |
+            sendCommand(GY1SS9_switch, "OFF")
+            gateTravel = null
+            ])
+end
+
+rule "Gate Samsung Smartthings"
+    when   
+            Item gateSamsung changed to "ON"
+    then 
+        sendCommand(GY1SS9_switch, "ON")
+        Thread::sleep(1000)
+        sendCommand(gateSamsung, "OFF")
+//        Thread::sleep(4000)
+//        sendCommand(gateSamsung, "OFF")
+//        Thread::sleep(10000)
+//        if(gateSamsung.state == ON){
+//            sendCommand(gateSamsung, "OFF")
+//            sendCommand(gateSamsung, "OFF")
+//            sendCommand(gateSamsung, "OFF")
+//        }
+end
+
+rule "Bin Day"
+    when
+            Time cron "0 40 6 ? * THU *"
+            //Time cron "0 17 22 ? * WED *"
+    then
+            if(gateBinDay.state == ON && gatePosition.state == 1)
+            {
+                sendCommand(GY1SS9_switch, "ON")
+                gateCheckTimer = createTimer(now.plusMinutes(1), [ |
+                gateCheckTimer = null
+                if(gatePosition.state !== 1)
+                {
+                    sendPushoverMessage(pushoverBuilder("Gate open for bin day!"))
+                    sendCommand(gateBinDay, "OFF")
+                }
+                else
+                {
+                    gateCheckTimer = createTimer(now.plusMinutes(5), [ |
+                    gateCheckTimer = null
+                    if(gatePosition.state == 1)
+                    {   
+                        sendCommand(GY1SS9_switch, "ON")
+                        gateCheckTimer = createTimer(now.plusMinutes(1), [ |
+                        gateCheckTimer = null
+                        if(gatePosition.state !== 1)
+                        {
+                            sendPushoverMessage(pushoverBuilder("Gate open for bin day!"))
+                            sendCommand(gateBinDay, "OFF")
+                        }
+                        else
+                        {
+                            sendPushoverMessage(pushoverBuilder("Gate open for bin day failed!").withEmergencyPriority())
+                            sendCommand(gateBinDay, "OFF")
+                        }
+                    ])
+                    }
+                    ])
+                }
+                ])
+            }
+end
+
+rule "Gate Notifications"
+    when
+            Item gatePosition changed
+    then
+            if(gatePosition.state !== 3)
+            {
+                if(gateOpen !== null)
+                {
+                    gateOpen.cancel()
+                }
+            }            
+            if(gatePosition.state !== 2)
+            {
+                if(gateMoving !== null)
+                {
+                    gateMoving.cancel()
+                }
+            }  
+            if(gatePosition.state == 1)
+            {
+                sendPushoverMessage(pushoverBuilder("Gate closed"))
+            }
+            else if(gatePosition.state == 3)
+            {
+                sendPushoverMessage(pushoverBuilder("Gate open"))
+                gateOpen = createTimer(now.plusMinutes(10), [ |
+                gateOpen = null
+                if(gatePosition.state == 3)
+                {
+                    sendPushoverMessage(pushoverBuilder("Gate open alert").withEmergencyPriority())
+                }
+                ])
+            }
+            else if(gatePosition.state == 4)
+            {
+                sendPushoverMessage(pushoverBuilder("Gate in between"))
+            }
+end
+
+rule "Gate Position"
+    when   
+            Item GY1SS9_switch1 changed
+            or
+            Item GY1SS9_switch2 changed
+    then 
+            if(GY1SS9_switch1.state == OFF && GY1SS9_switch2.state == ON){
+                sendCommand(gatePositionHold, 1)
+                sendCommand(gateMove, OFF)
+            }
+            if(GY1SS9_switch1.state == OFF && GY1SS9_switch2.state == OFF){
+                sendCommand(gatePositionHold, 2)
+                sendCommand(gateMove, ON)
+                gateMoving = createTimer(now.plusSeconds(40.intValue), [ |
+                    if(GY1SS9_switch1.state == OFF && GY1SS9_switch2.state == OFF){
+                        sendCommand(gatePositionHold, 4)
+                        sendCommand(gateMove, OFF)
+                    }
+                ])
+            }
+            if(GY1SS9_switch1.state == ON && GY1SS9_switch2.state == OFF){
+                sendCommand(gatePositionHold, 3)
+                sendCommand(gateMove, OFF)
+            }
+            if(GY1SS9_switch1.state == ON && GY1SS9_switch2.state == ON){
+                sendCommand(gatePositionHold, 5)
+                sendCommand(gateMove, OFF)
+            }
+end
+
+rule "Gate Position De-Bounce"
+    when   
+            Item gatePositionHold changed
+    then 
+            if(gateDeBounce !== null)
+            {
+                gateDeBounce.cancel()
+            }
+            gateDeBounce = createTimer(now.plusSeconds(2.intValue), [ |
+                        sendCommand(gatePosition, gatePositionHold.state as Number)
+                ])
+end
+
+rule "Gate Remote"
+    when   
+            Item gateRemoteControl changed to "ON"
+    then 
+        sendCommand(gateRemoteControl, "OFF")
+        if(gateRemoteEnable.state == ON)
+        {
+            sendCommand(GY1SS9_switch, "ON")
+            if(gateRecloseEnable.state == ON)
+            {
+                sendCommand(gateTimerActive, "ON")
+                val int timerDelay = (gateRemoteTimer.state as Number).intValue
+                gateTimer = createTimer(now.plusMinutes(timerDelay), [ |
+                gateTimer = null
+                sendCommand(gateTimerActive, "OFF")
+                sendCommand(GY1SS9_switch, "ON")
+            ])
+            }
+        }
+end
+
+/*rule "Gate Open Alert"
+    when
+            Item GY1SS9_switch2 changed to "ON"
+    then
+            Thread::sleep(1500)
+            if(GY1SS9_switch2.state == ON){
+                sendCommand(gateSamsungOpen, "ON")
+                sendCommand(gateSamsungClosed, "OFF")
+            }
+end
+
+rule "Gate Closed"
+    when
+            Item GY1SS9_switch1 changed to "ON"
+    then
+            Thread::sleep(1500)
+            sendCommand(gateSamsungOpen, "OFF")
+            sendCommand(gateSamsungClosed, "ON")
+end*/
+
+rule "Gate Remote Single"
+//improve by checking if timer is running from above
+    when   
+            Item gateRemoteSingle changed to "ON"
+    then 
+        sendCommand(gateRemoteSingle, "OFF")
+        if(gateRemoteEnable.state == ON)
+        {
+            sendCommand(GY1SS9_switch, "ON")
+        }
+end

@@ -1,0 +1,5 @@
+services/*secret*
+*.key
+*.pem
+html/
+icons/

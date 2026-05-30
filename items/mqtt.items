@@ -1,0 +1,227 @@
+// -----------------------------------------
+// Positions / Blinds
+// -----------------------------------------
+Dimmer FB1BE3_position "FB1BE3_position" { channel="mqtt:topic:mosquitto:FB1BE3_position:FB1BE3_position" }
+Dimmer GL1BE2_position "GL1BE2_position" { channel="mqtt:topic:mosquitto:GL1BE2_position:GL1BE2_position" }
+Dimmer GO1BE1_position "GO1BE1_position" { channel="mqtt:topic:mosquitto:GO1BE1_position:GO1BE1_position" }
+
+// -----------------------------------------
+// Telemetry (SENSOR / Illuminance / Temps / etc.)
+// -----------------------------------------
+Number FB1SS6_temp  "Master Bedroom PV [%.1f °C]" <temperature> (gTemperature, gTemperatureAvg) { channel="mqtt:topic:mosquitto:FB1SS6_temp:FB1SS6_temp" }
+Number FB1SS6_humid "Master Bedroom [%.1f %%]" <humidity> (gHumidity) { channel="mqtt:topic:mosquitto:FB1SS6_humid:FB1SS6_humid" }
+Number FB1SS6_press "Master Bedroom [%.1f mbar]" <heating> { channel="mqtt:topic:mosquitto:FB1SS6_press:FB1SS6_press" }
+Number FB1SS6_dew   "Master Bedroom [%.1f °C]" <water> { channel="mqtt:topic:mosquitto:FB1SS6_dew:FB1SS6_dew" }
+Number FB1SS6_gas   "Master Bedroom [%.1f kΩ]" <heating> { channel="mqtt:topic:mosquitto:FB1SS6_gas:FB1SS6_gas" }
+
+Number FB2SS7_temp  "Workshop PV [%.1f °C]" <temperature> (gTemperatureAvg) { channel="mqtt:topic:mosquitto:FB2SS7_temp:FB2SS7_temp" }
+
+Number FB3SS20_temp "Guest Bedroom PV [%.1f °C]" <temperature> (gTemperature, gTemperatureAvg) { channel="mqtt:topic:mosquitto:FB3SS20_temp:FB3SS20_temp" }
+
+Number GK1SS1_illuminance "Kitchen [%.0f lux]" <light> { channel="mqtt:topic:mosquitto:GK1SS1_illuminance:GK1SS1_illuminance" }
+Number GK1SS3_temp        "Kitchen PV [%.1f °C]" <temperature> (gTemperature, gTemperatureAvg) { channel="mqtt:topic:mosquitto:GK1SS3_temp:GK1SS3_temp" }
+
+Number GL1NM1_temp "Portable TE [%.1f °C]" <temperature> { channel="mqtt:topic:mosquitto:GL1NM1_temp:GL1NM1_temp" }
+
+Number GL1SS5_humid "Living Room [%.1f %%]" <humidity> (gHumidity) { channel="mqtt:topic:mosquitto:GL1SS5_humid:GL1SS5_humid" }
+Number GL1SS5_temp  "Living Room PV [%.1f °C]" <temperature> (gTemperature, gTemperatureAvg) { channel="mqtt:topic:mosquitto:GL1SS5_temp:GL1SS5_temp" }
+
+Number GO1SS4_illuminance "Office [%.0f lux]" <light> { channel="mqtt:topic:mosquitto:GO1SS4_illuminance:GO1SS4_illuminance" }
+Number GO1SS4_temp        "Office PV [%.1f °C]" <temperature> (gTemperature, gTemperatureAvg) { channel="mqtt:topic:mosquitto:GO1SS4_temp:GO1SS4_temp" }
+
+Number GS1SS10_press "Sun Room [%.1f mbar]" <heating> { channel="mqtt:topic:mosquitto:GS1SS10_press:GS1SS10_press" }
+Number GS1SS10_temp  "Sun Room PV [%.1f °C]" <temperature> (gTemperature, gTemperatureAvg) { channel="mqtt:topic:mosquitto:GS1SS10_temp:GS1SS10_temp" }
+
+Number GY1NM2_temp1 "Boiler Supply [%.1f °C]" <fire> (gBoiler) { channel="mqtt:topic:mosquitto:GY1NM2_temp1:GY1NM2_temp1" }
+Number GY1NM2_temp2 "Boiler Return [%.1f °C]" <fire> (gBoiler) { channel="mqtt:topic:mosquitto:GY1NM2_temp2:GY1NM2_temp2" }
+
+Number GY1SS22_distance "GY1SS22_distance" { channel="mqtt:topic:mosquitto:GY1SS22_distance:state" }
+Number GY1SS24_humid    "Shed [%.1f %%]"    <humidity>   (gHumidity) { channel="mqtt:topic:mosquitto:GY1SS24_humid:GY1SS24_humid" }
+Number GY1SS24_press    "Shed [%.1f mbar]"  <heating>               { channel="mqtt:topic:mosquitto:GY1SS24_press:GY1SS24_press" }
+Number GY1SS24_temp     "Shed PV [%.1f °C]" <temperature>           { channel="mqtt:topic:mosquitto:GY1SS24_temp:GY1SS24_temp" }
+
+Number GY1SS8_press "Yard [%.1f mbar]" <heating> (gPressure)  { channel="mqtt:topic:mosquitto:GY1SS8_press:GY1SS8_press" }
+Number GY1SS8_temp  "Outdoor Temperature [%.1f °C]" <temperature> (gOutside) { channel="mqtt:topic:mosquitto:GY1SS8_temp:GY1SS8_temp" }
+
+Number XM1SS16_temp "XM1SS16_temp" <temperature> { channel="mqtt:topic:mosquitto:XM1SS16_temp:XM1SS16_temp" }
+
+Number GY1MC1_temp "Freezer PV [%.1f °C]" <temperature> { channel="mqtt:topic:mosquitto:GY1MC1_temp:GY1MC1_temp" }
+
+// -----------------------------------------
+// IP Addresses (STATUS5) — autoupdate disabled so rules drive updates
+// -----------------------------------------
+String FB1SS13_IPAddress "M. Bedroom & Workshop Radiators (FB1-SS13)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:FB1SS13_IPAddress:FB1SS13_IPAddress", autoupdate="false" }
+String FB1SS6_IPAddress  "Master Bedroom Temperature (FB1-SS6)"  <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:FB1SS6_IPAddress:FB1SS6_IPAddress",   autoupdate="false" }
+String FB2SS7_IPAddress  "Workshop Temperature (FB2-SS7)"  <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:FB2SS7_IPAddress:FB2SS7_IPAddress",   autoupdate="false" }
+String FB3SS19_IPAddress "Guest Bedroom Radiator (FB3-SS19)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:FB3SS19_IPAddress:FB3SS19_IPAddress", autoupdate="false" }
+String FB3SS20_IPAddress "Guest Bedroom Temperature (FB3-SS20)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:FB3SS20_IPAddress:FB3SS20_IPAddress", autoupdate="false" }
+
+String GK1SS1_IPAddress "Kitchen Lights Cooker (GK1-SS1)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GK1SS1_IPAddress:GK1SS1_IPAddress", autoupdate="false" }
+String GK1SS2_IPAddress "Kitchen Lights Side (GK1-SS2)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GK1SS2_IPAddress:GK1SS2_IPAddress", autoupdate="false" }
+String GK1SS3_IPAddress "Kitchen Temperature (GK1-SS3)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GK1SS3_IPAddress:GK1SS3_IPAddress", autoupdate="false" }
+
+String GL1SS11_IPAddress "Living Room Radiator (GL1-SS11)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GL1SS11_IPAddress:GL1SS11_IPAddress", autoupdate="false" }
+String GL1SS18_IPAddress "Living Room Xmas Lights (GL1-SS18)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GL1SS18_IPAddress:GL1SS18_IPAddress", autoupdate="false" }
+String GL1SS5_IPAddress  "Living Room Temperature (GL1-SS5)"  <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GL1SS5_IPAddress:GL1SS5_IPAddress",   autoupdate="false" }
+
+String GO1SS12_IPAddress "Office Radiator (GO1-SS12)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GO1SS12_IPAddress:GO1SS12_IPAddress", autoupdate="false" }
+String GO1SS4_IPAddress  "Office Temperature (GO1-SS4)"  <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GO1SS4_IPAddress:GO1SS4_IPAddress",   autoupdate="false" }
+
+String GS1SS10_IPAddress "Sun Room Heating (GS1-SS10)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GS1SS10_IPAddress:GS1SS10_IPAddress", autoupdate="false" }
+String GS1SS17_IPAddress "Sun Room Xmas Lights (GS1-SS13)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GS1SS17_IPAddress:GS1SS17_IPAddress", autoupdate="false" }
+
+String GY1SS26_IPAddress "Front Irrigation (GY1-SS26)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GY1SS26_IPAddress:GY1SS26_IPAddress", autoupdate="false" }
+String GY1SS27_IPAddress "Front Irrigation Flow (GY1-SS27)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GY1SS27_IPAddress:GY1SS27_IPAddress", autoupdate="false" }
+String GY1SS8_IPAddress  "Outside Temperature (GY1-SS8)"  <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GY1SS8_IPAddress:GY1SS8_IPAddress",   autoupdate="false" }
+String GY1SS9_IPAddress  "Gate Controller (GY1-SS9)"  <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:GY1SS9_IPAddress:GY1SS9_IPAddress",   autoupdate="false" }
+
+String XM1SS16_IPAddress "XM1-SS16[%s]" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:XM1SS16_IPAddress:XM1SS16_IPAddress", autoupdate="false" }
+String XM1SS21_IPAddress "Camera Lamp (XM1-SS21)" <network> (gSonoff_IP) { channel="mqtt:topic:mosquitto:XM1SS21_IPAddress:XM1SS21_IPAddress", autoupdate="false" }
+
+// -----------------------------------------
+// Uptime (STATUS11)
+// -----------------------------------------
+String FB1SS13_Uptime "FB1SS13_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:FB1SS13_Uptime:state", autoupdate="false" }
+String FB1SS6_Uptime  "FB1SS6_Uptime"  <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:FB1SS6_Uptime:state", autoupdate="false" }
+String FB2SS7_Uptime  "FB2SS7_Uptime"  <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:FB2SS7_Uptime:state", autoupdate="false" }
+String FB3SS19_Uptime "FB3SS19_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:FB3SS19_Uptime:state", autoupdate="false" }
+String FB3SS20_Uptime "FB3SS20_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:FB3SS20_Uptime:state", autoupdate="false" }
+
+String GK1SS1_Uptime "GK1SS1_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GK1SS1_Uptime:state", autoupdate="false" }
+String GK1SS2_Uptime "GK1SS2_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GK1SS2_Uptime:state", autoupdate="false" }
+String GK1SS3_Uptime "GK1SS3_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GK1SS3_Uptime:state", autoupdate="false" }
+
+String GL1SS11_Uptime "GL1SS11_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GL1SS11_Uptime:state", autoupdate="false" }
+String GL1SS18_Uptime "GL1SS18_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GL1SS18_Uptime:state", autoupdate="false" }
+String GL1SS5_Uptime  "GL1SS5_Uptime"  <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GL1SS5_Uptime:state", autoupdate="false" }
+
+String GO1SS12_Uptime "GO1SS12_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GO1SS12_Uptime:state", autoupdate="false" }
+String GO1SS4_Uptime  "GO1SS4_Uptime"  <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GO1SS4_Uptime:state", autoupdate="false" }
+
+String GS1SS10_Uptime "GS1SS10_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GS1SS10_Uptime:state", autoupdate="false" }
+String GS1SS17_Uptime "GS1SS17_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GS1SS17_Uptime:state", autoupdate="false" }
+
+String GY1SS26_Uptime "GY1SS26_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GY1SS26_Uptime:state", autoupdate="false" }
+String GY1SS27_Uptime "GY1SS27_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GY1SS27_Uptime:state", autoupdate="false" }
+String GY1SS8_Uptime  "GY1SS8_Uptime"  <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GY1SS8_Uptime:state", autoupdate="false" }
+String GY1SS9_Uptime  "GY1SS9_Uptime"  <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:GY1SS9_Uptime:state", autoupdate="false" }
+
+String XM1SS16_Uptime "XM1SS16_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:XM1SS16_Uptime:state", autoupdate="false" }
+String XM1SS21_Uptime "XM1SS21_Uptime" <network> (gSonoff_Uptime) { channel="mqtt:topic:mosquitto:XM1SS21_Uptime:state", autoupdate="false" }
+
+// -----------------------------------------
+// RSSI / Telemetry (STATUS11)
+// -----------------------------------------
+Number FB1SS13_rssi "FB1SS13_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:FB1SS13_rssi:state", autoupdate="false" }
+Number FB1SS6_rssi  "FB1SS6_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:FB1SS6_rssi:state", autoupdate="false" }
+Number FB2SS7_rssi  "FB2SS7_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:FB2SS7_rssi:state", autoupdate="false" }
+Number FB3SS19_rssi "FB3SS19_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:FB3SS19_rssi:state", autoupdate="false" }
+Number FB3SS20_rssi "FB3SS20_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:FB3SS20_rssi:state", autoupdate="false" }
+Number GK1SS1_rssi  "GK1SS1_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GK1SS1_rssi:state", autoupdate="false" }
+Number GK1SS2_rssi  "GK1SS2_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GK1SS2_rssi:state", autoupdate="false" }
+Number GK1SS3_rssi  "GK1SS3_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GK1SS3_rssi:state", autoupdate="false" }
+Number GL1SS11_rssi "GL1SS11_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GL1SS11_rssi:state", autoupdate="false" }
+Number GL1SS18_rssi "GL1SS18_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GL1SS18_rssi:state", autoupdate="false" }
+Number GL1SS5_rssi  "GL1SS5_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GL1SS5_rssi:state", autoupdate="false" }
+Number GO1SS12_rssi "GO1SS12_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GO1SS12_rssi:state", autoupdate="false" }
+Number GO1SS4_rssi  "GO1SS4_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GO1SS4_rssi:state", autoupdate="false" }
+Number GS1SS10_rssi "GS1SS10_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GS1SS10_rssi:state", autoupdate="false" }
+Number GS1SS17_rssi "GS1SS17_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GS1SS17_rssi:state", autoupdate="false" }
+Number GY1SS8_rssi  "GY1SS8_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GY1SS8_rssi:state", autoupdate="false" }
+Number GY1SS9_rssi  "GY1SS9_RSSI"  <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GY1SS9_rssi:state", autoupdate="false" }
+Number GY1SS26_rssi "GY1SS26_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GY1SS26_rssi:state", autoupdate="false" }
+Number GY1SS27_rssi "GY1SS27_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:GY1SS27_rssi:state", autoupdate="false" }
+Number XM1SS16_rssi "XM1SS16_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:XM1SS16_rssi:state", autoupdate="false" }
+Number XM1SS21_rssi "XM1SS21_RSSI" <network> (gSonoff_RSSI) { channel="mqtt:topic:mosquitto:XM1SS21_rssi:state", autoupdate="false" }
+
+
+// -----------------------------------------
+// Switches
+// -----------------------------------------
+Switch FB1SS6_switch  "FB1SS6_switch"  { channel="mqtt:topic:mosquitto:FB1SS6_switch:FB1SS6_switch" }
+Switch FB2SS7_switch  "FB2SS7_switch"  { channel="mqtt:topic:mosquitto:FB2SS7_switch:FB2SS7_switch" }
+Switch FB3SS19_switch "Guest Bedroom"  (gHeating) { channel="mqtt:topic:mosquitto:FB3SS19_switch:FB3SS19_switch" }
+
+Switch GK1SS1_switch "GK1SS1_switch" (gSonoff) { channel="mqtt:topic:mosquitto:GK1SS1_switch:GK1SS1_switch" }
+Switch GK1SS2_switch "GK1SS2_switch" (gSonoff) { channel="mqtt:topic:mosquitto:GK1SS2_switch:GK1SS2_switch" }
+
+Switch GL1SS11_switch "Living Room" (gHeating) { channel="mqtt:topic:mosquitto:GL1SS11_switch:GL1SS11_switch" }
+Switch GL1SS18_switch "GL1SS18_switch" { channel="mqtt:topic:mosquitto:GL1SS18_switch:GL1SS18_switch" }
+Switch GL1SS5_switch  "Kitchen"       (gHeating) { channel="mqtt:topic:mosquitto:GL1SS5_switch:GL1SS5_switch" }
+
+Switch GO1SS12_switch "Office" (gHeating) { channel="mqtt:topic:mosquitto:GO1SS12_switch:GO1SS12_switch" }
+Switch GO1SS15_switch "GO1SS15_switch" { channel="mqtt:topic:mosquitto:GO1SS15_switch:GO1SS15_switch" }
+Switch GS1SS10_switch "Sun Room" (gHeating) { channel="mqtt:topic:mosquitto:GS1SS10_switch:GS1SS10_switch" }
+Switch GS1SS17_switch "GS1SS17_switch" { channel="mqtt:topic:mosquitto:GS1SS17_switch:GS1SS17_switch" }
+
+Switch GY1SS22_switch "GY1SS22_switch" { channel="mqtt:topic:mosquitto:GY1SS22_switch:GY1SS22_switch" }
+Switch GY1SS23_switch "GY1SS23_switch" { channel="mqtt:topic:mosquitto:GY1SS23_switch:GY1SS23_switch" }
+//Switch GY1SS24_switch "GY1SS24_switch" { channel="mqtt:topic:mosquitto:GY1SS24_switch:GY1SS24_switch" }   // (no Thing channel defined)
+//Switch GY1SS25_switch "GY1SS25_switch" { channel="mqtt:topic:mosquitto:GY1SS25_switch:GY1SS25_switch" }   // (no Thing channel defined)
+
+Switch GY1SS8_switch  "GY1SS8_switch"  { channel="mqtt:topic:mosquitto:GY1SS8_switch:GY1SS8_switch" }
+String GY1SS8_power   "GY1SS8_power"   { channel="mqtt:topic:mosquitto:GY1SS8_power:result" [profile="transform:JSONPATH", function="$.POWER"] }
+
+Switch GY1SS9_switch  "GY1SS9_switch"  { channel="mqtt:topic:mosquitto:GY1SS9_switch:command", channel="mqtt:topic:mosquitto:GY1SS9_switch:state" }
+Switch GY1SS9_switch1 "GY1SS9_switch1" { channel="mqtt:topic:mosquitto:GY1SS9_switch1:state" }
+Switch GY1SS9_switch2 "GY1SS9_switch2" { channel="mqtt:topic:mosquitto:GY1SS9_switch2:state" }
+
+Switch GY1SS26_switch "Valve" <water> { channel="mqtt:topic:mosquitto:GY1SS26_switch:GY1SS26_switch" }
+
+Switch XM1SS16_switch "XM1SS16_switch" { channel="mqtt:topic:mosquitto:XM1SS16_switch:XM1SS16_switch" }
+Switch XM1SS21_switch "XM1SS21_switch" { channel="mqtt:topic:mosquitto:XM1SS21_switch:XM1SS21_switch" }
+
+// -----------------------------------------
+// Blue Iris / Gate / Misc
+// -----------------------------------------
+String GH1MS1_motion "GH1MS1_motion" { channel="mqtt:topic:mosquitto:GH1MS1_motion:GH1MS1_motion" }
+//String BlueIris_motionFront "BlueIris_motionFront" { channel="mqtt:topic:mosquitto:BlueIris_motionFront:BlueIris_motionFront" }  // (no Thing channel defined)
+//String BlueIris_motionRear  "BlueIris_motionRear"  { channel="mqtt:topic:mosquitto:BlueIris_motionRear:BlueIris_motionRear" }    // (no Thing channel defined)
+String BlueIris_trigger "BlueIris_trigger" { channel="mqtt:topic:mosquitto:BlueIris_trigger:BlueIris_trigger" }
+
+String gateSamsung "gateSamsung" { channel="mqtt:topic:mosquitto:gateSamsung:command", channel="mqtt:topic:mosquitto:gateSamsung:state" }
+Number GY1SS9_status "GY1SS9_status" { channel="mqtt:topic:mosquitto:GY1SS9_status:GY1SS9_status" }
+Switch gateMove "gateMove" { channel="mqtt:topic:mosquitto:gateMove:gateMove" }
+Switch gateSamsungOnline "gateSamsungOnline" { channel="mqtt:topic:mosquitto:gateSamsungOnline:command" }
+
+//String XM1DB1_doorbell "XM1DB1_doorbell" { channel="mqtt:topic:mosquitto:XM1DB1_doorbell:XM1DB1_doorbell" } // (no Thing channel defined)
+
+// -----------------------------------------
+// Flow / Moisture / Level
+// -----------------------------------------
+Number GY1SS27_flow "Flow [%.2f l/min]" <flow> { channel="mqtt:topic:mosquitto:GY1SS27_flow:GY1SS27_flow", autoupdate="true" }
+Number GY1SS28_moisture "Front Irrigation Moisture [%.2f %%]" <flow> { channel="mqtt:topic:mosquitto:GY1SS28_moisture:GY1SS28_moisture", autoupdate="true" }
+Number GY1FT1_level "Water Butt Level [%.2f %%]" <water> { channel="mqtt:topic:mosquitto:GY1FT1_level:GY1FT1_level", autoupdate="true" }
+Switch GY1FT1_switch1 "Irrigation Valve" { channel="mqtt:topic:mosquitto:GY1FT1_switch1:GY1FT1_switch1" }
+Switch GY1FT1_switch2 "Drain Valve" { channel="mqtt:topic:mosquitto:GY1FT1_switch2:GY1FT1_switch2" }
+Switch GY1FT1_switch3 "Top-Up Valve" { channel="mqtt:topic:mosquitto:GY1FT1_switch3:GY1FT1_switch3" }
+Number GY1FT1_flow3 "Irrigation/Drain Flow[%.2f l/min]" <flow> { channel="mqtt:topic:mosquitto:GY1FT1_flow3:GY1FT1_flow3" }
+Number GY1FT1_flow1 "Top-Up Flow[%.2f l/min]" <flow> { channel="mqtt:topic:mosquitto:GY1FT1_flow1:GY1FT1_flow1" }
+
+// -----------------------------------------
+// Energy Meter
+// -----------------------------------------
+Number GO1EM1_I  "Current [%.2f A]"       <energy> { channel="mqtt:topic:mosquitto:GO1EM1_I:GO1EM1_I" }
+Number GO1EM1_V  "Voltage [%.2f V]"       <energy> { channel="mqtt:topic:mosquitto:GO1EM1_V:GO1EM1_V" }
+Number GO1EM1_P  "Active Power [%.2f W]"  <energy> (gPower) { channel="mqtt:topic:mosquitto:GO1EM1_P:GO1EM1_P" }
+Number GO1EM1_Q  "Reactive Power [%.2f VAR]" <energy> (gPower) { channel="mqtt:topic:mosquitto:GO1EM1_Q:GO1EM1_Q" }
+Number GO1EM1_PF "Power Factor [%.2f]"    <energy> { channel="mqtt:topic:mosquitto:GO1EM1_PF:GO1EM1_PF" }
+Number GO1EM1_F  "Frequency [%.2f Hz]"    <energy> { channel="mqtt:topic:mosquitto:GO1EM1_F:GO1EM1_F" }
+Number GO1EM1_TE "Total Energy [%.2f kWh]" <energy> { channel="mqtt:topic:mosquitto:GO1EM1_TE:GO1EM1_TE" }
+
+// -----------------------------------------
+// Smoke Alarms
+// -----------------------------------------
+Number  GK1SA1_smoke  "Alarm [MAP(smoke.map):%s]" <fire>    { channel="mqtt:topic:mosquitto:GK1SA1_smoke:GK1SA1_smoke" }
+Number  GK1SA1_tamper "Tamper [MAP(smoke.map):%s]" <siren>  { channel="mqtt:topic:mosquitto:GK1SA1_tamper:GK1SA1_tamper" }
+Number  GK1SA1_battV  "Battery (mV) [%.0f mV]"     <battery>{ channel="mqtt:topic:mosquitto:GK1SA1_battV:GK1SA1_battV" }
+Number  GK1SA1_battpc "Battery (%) [%.0f %%]"      <battery>{ channel="mqtt:topic:mosquitto:GK1SA1_battpc:GK1SA1_battpc" }
+Number  GK1SA1_temp   "Chip Temperature [%.1f °C]" <temperature> { channel="mqtt:topic:mosquitto:GK1SA1_temp:GK1SA1_temp" }
+String  GK1SA1_online "Connection Status"          <network> { channel="mqtt:topic:mosquitto:GK1SA1_online:GK1SA1_online" }
+DateTime GK1SA1_LastUpdate "Last Update [%1$td/%1$tm/%1$tY %1$tT]" <time>
+
+
+Switch FB1SS13_switch1 "Master Bedroom" (gHeating) { channel="mqtt:topic:mosquitto:FB1SS13_switch1:FB1SS13_switch1" }
+Switch FB1SS13_switch2 "Workshop"      (gHeating) { channel="mqtt:topic:mosquitto:FB1SS13_switch2:FB1SS13_switch2" }
+String GO1SS12_power  "GO1SS12_power"              { channel="mqtt:topic:mosquitto:GO1SS12_power:GO1SS12_power" }
+

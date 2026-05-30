@@ -1,0 +1,672 @@
+// ========================================
+// Sonos Master Control / Grouping / Party Mode
+// Classic openHAB Rules DSL compatible
+// ========================================
+
+import org.openhab.core.model.script.actions.ScriptExecution
+import org.openhab.core.model.script.actions.Timer
+import java.time.ZonedDateTime
+
+// Global vars we keep updated for UI/debug (optional)
+var String currentCoordinator = ""
+var String currentMasterName = ""
+
+
+// ========================================
+// WHOLE-HOUSE CONTROLS
+// ========================================
+
+rule "Play/Pause All (actually Play All)"
+when
+    Item Sonos_All_PlayPause received command ON
+then
+    // Force PLAY everywhere (simplest reliable broadcast action)
+    Sonos_LivingRoom_Control.sendCommand(PLAY)
+    Sonos_Kitchen_Control.sendCommand(PLAY)
+    Sonos_Office_Control.sendCommand(PLAY)
+    Sonos_Bedroom_Control.sendCommand(PLAY)
+    Sonos_SunRoom_Control.sendCommand(PLAY)
+    Sonos_Aux_Control.sendCommand(PLAY)
+    Sonos_Workshop_Control.sendCommand(PLAY)
+
+    Sonos_All_PlayPause.postUpdate(OFF)
+end
+
+
+rule "Next All"
+when
+    Item Sonos_All_Next received command ON
+then
+    Sonos_LivingRoom_Control.sendCommand(NEXT)
+    Sonos_Kitchen_Control.sendCommand(NEXT)
+    Sonos_Office_Control.sendCommand(NEXT)
+    Sonos_Bedroom_Control.sendCommand(NEXT)
+    Sonos_SunRoom_Control.sendCommand(NEXT)
+    Sonos_Aux_Control.sendCommand(NEXT)
+    Sonos_Workshop_Control.sendCommand(NEXT)
+
+    Sonos_All_Next.postUpdate(OFF)
+end
+
+
+rule "Prev All"
+when
+    Item Sonos_All_Prev received command ON
+then
+    Sonos_LivingRoom_Control.sendCommand(PREVIOUS)
+    Sonos_Kitchen_Control.sendCommand(PREVIOUS)
+    Sonos_Office_Control.sendCommand(PREVIOUS)
+    Sonos_Bedroom_Control.sendCommand(PREVIOUS)
+    Sonos_SunRoom_Control.sendCommand(PREVIOUS)
+    Sonos_Aux_Control.sendCommand(PREVIOUS)
+    Sonos_Workshop_Control.sendCommand(PREVIOUS)
+
+    Sonos_All_Prev.postUpdate(OFF)
+end
+
+
+rule "Mute All"
+when
+    Item Sonos_All_Mute received command ON
+then
+    Sonos_LivingRoom_Mute.sendCommand(ON)
+    Sonos_Kitchen_Mute.sendCommand(ON)
+    Sonos_Office_Mute.sendCommand(ON)
+    Sonos_Bedroom_Mute.sendCommand(ON)
+    Sonos_SunRoom_Mute.sendCommand(ON)
+    Sonos_Aux_Mute.sendCommand(ON)
+    Sonos_Workshop_Mute.sendCommand(ON)
+
+    Sonos_All_Mute.postUpdate(OFF)
+end
+
+
+rule "Unmute All"
+when
+    Item Sonos_All_Unmute received command ON
+then
+    Sonos_LivingRoom_Mute.sendCommand(OFF)
+    Sonos_Kitchen_Mute.sendCommand(OFF)
+    Sonos_Office_Mute.sendCommand(OFF)
+    Sonos_Bedroom_Mute.sendCommand(OFF)
+    Sonos_SunRoom_Mute.sendCommand(OFF)
+    Sonos_Aux_Mute.sendCommand(OFF)
+    Sonos_Workshop_Mute.sendCommand(OFF)
+
+    Sonos_All_Unmute.postUpdate(OFF)
+end
+
+
+rule "Vol All Up"
+when
+    Item Sonos_All_VolUp received command ON
+then
+    if(Sonos_LivingRoom_Volume.state instanceof Number) {
+        val newLR = Math::min((Sonos_LivingRoom_Volume.state as Number).intValue + 5, 100)
+        Sonos_LivingRoom_Volume.sendCommand(newLR)
+    }
+    if(Sonos_Kitchen_Volume.state instanceof Number) {
+        val newK = Math::min((Sonos_Kitchen_Volume.state as Number).intValue + 5, 100)
+        Sonos_Kitchen_Volume.sendCommand(newK)
+    }
+    if(Sonos_Office_Volume.state instanceof Number) {
+        val newO = Math::min((Sonos_Office_Volume.state as Number).intValue + 5, 100)
+        Sonos_Office_Volume.sendCommand(newO)
+    }
+    if(Sonos_Bedroom_Volume.state instanceof Number) {
+        val newB = Math::min((Sonos_Bedroom_Volume.state as Number).intValue + 5, 100)
+        Sonos_Bedroom_Volume.sendCommand(newB)
+    }
+    if(Sonos_SunRoom_Volume.state instanceof Number) {
+        val newSR = Math::min((Sonos_SunRoom_Volume.state as Number).intValue + 5, 100)
+        Sonos_SunRoom_Volume.sendCommand(newSR)
+    }
+    if(Sonos_Aux_Volume.state instanceof Number) {
+        val newA = Math::min((Sonos_Aux_Volume.state as Number).intValue + 5, 100)
+        Sonos_Aux_Volume.sendCommand(newA)
+    }
+    if(Sonos_Workshop_Volume.state instanceof Number) {
+        val newW = Math::min((Sonos_Workshop_Volume.state as Number).intValue + 5, 100)
+        Sonos_Workshop_Volume.sendCommand(newW)
+    }
+
+    Sonos_All_VolUp.postUpdate(OFF)
+end
+
+
+rule "Vol All Down"
+when
+    Item Sonos_All_VolDown received command ON
+then
+    if(Sonos_LivingRoom_Volume.state instanceof Number) {
+        val newLR = Math::max((Sonos_LivingRoom_Volume.state as Number).intValue - 5, 0)
+        Sonos_LivingRoom_Volume.sendCommand(newLR)
+    }
+    if(Sonos_Kitchen_Volume.state instanceof Number) {
+        val newK = Math::max((Sonos_Kitchen_Volume.state as Number).intValue - 5, 0)
+        Sonos_Kitchen_Volume.sendCommand(newK)
+    }
+    if(Sonos_Office_Volume.state instanceof Number) {
+        val newO = Math::max((Sonos_Office_Volume.state as Number).intValue - 5, 0)
+        Sonos_Office_Volume.sendCommand(newO)
+    }
+    if(Sonos_Bedroom_Volume.state instanceof Number) {
+        val newB = Math::max((Sonos_Bedroom_Volume.state as Number).intValue - 5, 0)
+        Sonos_Bedroom_Volume.sendCommand(newB)
+    }
+    if(Sonos_SunRoom_Volume.state instanceof Number) {
+        val newSR = Math::max((Sonos_SunRoom_Volume.state as Number).intValue - 5, 0)
+        Sonos_SunRoom_Volume.sendCommand(newSR)
+    }
+    if(Sonos_Aux_Volume.state instanceof Number) {
+        val newA = Math::max((Sonos_Aux_Volume.state as Number).intValue - 5, 0)
+        Sonos_Aux_Volume.sendCommand(newA)
+    }
+    if(Sonos_Workshop_Volume.state instanceof Number) {
+        val newW = Math::max((Sonos_Workshop_Volume.state as Number).intValue - 5, 0)
+        Sonos_Workshop_Volume.sendCommand(newW)
+    }
+
+    Sonos_All_VolDown.postUpdate(OFF)
+end
+
+
+
+// ========================================
+// DYNAMIC GROUPING LOGIC
+//
+// Each JoinGroup rule:
+//  - Builds a local getCoord lambda.
+//  - That lambda looks at each speaker's *coordinator* channel.
+//  - First non-empty coordinator "wins": that's the current group master.
+//  - We cache that into currentMasterName/currentCoordinator and also update Sonos_CurrentMaster.
+//  - Then we send that coordinator string to <Room>_Add.
+//
+// Each LeaveGroup rule just sends ON to <Room>_Standalone to break the room back out.
+// ========================================
+
+
+// Kitchen
+rule "Kitchen Join Group"
+when
+    Item Sonos_Kitchen_JoinGroup received command ON
+then
+    val getCoord = [ |
+        var String chosenName  = "Unknown"
+        var String chosenCoord = null
+
+        if(Sonos_LivingRoom_Coordinator.state !== null &&
+           Sonos_LivingRoom_Coordinator.state.toString != "" &&
+           Sonos_LivingRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+
+        } else if(Sonos_Kitchen_Coordinator.state !== null &&
+                  Sonos_Kitchen_Coordinator.state.toString != "" &&
+                  Sonos_Kitchen_Coordinator.state.toString != "NULL") {
+            chosenName  = "Kitchen"
+            chosenCoord = Sonos_Kitchen_Coordinator.state.toString
+
+        } else if(Sonos_Office_Coordinator.state !== null &&
+                  Sonos_Office_Coordinator.state.toString != "" &&
+                  Sonos_Office_Coordinator.state.toString != "NULL") {
+            chosenName  = "Office"
+            chosenCoord = Sonos_Office_Coordinator.state.toString
+
+        } else if(Sonos_Bedroom_Coordinator.state !== null &&
+                  Sonos_Bedroom_Coordinator.state.toString != "" &&
+                  Sonos_Bedroom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Bedroom"
+            chosenCoord = Sonos_Bedroom_Coordinator.state.toString
+
+        } else if(Sonos_SunRoom_Coordinator.state !== null &&
+                  Sonos_SunRoom_Coordinator.state.toString != "" &&
+                  Sonos_SunRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room"
+            chosenCoord = Sonos_SunRoom_Coordinator.state.toString
+
+        } else if(Sonos_Aux_Coordinator.state !== null &&
+                  Sonos_Aux_Coordinator.state.toString != "" &&
+                  Sonos_Aux_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room (Aux)"
+            chosenCoord = Sonos_Aux_Coordinator.state.toString
+
+        } else if(Sonos_Workshop_Coordinator.state !== null &&
+                  Sonos_Workshop_Coordinator.state.toString != "" &&
+                  Sonos_Workshop_Coordinator.state.toString != "NULL") {
+            chosenName  = "Workshop"
+            chosenCoord = Sonos_Workshop_Coordinator.state.toString
+        }
+
+        // final fallback: force Living Room
+        if(chosenCoord === null || chosenCoord == "" || chosenCoord == "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+        }
+
+        currentMasterName  = chosenName
+        currentCoordinator = chosenCoord
+        Sonos_CurrentMaster.postUpdate(chosenName)
+
+        chosenCoord
+    ]
+
+    val coord = getCoord.apply
+    if(coord !== null && coord != "") {
+        Sonos_Kitchen_Add.sendCommand(coord)
+    }
+    Sonos_Kitchen_JoinGroup.postUpdate(OFF)
+end
+
+rule "Kitchen Leave Group"
+when
+    Item Sonos_Kitchen_LeaveGroup received command ON
+then
+    Sonos_Kitchen_Standalone.sendCommand(ON)
+    Sonos_Kitchen_LeaveGroup.postUpdate(OFF)
+end
+
+
+
+// Office
+rule "Office Join Group"
+when
+    Item Sonos_Office_JoinGroup received command ON
+then
+    val getCoord = [ |
+        var String chosenName  = "Unknown"
+        var String chosenCoord = null
+
+        if(Sonos_LivingRoom_Coordinator.state !== null &&
+           Sonos_LivingRoom_Coordinator.state.toString != "" &&
+           Sonos_LivingRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+
+        } else if(Sonos_Kitchen_Coordinator.state !== null &&
+                  Sonos_Kitchen_Coordinator.state.toString != "" &&
+                  Sonos_Kitchen_Coordinator.state.toString != "NULL") {
+            chosenName  = "Kitchen"
+            chosenCoord = Sonos_Kitchen_Coordinator.state.toString
+
+        } else if(Sonos_Office_Coordinator.state !== null &&
+                  Sonos_Office_Coordinator.state.toString != "" &&
+                  Sonos_Office_Coordinator.state.toString != "NULL") {
+            chosenName  = "Office"
+            chosenCoord = Sonos_Office_Coordinator.state.toString
+
+        } else if(Sonos_Bedroom_Coordinator.state !== null &&
+                  Sonos_Bedroom_Coordinator.state.toString != "" &&
+                  Sonos_Bedroom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Bedroom"
+            chosenCoord = Sonos_Bedroom_Coordinator.state.toString
+
+        } else if(Sonos_SunRoom_Coordinator.state !== null &&
+                  Sonos_SunRoom_Coordinator.state.toString != "" &&
+                  Sonos_SunRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room"
+            chosenCoord = Sonos_SunRoom_Coordinator.state.toString
+
+        } else if(Sonos_Aux_Coordinator.state !== null &&
+                  Sonos_Aux_Coordinator.state.toString != "" &&
+                  Sonos_Aux_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room (Aux)"
+            chosenCoord = Sonos_Aux_Coordinator.state.toString
+
+        } else if(Sonos_Workshop_Coordinator.state !== null &&
+                  Sonos_Workshop_Coordinator.state.toString != "" &&
+                  Sonos_Workshop_Coordinator.state.toString != "NULL") {
+            chosenName  = "Workshop"
+            chosenCoord = Sonos_Workshop_Coordinator.state.toString
+        }
+
+        if(chosenCoord === null || chosenCoord == "" || chosenCoord == "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+        }
+
+        currentMasterName  = chosenName
+        currentCoordinator = chosenCoord
+        Sonos_CurrentMaster.postUpdate(chosenName)
+
+        chosenCoord
+    ]
+
+    val coord = getCoord.apply
+    if(coord !== null && coord != "") {
+        Sonos_Office_Add.sendCommand(coord)
+    }
+    Sonos_Office_JoinGroup.postUpdate(OFF)
+end
+
+rule "Office Leave Group"
+when
+    Item Sonos_Office_LeaveGroup received command ON
+then
+    Sonos_Office_Standalone.sendCommand(ON)
+    Sonos_Office_LeaveGroup.postUpdate(OFF)
+end
+
+
+
+// Bedroom
+rule "Bedroom Join Group"
+when
+    Item Sonos_Bedroom_JoinGroup received command ON
+then
+    val getCoord = [ |
+        var String chosenName  = "Unknown"
+        var String chosenCoord = null
+
+        if(Sonos_LivingRoom_Coordinator.state !== null &&
+           Sonos_LivingRoom_Coordinator.state.toString != "" &&
+           Sonos_LivingRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+
+        } else if(Sonos_Kitchen_Coordinator.state !== null &&
+                  Sonos_Kitchen_Coordinator.state.toString != "" &&
+                  Sonos_Kitchen_Coordinator.state.toString != "NULL") {
+            chosenName  = "Kitchen"
+            chosenCoord = Sonos_Kitchen_Coordinator.state.toString
+
+        } else if(Sonos_Office_Coordinator.state !== null &&
+                  Sonos_Office_Coordinator.state.toString != "" &&
+                  Sonos_Office_Coordinator.state.toString != "NULL") {
+            chosenName  = "Office"
+            chosenCoord = Sonos_Office_Coordinator.state.toString
+
+        } else if(Sonos_Bedroom_Coordinator.state !== null &&
+                  Sonos_Bedroom_Coordinator.state.toString != "" &&
+                  Sonos_Bedroom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Bedroom"
+            chosenCoord = Sonos_Bedroom_Coordinator.state.toString
+
+        } else if(Sonos_SunRoom_Coordinator.state !== null &&
+                  Sonos_SunRoom_Coordinator.state.toString != "" &&
+                  Sonos_SunRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room"
+            chosenCoord = Sonos_SunRoom_Coordinator.state.toString
+
+        } else if(Sonos_Aux_Coordinator.state !== null &&
+                  Sonos_Aux_Coordinator.state.toString != "" &&
+                  Sonos_Aux_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room (Aux)"
+            chosenCoord = Sonos_Aux_Coordinator.state.toString
+
+        } else if(Sonos_Workshop_Coordinator.state !== null &&
+                  Sonos_Workshop_Coordinator.state.toString != "" &&
+                  Sonos_Workshop_Coordinator.state.toString != "NULL") {
+            chosenName  = "Workshop"
+            chosenCoord = Sonos_Workshop_Coordinator.state.toString
+        }
+
+        if(chosenCoord === null || chosenCoord == "" || chosenCoord == "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+        }
+
+        currentMasterName  = chosenName
+        currentCoordinator = chosenCoord
+        Sonos_CurrentMaster.postUpdate(chosenName)
+
+        chosenCoord
+    ]
+
+    val coord = getCoord.apply
+    if(coord !== null && coord != "") {
+        Sonos_Bedroom_Add.sendCommand(coord)
+    }
+    Sonos_Bedroom_JoinGroup.postUpdate(OFF)
+end
+
+rule "Bedroom Leave Group"
+when
+    Item Sonos_Bedroom_LeaveGroup received command ON
+then
+    Sonos_Bedroom_Standalone.sendCommand(ON)
+    Sonos_Bedroom_LeaveGroup.postUpdate(OFF)
+end
+
+
+
+// Sun Room
+rule "Sun Room Join Group"
+when
+    Item Sonos_SunRoom_JoinGroup received command ON
+then
+    val getCoord = [ |
+        var String chosenName  = "Unknown"
+        var String chosenCoord = null
+
+        if(Sonos_LivingRoom_Coordinator.state !== null &&
+           Sonos_LivingRoom_Coordinator.state.toString != "" &&
+           Sonos_LivingRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+
+        } else if(Sonos_Kitchen_Coordinator.state !== null &&
+                  Sonos_Kitchen_Coordinator.state.toString != "" &&
+                  Sonos_Kitchen_Coordinator.state.toString != "NULL") {
+            chosenName  = "Kitchen"
+            chosenCoord = Sonos_Kitchen_Coordinator.state.toString
+
+        } else if(Sonos_Office_Coordinator.state !== null &&
+                  Sonos_Office_Coordinator.state.toString != "" &&
+                  Sonos_Office_Coordinator.state.toString != "NULL") {
+            chosenName  = "Office"
+            chosenCoord = Sonos_Office_Coordinator.state.toString
+
+        } else if(Sonos_Bedroom_Coordinator.state !== null &&
+                  Sonos_Bedroom_Coordinator.state.toString != "" &&
+                  Sonos_Bedroom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Bedroom"
+            chosenCoord = Sonos_Bedroom_Coordinator.state.toString
+
+        } else if(Sonos_SunRoom_Coordinator.state !== null &&
+                  Sonos_SunRoom_Coordinator.state.toString != "" &&
+                  Sonos_SunRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room"
+            chosenCoord = Sonos_SunRoom_Coordinator.state.toString
+
+        } else if(Sonos_Aux_Coordinator.state !== null &&
+                  Sonos_Aux_Coordinator.state.toString != "" &&
+                  Sonos_Aux_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room (Aux)"
+            chosenCoord = Sonos_Aux_Coordinator.state.toString
+
+        } else if(Sonos_Workshop_Coordinator.state !== null &&
+                  Sonos_Workshop_Coordinator.state.toString != "" &&
+                  Sonos_Workshop_Coordinator.state.toString != "NULL") {
+            chosenName  = "Workshop"
+            chosenCoord = Sonos_Workshop_Coordinator.state.toString
+        }
+
+        if(chosenCoord === null || chosenCoord == "" || chosenCoord == "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+        }
+
+        currentMasterName  = chosenName
+        currentCoordinator = chosenCoord
+        Sonos_CurrentMaster.postUpdate(chosenName)
+
+        chosenCoord
+    ]
+
+    val coord = getCoord.apply
+    if(coord !== null && coord != "") {
+        Sonos_SunRoom_Add.sendCommand(coord)
+    }
+    Sonos_SunRoom_JoinGroup.postUpdate(OFF)
+end
+
+rule "Sun Room Leave Group"
+when
+    Item Sonos_SunRoom_LeaveGroup received command ON
+then
+    Sonos_SunRoom_Standalone.sendCommand(ON)
+    Sonos_SunRoom_LeaveGroup.postUpdate(OFF)
+end
+
+
+
+// Sun Room (Aux)
+rule "Aux Join Group"
+when
+    Item Sonos_Aux_JoinGroup received command ON
+then
+    val getCoord = [ |
+        var String chosenName  = "Unknown"
+        var String chosenCoord = null
+
+        if(Sonos_LivingRoom_Coordinator.state !== null &&
+           Sonos_LivingRoom_Coordinator.state.toString != "" &&
+           Sonos_LivingRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+
+        } else if(Sonos_Kitchen_Coordinator.state !== null &&
+                  Sonos_Kitchen_Coordinator.state.toString != "" &&
+                  Sonos_Kitchen_Coordinator.state.toString != "NULL") {
+            chosenName  = "Kitchen"
+            chosenCoord = Sonos_Kitchen_Coordinator.state.toString
+
+        } else if(Sonos_Office_Coordinator.state !== null &&
+                  Sonos_Office_Coordinator.state.toString != "" &&
+                  Sonos_Office_Coordinator.state.toString != "NULL") {
+            chosenName  = "Office"
+            chosenCoord = Sonos_Office_Coordinator.state.toString
+
+        } else if(Sonos_Bedroom_Coordinator.state !== null &&
+                  Sonos_Bedroom_Coordinator.state.toString != "" &&
+                  Sonos_Bedroom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Bedroom"
+            chosenCoord = Sonos_Bedroom_Coordinator.state.toString
+
+        } else if(Sonos_SunRoom_Coordinator.state !== null &&
+                  Sonos_SunRoom_Coordinator.state.toString != "" &&
+                  Sonos_SunRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room"
+            chosenCoord = Sonos_SunRoom_Coordinator.state.toString
+
+        } else if(Sonos_Aux_Coordinator.state !== null &&
+                  Sonos_Aux_Coordinator.state.toString != "" &&
+                  Sonos_Aux_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room (Aux)"
+            chosenCoord = Sonos_Aux_Coordinator.state.toString
+
+        } else if(Sonos_Workshop_Coordinator.state !== null &&
+                  Sonos_Workshop_Coordinator.state.toString != "" &&
+                  Sonos_Workshop_Coordinator.state.toString != "NULL") {
+            chosenName  = "Workshop"
+            chosenCoord = Sonos_Workshop_Coordinator.state.toString
+        }
+
+        if(chosenCoord === null || chosenCoord == "" || chosenCoord == "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+        }
+
+        currentMasterName  = chosenName
+        currentCoordinator = chosenCoord
+        Sonos_CurrentMaster.postUpdate(chosenName)
+
+        chosenCoord
+    ]
+
+    val coord = getCoord.apply
+    if(coord !== null && coord != "") {
+        Sonos_Aux_Add.sendCommand(coord)
+    }
+    Sonos_Aux_JoinGroup.postUpdate(OFF)
+end
+
+rule "Aux Leave Group"
+when
+    Item Sonos_Aux_LeaveGroup received command ON
+then
+    Sonos_Aux_Standalone.sendCommand(ON)
+    Sonos_Aux_LeaveGroup.postUpdate(OFF)
+end
+
+
+
+// Workshop
+rule "Workshop Join Group"
+when
+    Item Sonos_Workshop_JoinGroup received command ON
+then
+    val getCoord = [ |
+        var String chosenName  = "Unknown"
+        var String chosenCoord = null
+
+        if(Sonos_LivingRoom_Coordinator.state !== null &&
+           Sonos_LivingRoom_Coordinator.state.toString != "" &&
+           Sonos_LivingRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+
+        } else if(Sonos_Kitchen_Coordinator.state !== null &&
+                  Sonos_Kitchen_Coordinator.state.toString != "" &&
+                  Sonos_Kitchen_Coordinator.state.toString != "NULL") {
+            chosenName  = "Kitchen"
+            chosenCoord = Sonos_Kitchen_Coordinator.state.toString
+
+        } else if(Sonos_Office_Coordinator.state !== null &&
+                  Sonos_Office_Coordinator.state.toString != "" &&
+                  Sonos_Office_Coordinator.state.toString != "NULL") {
+            chosenName  = "Office"
+            chosenCoord = Sonos_Office_Coordinator.state.toString
+
+        } else if(Sonos_Bedroom_Coordinator.state !== null &&
+                  Sonos_Bedroom_Coordinator.state.toString != "" &&
+                  Sonos_Bedroom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Bedroom"
+            chosenCoord = Sonos_Bedroom_Coordinator.state.toString
+
+        } else if(Sonos_SunRoom_Coordinator.state !== null &&
+                  Sonos_SunRoom_Coordinator.state.toString != "" &&
+                  Sonos_SunRoom_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room"
+            chosenCoord = Sonos_SunRoom_Coordinator.state.toString
+
+        } else if(Sonos_Aux_Coordinator.state !== null &&
+                  Sonos_Aux_Coordinator.state.toString != "" &&
+                  Sonos_Aux_Coordinator.state.toString != "NULL") {
+            chosenName  = "Sun Room (Aux)"
+            chosenCoord = Sonos_Aux_Coordinator.state.toString
+
+        } else if(Sonos_Workshop_Coordinator.state !== null &&
+                  Sonos_Workshop_Coordinator.state.toString != "" &&
+                  Sonos_Workshop_Coordinator.state.toString != "NULL") {
+            chosenName  = "Workshop"
+            chosenCoord = Sonos_Workshop_Coordinator.state.toString
+        }
+
+        if(chosenCoord === null || chosenCoord == "" || chosenCoord == "NULL") {
+            chosenName  = "Living Room"
+            chosenCoord = Sonos_LivingRoom_Coordinator.state.toString
+        }
+
+        currentMasterName  = chosenName
+        currentCoordinator = chosenCoord
+        Sonos_CurrentMaster.postUpdate(chosenName)
+
+        chosenCoord
+    ]
+
+    val coord = getCoord.apply
+    if(coord !== null && coord != "") {
+        Sonos_Workshop_Add.sendCommand(coord)
+    }
+    Sonos_Workshop_JoinGroup.postUpdate(OFF)
+end
+
+rule "Workshop Leave Group"
+when
+    Item Sonos_Workshop_LeaveGroup received command ON
+then
+    Sonos_Workshop_Standalone.sendCommand(ON)
+    Sonos_Workshop_LeaveGroup.postUpdate(OFF)
+end

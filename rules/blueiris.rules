@@ -1,0 +1,95 @@
+var Timer frontLightsTimer = null
+var Timer rearLightsTimer = null
+var Number HueFrontTemp = 0
+var Number HueRearTemp = 0
+
+// DOORBELL
+
+rule "Doorbell"
+        when
+                Item XM1DB1_doorbell changed to "ON"
+        then
+                sendCommand(BlueIris_trigger, "camera=Front&trigger") 
+                //sendPushoverMessage(pushoverBuilder("There's someone at the door!"))
+                //sendPushoverImage("Pushover test attachment", "http://192.168.0.40:2541/ipcamera.jpg")
+                /*sendCommand(GH1HB1_dimmer, 80)
+                timerDoorBell = createTimer(now.plusMinutes(2.intValue), [ |
+                timerDoorBell = null
+                if(A.state !== 100)
+                        {
+                        sendCommand(GH1HB1_dimmer, Evening_Setpoint.state as Number)
+                        }   
+                ])*/
+        end
+
+rule "Gate Open"
+        when
+                Item gatePosition changed to 3
+        then
+                sendCommand(BlueIris_trigger, "camera=Rear&trigger") 
+                //sendPushoverMessage(pushoverBuilder("Rear camera trigger"))
+                //sendPushoverImage("Pushover test attachment", "http://192.168.0.40:2541/ipcamera.jpg")
+                /*sendCommand(GH1HB1_dimmer, 80)
+                timerDoorBell = createTimer(now.plusMinutes(2.intValue), [ |
+                timerDoorBell = null
+                if(A.state !== 100)
+                        {
+                        sendCommand(GH1HB1_dimmer, Evening_Setpoint.state as Number)
+                        }   
+                ])*/
+        end
+
+// FRONT TRIGGER
+
+rule "Front Trigger"
+        when
+                Item BlueIris_motionFront changed to "ON"
+        then
+                if((A.state == 2) || (A.state == 3)){
+                    HueFrontTemp = gHueFront.state as Number
+                    sendCommand (gHueFront, HueFrontTrigger_Setpoint.state as Number)
+                    val Integer timerSP = (HueFrontTrigger_Timer.state as DecimalType).intValue
+                    frontLightsTimer = createTimer(now.plusSeconds(timerSP), [ |
+                        frontLightsTimer = null
+                        sendCommand (gHueFront, HueFrontTemp)
+                        sendCommand (BlueIris_motionFront, OFF)
+                    ])
+                }
+        end
+
+rule "Rear Trigger"
+        when
+                Item BlueIris_motionRear changed to "ON"
+        then
+                if(BlueIris_rearEnable.state == ON){
+                    HueRearTemp = GY1HB15_dimmer.state as Number
+                    sendCommand (GY1HB15_dimmer, HueRearTrigger_Setpoint.state as Number)
+                    Thread::sleep(1000)
+                    sendCommand (GY1HB15_dimmer, 0)
+                    Thread::sleep(500)
+                    sendCommand (GY1HB15_dimmer, HueRearTrigger_Setpoint.state as Number)
+                    Thread::sleep(1000)
+                    sendCommand (GY1HB15_dimmer, 0)
+                    Thread::sleep(500)
+                    sendCommand (GY1HB15_dimmer, HueRearTrigger_Setpoint.state as Number)
+                    Thread::sleep(1000)
+                    sendCommand (GY1HB15_dimmer, 0)
+                    Thread::sleep(500)
+                    sendCommand (GY1HB15_dimmer, HueRearTemp)
+                    sendCommand (BlueIris_motionRear, OFF)
+                    }
+        end
+
+rule "Activate Rear Motion"
+        when
+                Item BlueIris_rearEnable changed to "ON"
+        then
+                sendCommand(BlueIris_trigger, "profile=2")
+        end
+
+rule "De-Activate Rear Motion"
+        when
+                Item BlueIris_rearEnable changed to "OFF"
+        then
+                sendCommand(BlueIris_trigger, "profile=1") 
+        end

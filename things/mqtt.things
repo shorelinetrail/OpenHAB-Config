@@ -1,0 +1,893 @@
+Bridge mqtt:broker:mosquitto "Mosquitto Broker" [ host="localhost", port=1883, secure=false, username="openhabian", password="OHmosquitto*" ] {
+
+  // -----------------------------
+  // Positions / Blinds
+  // -----------------------------
+  Thing topic FB1BE3_position "FB1BE3_position" (mqtt:broker:mosquitto) {
+    Channels:
+      Type dimmer : FB1BE3_position "Command" [ commandTopic="cmnd/FB1-BE3/POSITION" ]
+  }
+  Thing topic GL1BE2_position "GL1BE2_position" (mqtt:broker:mosquitto) {
+    Channels:
+      Type dimmer : GL1BE2_position "Command" [ commandTopic="cmnd/GL1-BE2/POSITION" ]
+  }
+  Thing topic GO1BE1_position "GO1BE1_position" (mqtt:broker:mosquitto) {
+    Channels:
+      Type dimmer : GO1BE1_position "Command" [ commandTopic="cmnd/GO1-BE1/POSITION" ]
+  }
+
+  // -----------------------------
+  // Environmental sensors (SENSOR telemetry)
+  // -----------------------------
+  Thing topic GO1SS4_temp "GO1SS4_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GO1SS4_temp "Temperature 1" [ stateTopic="tele/GO1-SS4/SENSOR", transformationPattern="JSONPATH:$.BMP280.Temperature" ]
+  }
+  Thing topic FB2SS7_temp "FB2SS7_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : FB2SS7_temp "State" [ stateTopic="tele/FB2-SS7/SENSOR", transformationPattern="JSONPATH:$.BMP280.Temperature" ]
+  }
+  Thing topic FB3SS20_temp "FB3SS20_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : FB3SS20_temp "State" [ stateTopic="tele/FB3-SS20/SENSOR", transformationPattern="JSONPATH:$.BMP280.Temperature" ]
+  }
+  Thing topic GK1SS1_illuminance "GK1SS1_illuminance" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GK1SS1_illuminance "State" [ stateTopic="tele/GK1-SS1/SENSOR", transformationPattern="JSONPATH:$.BH1750.Illuminance" ]
+  }
+  Thing topic GK1SS3_temp "GK1SS3_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GK1SS3_temp "State" [ stateTopic="tele/GK1-SS3/SENSOR", transformationPattern="JSONPATH:$.BMP280.Temperature" ]
+  }
+  Thing topic GL1NM1_temp "GL1NM1_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GL1NM1_temp "State" [ stateTopic="tele/GL1-NM1/temperature/value" ]
+  }
+  Thing topic GL1SS5_humid "GL1SS5_humid" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GL1SS5_humid "State" [ stateTopic="tele/GL1-SS5/SENSOR", transformationPattern="JSONPATH:$.BME280.Humidity" ]
+  }
+  Thing topic GL1SS5_temp "GL1SS5_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GL1SS5_temp "State" [ stateTopic="tele/GL1-SS5/SENSOR", transformationPattern="JSONPATH:$.BME280.Temperature" ]
+  }
+  Thing topic GS1SS10_press "GS1SS10_press" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GS1SS10_press "State" [ stateTopic="tele/GS1-SS10/SENSOR", transformationPattern="JSONPATH:$.BMP280.Pressure" ]
+  }
+  Thing topic GS1SS10_temp "GS1SS10_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GS1SS10_temp "State" [ stateTopic="tele/GS1-SS10/SENSOR", transformationPattern="JSONPATH:$.BMP280.Temperature" ]
+  }
+  Thing topic GY1NM2_temp1 "GY1NM2_temp1" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1NM2_temp1 "State" [ stateTopic="tele/GY1-NM2/TT-02/value" ]
+  }
+  Thing topic GY1NM2_temp2 "GY1NM2_temp2" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1NM2_temp2 "State" [ stateTopic="tele/GY1-NM2/TT-01/value" ]
+  }
+  Thing topic GY1SS22_distance "GY1SS22_distance" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1SS22_distance "State" [ stateTopic="tele/GY1-SS22/SENSOR", transformationPattern="JSONPATH:$.VL53L0X.Distance" ]
+  }
+  Thing topic GY1SS24_humid "GY1SS24_humid" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1SS24_humid "State" [ stateTopic="tele/GY1-SS24/SENSOR", transformationPattern="JSONPATH:$.BME280.Humidity" ]
+  }
+  Thing topic GY1SS24_press "GY1SS24_press" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1SS24_press "State" [ stateTopic="tele/GY1-SS24/SENSOR", transformationPattern="JSONPATH:$.BME280.Pressure" ]
+  }
+  Thing topic GY1SS24_temp "GY1SS24_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1SS24_temp "State" [ stateTopic="tele/GY1-SS24/SENSOR", transformationPattern="JSONPATH:$.BME280.Temperature" ]
+  }
+  Thing topic GY1SS8_press "GY1SS8_press" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1SS8_press "State" [ stateTopic="tele/GY1-SS8/SENSOR", transformationPattern="JSONPATH:$.BMP280.Pressure" ]
+  }
+  Thing topic GY1SS8_temp "GY1SS8_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1SS8_temp "State" [ stateTopic="tele/GY1-SS8/SENSOR", transformationPattern="JSONPATH:$.BMP280.Temperature" ]
+  }
+  Thing topic XM1SS16_temp "XM1SS16_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : XM1SS16_temp "State" [ stateTopic="tele/XM1-SS16/SENSOR", transformationPattern="JSONPATH:$.DS18B20.Temperature" ]
+  }
+
+// -----------------------------
+// STATUS11 (RSSI/Uptime) — with commandTopic so rules can send "11"
+// -----------------------------
+Thing topic FB1SS13_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/FB1-SS13/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/FB1-SS13/status"
+    ]
+}
+Thing topic GY1SS26_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GY1-SS26/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GY1-SS26/status"
+    ]
+}
+Thing topic GY1SS27_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GY1-SS27/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GY1-SS27/status"
+    ]
+}
+Thing topic FB1SS6_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/FB1-SS6/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/FB1-SS6/status"
+    ]
+}
+Thing topic FB2SS7_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/FB2-SS7/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/FB2-SS7/status"
+    ]
+}
+Thing topic FB3SS19_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/FB3-SS19/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/FB3-SS19/status"
+    ]
+}
+Thing topic FB3SS20_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/FB3-SS20/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/FB3-SS20/status"
+    ]
+}
+Thing topic GK1SS1_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GK1-SS1/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GK1-SS1/status"
+    ]
+}
+Thing topic GK1SS2_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GK1-SS2/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GK1-SS2/status"
+    ]
+}
+Thing topic GK1SS3_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GK1-SS3/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GK1-SS3/status"
+    ]
+}
+Thing topic GL1SS11_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GL1-SS11/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GL1-SS11/status"
+    ]
+}
+Thing topic GL1SS18_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GL1-SS18/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GL1-SS18/status"
+    ]
+}
+Thing topic GL1SS5_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GL1-SS5/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GL1-SS5/status"
+    ]
+}
+Thing topic GO1SS12_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GO1-SS12/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GO1-SS12/status"
+    ]
+}
+Thing topic GO1SS15_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GO1-SS15/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GO1-SS15/status"
+    ]
+}
+Thing topic GO1SS4_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GO1-SS4/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GO1-SS4/status"
+    ]
+}
+Thing topic GS1SS10_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GS1-SS10/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GS1-SS10/status"
+    ]
+}
+Thing topic GS1SS17_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GS1-SS17/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GS1-SS17/status"
+    ]
+}
+Thing topic GY1SS8_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GY1-SS8/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GY1-SS8/status"
+    ]
+}
+Thing topic GY1SS9_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/GY1-SS9/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/GY1-SS9/status"
+    ]
+}
+Thing topic XM1SS16_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/XM1-SS16/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/XM1-SS16/status"
+    ]
+}
+Thing topic XM1SS21_rssi (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : state "State" [
+      stateTopic="stat/XM1-SS21/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Wifi.RSSI",
+      commandTopic="cmnd/XM1-SS21/status"
+    ]
+}
+
+// Bonus sensor kept here for convenience
+Thing topic GO1SS4_illuminance (mqtt:broker:mosquitto) {
+  Channels:
+    Type number : GO1SS4_illuminance "State" [
+      stateTopic="tele/GO1-SS4/SENSOR",
+      transformationPattern="JSONPATH:$.BH1750.Illuminance"
+    ]
+}
+
+// -----------------------------
+// STATUS5 (IP) + Uptime (STATUS11) — IP uses its own channel id; Uptime uses :state
+// -----------------------------
+Thing topic FB1SS13_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : FB1SS13_IPAddress "IP Address" [
+      stateTopic="stat/FB1-SS13/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/FB1-SS13/status"
+    ]
+}
+Thing topic FB1SS13_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/FB1-SS13/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/FB1-SS13/status"
+    ]
+}
+
+Thing topic GY1SS26_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GY1SS26_IPAddress "IP Address" [
+      stateTopic="stat/GY1-SS26/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GY1-SS26/status"
+    ]
+}
+Thing topic GY1SS26_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GY1-SS26/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GY1-SS26/status"
+    ]
+}
+
+Thing topic FB1SS6_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : FB1SS6_IPAddress "IP Address" [
+      stateTopic="stat/FB1-SS6/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/FB1-SS6/status"
+    ]
+}
+Thing topic FB1SS6_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/FB1-SS6/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/FB1-SS6/status"
+    ]
+}
+
+Thing topic FB2SS7_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : FB2SS7_IPAddress "IP Address" [
+      stateTopic="stat/FB2-SS7/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/FB2-SS7/status"
+    ]
+}
+Thing topic FB2SS7_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/FB2-SS7/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/FB2-SS7/status"
+    ]
+}
+
+Thing topic FB3SS19_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : FB3SS19_IPAddress "IP Address" [
+      stateTopic="stat/FB3-SS19/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/FB3-SS19/status"
+    ]
+}
+Thing topic FB3SS19_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/FB3-SS19/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/FB3-SS19/status"
+    ]
+}
+
+Thing topic FB3SS20_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : FB3SS20_IPAddress "IP Address" [
+      stateTopic="stat/FB3-SS20/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/FB3-SS20/status"
+    ]
+}
+Thing topic FB3SS20_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/FB3-SS20/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/FB3-SS20/status"
+    ]
+}
+
+Thing topic GK1SS1_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GK1SS1_IPAddress "IP Address" [
+      stateTopic="stat/GK1-SS1/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GK1-SS1/status"
+    ]
+}
+Thing topic GK1SS1_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GK1-SS1/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GK1-SS1/status"
+    ]
+}
+
+Thing topic GK1SS2_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GK1SS2_IPAddress "IP Address" [
+      stateTopic="stat/GK1-SS2/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GK1-SS2/status"
+    ]
+}
+Thing topic GK1SS2_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GK1-SS2/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GK1-SS2/status"
+    ]
+}
+
+Thing topic GK1SS3_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GK1SS3_IPAddress "IP Address" [
+      stateTopic="stat/GK1-SS3/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GK1-SS3/status"
+    ]
+}
+Thing topic GK1SS3_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GK1-SS3/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GK1-SS3/status"
+    ]
+}
+
+Thing topic GL1SS11_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GL1SS11_IPAddress "IP Address" [
+      stateTopic="stat/GL1-SS11/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GL1-SS11/status"
+    ]
+}
+Thing topic GL1SS11_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GL1-SS11/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GL1-SS11/status"
+    ]
+}
+
+Thing topic GY1SS9_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GY1SS9_IPAddress "IP Address" [
+      stateTopic="stat/GY1-SS9/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GY1-SS9/status"
+    ]
+}
+Thing topic GY1SS9_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GY1-SS9/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GY1-SS9/status"
+    ]
+}
+
+Thing topic GL1SS18_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GL1SS18_IPAddress "IP Address" [
+      stateTopic="stat/GL1-SS18/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GL1-SS18/status"
+    ]
+}
+Thing topic GL1SS18_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GL1-SS18/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GL1-SS18/status"
+    ]
+}
+
+Thing topic GL1SS5_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GL1SS5_IPAddress "IP Address" [
+      stateTopic="stat/GL1-SS5/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GL1-SS5/status"
+    ]
+}
+Thing topic GL1SS5_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GL1-SS5/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GL1-SS5/status"
+    ]
+}
+
+Thing topic GO1SS12_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GO1SS12_IPAddress "IP Address" [
+      stateTopic="stat/GO1-SS12/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GO1-SS12/status"
+    ]
+}
+Thing topic GO1SS12_power (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GO1SS12_power "State" [
+      stateTopic="stat/GO1-SS12/RESULT",
+      transformationPattern="JSONPATH:$.POWER"
+    ]
+}
+Thing topic GO1SS12_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GO1-SS12/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GO1-SS12/status"
+    ]
+}
+
+Thing topic GO1SS15_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GO1SS15_IPAddress "IP Address" [
+      stateTopic="stat/GO1-SS15/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GO1-SS15/status"
+    ]
+}
+Thing topic GO1SS15_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GO1-SS15/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GO1-SS15/status"
+    ]
+}
+
+Thing topic GO1SS4_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GO1SS4_IPAddress "IP Address" [
+      stateTopic="stat/GO1-SS4/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GO1-SS4/status"
+    ]
+}
+Thing topic GO1SS4_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GO1-SS4/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GO1-SS4/status"
+    ]
+}
+
+Thing topic GS1SS10_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GS1SS10_IPAddress "IP Address" [
+      stateTopic="stat/GS1-SS10/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GS1-SS10/status"
+    ]
+}
+Thing topic GS1SS10_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GS1-SS10/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GS1-SS10/status"
+    ]
+}
+
+Thing topic GS1SS17_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GS1SS17_IPAddress "IP Address" [
+      stateTopic="stat/GS1-SS17/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GS1-SS17/status"
+    ]
+}
+Thing topic GS1SS17_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GS1-SS17/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GS1-SS17/status"
+    ]
+}
+
+Thing topic GY1SS27_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GY1SS27_IPAddress "IP Address" [
+      stateTopic="stat/GY1-SS27/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GY1-SS27/status"
+    ]
+}
+Thing topic GY1SS27_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GY1-SS27/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GY1-SS27/status"
+    ]
+}
+
+Thing topic GY1SS8_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : GY1SS8_IPAddress "IP Address" [
+      stateTopic="stat/GY1-SS8/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/GY1-SS8/status"
+    ]
+}
+Thing topic GY1SS8_power (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : result "State" [
+      stateTopic="stat/GY1-SS8/RESULT"
+    ]
+}
+Thing topic GY1SS8_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/GY1-SS8/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/GY1-SS8/status"
+    ]
+}
+
+Thing topic XM1SS16_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : XM1SS16_IPAddress "IP Address" [
+      stateTopic="stat/XM1-SS16/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/XM1-SS16/status"
+    ]
+}
+Thing topic XM1SS16_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/XM1-SS16/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/XM1-SS16/status"
+    ]
+}
+
+Thing topic XM1SS21_IPAddress (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : XM1SS21_IPAddress "IP Address" [
+      stateTopic="stat/XM1-SS21/STATUS5",
+      transformationPattern="JSONPATH:$.StatusNET.IPAddress",
+      commandTopic="cmnd/XM1-SS21/status"
+    ]
+}
+Thing topic XM1SS21_Uptime (mqtt:broker:mosquitto) {
+  Channels:
+    Type string : state "State" [
+      stateTopic="stat/XM1-SS21/STATUS11",
+      transformationPattern="JSONPATH:$.StatusSTS.Uptime",
+      commandTopic="cmnd/XM1-SS21/status"
+    ]
+}
+
+
+  // -----------------------------
+  // SmartThings passthrough + BlueIris + Gate
+  // -----------------------------
+  Thing topic GH1MS1_motion "GH1MS1_motion" (mqtt:broker:mosquitto) {
+    Channels:
+      Type string : GH1MS1_motion "State"   [ stateTopic="smartthings/860be36b-3bd6-47eb-8b16-0460829feadf/motionSensor/motion" ]
+      Type string : GH1MS1_motion "Command" [ commandTopic="smartthings/860be36b-3bd6-47eb-8b16-0460829feadf/motionSensor/motion" ]
+  }
+  Thing topic BlueIris_motionFront "BlueIris_motionFront" (mqtt:broker:mosquitto) { Channels: }
+  Thing topic BlueIris_motionRear  "BlueIris_motionRear"  (mqtt:broker:mosquitto) { Channels: }
+  Thing topic BlueIris_trigger "BlueIris_trigger" (mqtt:broker:mosquitto) {
+    Channels:
+      Type string : BlueIris_trigger "Command" [ commandTopic="BlueIris/admin" ]
+  }
+  Thing topic gateSamsung "gateSamsung" (mqtt:broker:mosquitto) {
+    Channels:
+      Type string : command "Command" [ commandTopic="cmnd/gateSamsung/POWER" ]
+      Type string : state   "State"   [ stateTopic="stat/gateSamsung/POWER" ]
+  }
+  Thing topic gateMove "gateMove" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : gateMove "Command" [ commandTopic="cmnd/gateMoving/POWER" ]
+  }
+  Thing topic gateSamsungOnline "gateSamsungOnline" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : command "Command" [ commandTopic="cmnd/gateOnline/POWER" ]
+  }
+
+  // -----------------------------
+  // Switches (POWER)
+  // -----------------------------
+  Thing topic FB1SS13_switch1 "FB1SS13_switch1" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : FB1SS13_switch1 "Command" [ commandTopic="cmnd/FB1-SS13/POWER1" ]
+  }
+  Thing topic FB1SS13_switch2 "FB1SS13_switch2" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : FB1SS13_switch2 "Command" [ commandTopic="cmnd/FB1-SS13/POWER2" ]
+  }
+  Thing topic GY1SS26_switch "GY1SS26_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GY1SS26_switch "Command" [ commandTopic="cmnd/GY1-SS26/POWER" ]
+  }
+  Thing topic FB1SS6_switch "FB1SS6_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : FB1SS6_switch "Command" [ commandTopic="cmnd/FB1-SS6/POWER" ]
+  }
+  Thing topic FB2SS7_switch "FB2SS7_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : FB2SS7_switch "Command" [ commandTopic="cmnd/FB2-SS7/POWER" ]
+  }
+  Thing topic FB3SS19_switch "FB3SS19_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : FB3SS19_switch "Command" [ commandTopic="cmnd/FB3-SS19/POWER" ]
+  }
+  Thing topic GK1SS1_switch "GK1SS1_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GK1SS1_switch "Command" [ commandTopic="cmnd/GK1-SS1/POWER" ]
+  }
+  Thing topic GK1SS2_switch "GK1SS2_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GK1SS2_switch "Command" [ commandTopic="cmnd/GK1-SS2/POWER" ]
+  }
+  Thing topic GL1SS11_switch "GL1SS11_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GL1SS11_switch "Command" [ commandTopic="cmnd/GL1-SS11/POWER" ]
+  }
+  Thing topic GL1SS18_switch "GL1SS18_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GL1SS18_switch "Command" [ commandTopic="cmnd/GL1-SS18/POWER" ]
+  }
+  Thing topic GL1SS5_switch "GL1SS5_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GL1SS5_switch "Command" [ commandTopic="cmnd/GL1-SS5/POWER" ]
+  }
+  Thing topic GO1SS15_switch "GO1SS15_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GO1SS15_switch "Command" [ commandTopic="cmnd/GO1-SS15/POWER" ]
+  }
+  Thing topic GS1SS10_switch "GS1SS10_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GS1SS10_switch "Command" [ commandTopic="cmnd/GS1-SS10/POWER" ]
+  }
+  Thing topic GS1SS17_switch "GS1SS17_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GS1SS17_switch "Command" [ commandTopic="cmnd/GS1-SS17/POWER" ]   // fixed: GS1 (not GO1)
+  }
+  Thing topic GY1SS22_switch "GY1SS22_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GY1SS22_switch "Command" [ commandTopic="cmnd/GY1-SS22/POWER" ]
+  }
+  Thing topic GY1SS23_switch "GY1SS23_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GY1SS23_switch "Command" [ commandTopic="cmnd/GY1-SS23/POWER" ]
+  }
+  Thing topic GY1SS8_switch "GY1SS8_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GY1SS8_switch "Command" [ commandTopic="cmnd/GY1-SS8/POWER" ]
+  }
+  Thing topic GY1SS9_switch "GY1SS9_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : command "Command" [ commandTopic="cmnd/GY1-SS9/POWER1" ]
+      Type switch : state   "State"   [ stateTopic="stat/GY1-SS9/RESULT", transformationPattern="JSONPATH:$.POWER1" ]  // fixed: stat/..../RESULT
+  }
+  Thing topic GY1SS9_switch1 "GY1SS9_switch1" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : state "State" [ stateTopic="stat/GY1-SS9/POWER2" ]
+  }
+  Thing topic GY1SS9_switch2 "GY1SS9_switch2" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : state "State" [ stateTopic="stat/GY1-SS9/POWER3" ]
+  }
+  Thing topic XM1DB1_doorbell "XM1DB1_doorbell" (mqtt:broker:mosquitto) { Channels: }
+  Thing topic XM1SS16_switch "XM1SS16_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : XM1SS16_switch "Command" [ commandTopic="cmnd/XM1-SS16/POWER" ]
+  }
+  Thing topic XM1SS21_switch "XM1SS21_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : XM1SS21_switch "Command" [ commandTopic="cmnd/XM1-SS21/POWER" ]
+  }
+  Thing topic GO1SS12_switch "GO1SS12_switch" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GO1SS12_switch "State" [ commandTopic="cmnd/GO1-SS12/POWER" ]
+      // (Optional) add stateTopic="stat/GO1-SS12/POWER" if you want state feedback
+  }
+
+  // -----------------------------
+  // Other devices
+  // -----------------------------
+  Thing topic GY1MC1_temp "GY1MC1_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1MC1_temp "State" [ stateTopic="tele/GY1-MC1/SENSOR" ]
+  }
+  Thing topic GO1EM1_V  "GO1EM1_V"  (mqtt:broker:mosquitto) { Channels: Type number : GO1EM1_V  "State" [ stateTopic="tele/GO1-EM1/voltage" ] }
+  Thing topic GO1EM1_P  "GO1EM1_P"  (mqtt:broker:mosquitto) { Channels: Type number : GO1EM1_P  "State" [ stateTopic="tele/GO1-EM1/active_power" ] }
+  Thing topic GO1EM1_Q  "GO1EM1_Q"  (mqtt:broker:mosquitto) { Channels: Type number : GO1EM1_Q  "State" [ stateTopic="tele/GO1-EM1/reactive_power" ] }
+  Thing topic GO1EM1_PF "GO1EM1_PF" (mqtt:broker:mosquitto) { Channels: Type number : GO1EM1_PF "State" [ stateTopic="tele/GO1-EM1/power_factor" ] }
+  Thing topic GO1EM1_F  "GO1EM1_F"  (mqtt:broker:mosquitto) { Channels: Type number : GO1EM1_F  "State" [ stateTopic="tele/GO1-EM1/frequency" ] }
+  Thing topic GO1EM1_I  "GO1EM1_I"  (mqtt:broker:mosquitto) { Channels: Type number : GO1EM1_I  "State" [ stateTopic="tele/GO1-EM1/current" ] }
+  Thing topic GO1EM1_TE "GO1EM1_TE" (mqtt:broker:mosquitto) { Channels: Type number : GO1EM1_TE "State" [ stateTopic="tele/GO1-EM1/total_energy" ] }
+
+  Thing topic FB1SS6_temp "FB1SS6_temp" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : FB1SS6_temp "State" [ stateTopic="tele/FB1-SS6/SENSOR", transformationPattern="JSONPATH:$.BME680.Temperature" ]
+  }
+  Thing topic FB1SS6_humid "FB1SS6_humid" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : FB1SS6_humid "State" [ stateTopic="tele/FB1-SS6/SENSOR", transformationPattern="JSONPATH:$.BME680.Humidity" ]
+  }
+  Thing topic FB1SS6_press "FB1SS6_press" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : FB1SS6_press "State" [ stateTopic="tele/FB1-SS6/SENSOR", transformationPattern="JSONPATH:$.BME680.Pressure" ]
+  }
+  Thing topic FB1SS6_dew "FB1SS6_dew" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : FB1SS6_dew "State" [ stateTopic="tele/FB1-SS6/SENSOR", transformationPattern="JSONPATH:$.BME680.DewPoint" ]
+  }
+  Thing topic FB1SS6_gas "FB1SS6_gas" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : FB1SS6_gas "State" [ stateTopic="tele/FB1-SS6/SENSOR", transformationPattern="JSONPATH:$.BME680.Gas" ]
+  }
+
+  Thing topic GY1SS27_flow "GY1SS27_flow" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1SS27_flow "State" [ stateTopic="stat/GY1-SS27/FlowLPM", transformationPattern="JSONPATH:$" ]
+  }
+  Thing topic GY1SS28_moisture "GY1SS28_moisture" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1SS28_moisture "State" [ stateTopic="tele/GY1-SS28/moisture", transformationPattern="JSONPATH:$" ]
+  }
+
+  Thing topic GY1FT1_level "GY1FT1_level" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1FT1_level "State" [ stateTopic="tele/GY1-FT1/SENSOR", transformationPattern="JSONPATH:$.ANALOG.A0" ]
+  }
+  Thing topic GY1FT1_switch1 "GY1FT1_switch1" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GY1FT1_switch1 "Command" [ commandTopic="cmnd/GY1-FT1/POWER1", stateTopic="stat/GY1-FT1/POWER1" ]
+  }
+  Thing topic GY1FT1_switch2 "GY1FT1_switch2" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GY1FT1_switch2 "Command" [ commandTopic="cmnd/GY1-FT1/POWER2", stateTopic="stat/GY1-FT1/POWER2" ]
+  }
+  Thing topic GY1FT1_switch3 "GY1FT1_switch3" (mqtt:broker:mosquitto) {
+    Channels:
+      Type switch : GY1FT1_switch3 "Command" [ commandTopic="cmnd/GY1-FT1/POWER3", stateTopic="stat/GY1-FT1/POWER3" ]
+  }
+  Thing topic GY1FT1_flow3 "GY1FT1_flow3" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1FT1_flow3 "State" [ stateTopic="stat/GY1-FT1/FlowLPM3", transformationPattern="JSONPATH:$" ]
+  }
+  Thing topic GY1FT1_flow1 "GY1FT1_flow1" (mqtt:broker:mosquitto) {
+    Channels:
+      Type number : GY1FT1_flow1 "State" [ stateTopic="stat/GY1-FT1/FlowLPM1", transformationPattern="JSONPATH:$" ]
+  }
+
+  // -----------------------------
+  // Smoke alarms
+  // -----------------------------
+  Thing topic GK1SA1_smoke  "GK1SA1_smoke"  (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_smoke  "State" [ stateTopic="GK1-SA1/1/get" ] }
+  Thing topic GK1SA1_tamper "GK1SA1_tamper" (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_tamper "State" [ stateTopic="GK1-SA1/2/get" ] }
+  Thing topic GK1SA1_battV  "GK1SA1_battV"  (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_battV  "State" [ stateTopic="GK1-SA1/voltage/get" ] }
+  Thing topic GK1SA1_battpc "GK1SA1_battpc" (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_battpc "State" [ stateTopic="GK1-SA1/battery/get" ] }
+  Thing topic GK1SA1_temp   "GK1SA1_temp"   (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_temp   "State" [ stateTopic="GK1-SA1/temp" ] }
+  Thing topic GK1SA1_online "GK1SA1_online" (mqtt:broker:mosquitto) { Channels: Type string : GK1SA1_online "State" [ stateTopic="GK1-SA1/connected" ] }
+
+  // -----------------------------
+  // Misc
+  // -----------------------------
+  Thing topic GY1SS9_status "GY1SS9_status" (mqtt:broker:mosquitto) {
+    Channels:
+      Type string : GY1SS9_status "Command" [ commandTopic="cmnd/GY1-SS9" ]
+  }
+}

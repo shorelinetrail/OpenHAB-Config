@@ -1,0 +1,62 @@
+var Number powerStart = 0
+var Number powerEnd = 0
+var Number powerUsed = 0
+var Number powerCost = 0
+var Number powerToday = 0
+var Number powerUsedToday = 0 
+var Number powerCostToday = 0
+var Number meterReading = 0
+
+rule "Log Daily Power Start"
+when 
+        Time cron "0 00 00 1/1 * ? *"
+then
+        powerStart = GO1EM1_TE.state as Number
+        postUpdate(Power_Start, powerStart)
+        logInfo("rules.rules", "Trigger")
+end
+
+rule "Log Daily Power End"
+when 
+        Time cron "0 59 23 1/1 * ? *"
+then
+        powerEnd = GO1EM1_TE.state as Number
+        postUpdate(Power_End, powerEnd)
+        powerStart = Power_Start.state as Number
+        powerUsed = powerEnd - powerStart
+        postUpdate(Power_Day, powerUsed)
+        logInfo("rules.rules", "Trigger")
+        powerCost = (Power_Day.state as Number * ((Power_EUnit.state as Number) / 100)) + ((Power_EStand.state as Number) / 100)
+        postUpdate(Power_Cost, powerCost)        
+end
+
+rule "Log Power Today"
+when 
+        Time cron "0 0/5 * 1/1 * ? *"
+then
+        powerToday = GO1EM1_TE.state as Number
+        powerStart = Power_Start.state as Number
+        powerUsedToday = powerToday - powerStart
+        postUpdate(Power_Today, powerUsedToday)
+        powerCostToday = (Power_Today.state as Number * ((Power_EUnit.state as Number) / 100)) + ((Power_EStand.state as Number) / 100)
+        postUpdate(Power_CostToday, powerCostToday)        
+end
+
+rule "Electricity Meter"
+when
+        Time cron "0 0/1 * 1/1 * ? *"
+then
+        //logInfo("power.rules", "Trigger")
+        var energyReading = GO1EM1_TE.state as Number
+        var meterReading = energyReading + 62554.24
+        postUpdate(GO1EM1_M, meterReading)  
+end
+/*
+rule "Test Calculate"
+when 
+        Time cron "0 0/1 * 1/1 * ? *"
+then
+        powerCost = (Power_Day.state as Number * ((Power_EUnit.state as Number) / 100)) + ((Power_EStand.state as Number) / 100)
+        postUpdate(Power_Cost, powerCost)        
+end
+*/

@@ -1,0 +1,266 @@
+var String temp
+var String temp1
+var String temp2
+var String temp3
+var String temp4
+
+rule "Min/Max Temperatures Daily"
+when
+    Item GY1SS8_temp changed
+then
+    if(
+        Temp_Today_Max.state == NULL
+    ){
+        postUpdate(Temp_Today_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Today_Max_Time, new DateTimeType)
+        temp = Temp_Today_Max_Time.state.format("%1$tR")
+        postUpdate(Temp_Today_Max_Time_Format, Temp_Today_Max.state + " °C (" + temp + ")")    
+    } 
+    if(
+        GY1SS8_temp.state as Number > Temp_Today_Max.state as Number
+    ){
+        postUpdate(Temp_Today_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Today_Max_Time, new DateTimeType)
+        temp = Temp_Today_Max_Time.state.format("%1$tR")
+        postUpdate(Temp_Today_Max_Time_Format, Temp_Today_Max.state + " °C (" + temp + ")")    
+    }        
+    if(
+        Temp_Today_Min.state == NULL
+    ){
+        postUpdate(Temp_Today_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Today_Min_Time, new DateTimeType)
+        temp = Temp_Today_Min_Time.state.format("%1$tR")
+        postUpdate(Temp_Today_Min_Time_Format, Temp_Today_Min.state + " °C (" + temp + ")")    
+        }
+    if(
+        Temp_Today_Min.state as Number > GY1SS8_temp.state as Number
+    ){
+        postUpdate(Temp_Today_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Today_Min_Time, new DateTimeType)
+        temp = Temp_Today_Min_Time.state.format("%1$tR")
+        postUpdate(Temp_Today_Min_Time_Format, Temp_Today_Min.state + " °C (" + temp + ")")    
+    }
+end
+
+rule "Clear Min/Max Daily Temperatures"
+when
+    Time cron "	0 7 0 1/1 * ? * "
+then
+    postUpdate(Temp_Today_Max, GY1SS8_temp.state as Number)
+    postUpdate(Temp_Today_Max_Time, new DateTimeType)
+    temp = Temp_Today_Max_Time.state.format("%1$tR")
+    postUpdate(Temp_Today_Max_Time_Format, Temp_Today_Max.state + " °C (" + temp + ")")    
+    
+    postUpdate(Temp_Today_Min, GY1SS8_temp.state as Number)
+    postUpdate(Temp_Today_Min_Time, new DateTimeType)
+    temp = Temp_Today_Min_Time.state.format("%1$tR")
+    postUpdate(Temp_Today_Min_Time_Format, Temp_Today_Min.state + " °C (" + temp + ")")    
+end
+
+rule "Min/Max Temperatures Weekly"
+when
+    Item GY1SS8_temp changed
+then
+    if(
+        Temp_Week_Max.state == NULL
+    ){
+        postUpdate(Temp_Week_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Week_Max_Time, new DateTimeType)
+        temp1 = Temp_Week_Max_Time.state.format("%1$tA" + " " + "%1$tR")
+        postUpdate(Temp_Week_Max_Time_Format, Temp_Week_Max.state + " °C (" + temp1 + ")")    
+    } 
+    if(
+        GY1SS8_temp.state as Number > Temp_Week_Max.state as Number
+    ){
+        postUpdate(Temp_Week_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Week_Max_Time, new DateTimeType)
+        temp1 = Temp_Week_Max_Time.state.format("%1$tA" + " " + "%1$tR")
+        postUpdate(Temp_Week_Max_Time_Format, Temp_Week_Max.state + " °C (" + temp1 + ")")    
+    }        
+    if(
+        Temp_Week_Min.state == NULL
+    ){
+        postUpdate(Temp_Week_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Week_Min_Time, new DateTimeType)
+        temp1 = Temp_Week_Min_Time.state.format("%1$tA" + " " + "%1$tR")
+        postUpdate(Temp_Week_Min_Time_Format, Temp_Week_Min.state + " °C (" + temp1 + ")")    
+        }
+    if(
+        Temp_Week_Min.state as Number > GY1SS8_temp.state as Number
+    ){
+        postUpdate(Temp_Week_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Week_Min_Time, new DateTimeType)
+        temp1 = Temp_Week_Min_Time.state.format("%1$tA" + " " + "%1$tR")
+        postUpdate(Temp_Week_Min_Time_Format, Temp_Week_Min.state + " °C (" + temp1 + ")")    
+    }
+end
+
+rule "Clear Min/Max Weekly Temperatures"
+when
+    Time cron "	0 1 0 ? * MON * "
+then
+    postUpdate(Temp_Week_Max, GY1SS8_temp.state as Number)
+    postUpdate(Temp_Week_Max_Time, new DateTimeType)
+    temp1 = Temp_Week_Max_Time.state.format("%1$tA" + ", " + "%1$tR")
+    postUpdate(Temp_Week_Max_Time_Format, Temp_Week_Max.state + " °C (" + temp1 + ")")    
+    
+    postUpdate(Temp_Week_Min, GY1SS8_temp.state as Number)
+    postUpdate(Temp_Week_Min_Time, new DateTimeType)
+    temp1 = Temp_Week_Min_Time.state.format("%1$tA" + ", " + "%1$tR")
+    postUpdate(Temp_Week_Min_Time_Format, Temp_Week_Min.state + " °C (" + temp1 + ")")    
+end
+
+rule "Min/Max Temperatures Monthly"
+when
+    Item GY1SS8_temp changed
+then
+    
+        //postUpdate(Temp_Month_Max, Temp_Week_Max.state as Number)
+        //postUpdate(Temp_Month_Max_Time, Temp_Week_Max_Time.state)
+        //temp2 = Temp_Month_Max_Time.state.format("%1$tA" + " " + "%1$td" + ", 13:52")
+        //postUpdate(Temp_Month_Max_Time_Format, Temp_Month_Max.state + " °C (" + temp2 + ")")    
+
+        //postUpdate(Temp_Month_Min, Temp_Week_Min.state as Number)
+        //postUpdate(Temp_Month_Min_Time, Temp_Week_Min_Time.state)
+        //temp2 = Temp_Month_Min_Time.state.format("%1$tA" + " " + "%1$td" + ", 05:20")
+        //postUpdate(Temp_Month_Min_Time_Format, Temp_Month_Min.state + " °C (" + temp2 + ")")
+    
+    if(
+        Temp_Month_Max.state == NULL
+    ){
+        postUpdate(Temp_Month_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Month_Max_Time, new DateTimeType)
+        temp2 = Temp_Month_Max_Time.state.format("%1$tA" + " " + "%1$td" + ", " + "%1$tR")
+        postUpdate(Temp_Month_Max_Time_Format, Temp_Month_Max.state + " °C (" + temp2 + ")")    
+    } 
+    if(
+        GY1SS8_temp.state as Number > Temp_Month_Max.state as Number
+    ){
+        postUpdate(Temp_Month_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Month_Max_Time, new DateTimeType)
+        temp2 = Temp_Month_Max_Time.state.format("%1$tA" + " " + "%1$td" + ", " + "%1$tR")
+        postUpdate(Temp_Month_Max_Time_Format, Temp_Month_Max.state + " °C (" + temp2 + ")")    
+    }        
+    if(
+        Temp_Month_Min.state == NULL
+    ){
+        postUpdate(Temp_Month_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Month_Min_Time, new DateTimeType)
+        temp2 = Temp_Month_Min_Time.state.format("%1$tA" + " " + "%1$td" + ", " + "%1$tR")
+        postUpdate(Temp_Month_Min_Time_Format, Temp_Month_Min.state + " °C (" + temp2 + ")")    
+        }
+    if(
+        Temp_Month_Min.state as Number > GY1SS8_temp.state as Number
+    ){
+        postUpdate(Temp_Month_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Month_Min_Time, new DateTimeType)
+        temp2 = Temp_Month_Min_Time.state.format("%1$tA" + " " + "%1$td" + ", " + "%1$tR")
+        postUpdate(Temp_Month_Min_Time_Format, Temp_Month_Min.state + " °C (" + temp2 + ")")    
+    }
+end
+
+rule "Clear Min/Max Monthly Temperatures"
+when
+    Time cron "	0 0 0 1 1/1 ? * "
+then
+    postUpdate(Temp_Month_Max, GY1SS8_temp.state as Number)
+    postUpdate(Temp_Month_Max_Time, new DateTimeType)
+    temp2 = Temp_Month_Max_Time.state.format("%1$tA" + " " + "%1$td" + ", " + "%1$tR")
+    postUpdate(Temp_Month_Max_Time_Format, Temp_Month_Max.state + " °C (" + temp2 + ")")    
+    
+    postUpdate(Temp_Month_Min, GY1SS8_temp.state as Number)
+    postUpdate(Temp_Month_Min_Time, new DateTimeType)
+    temp2 = Temp_Month_Min_Time.state.format("%1$tA" + " " + "%1$td" + ", " + "%1$tR")
+    postUpdate(Temp_Month_Min_Time_Format, Temp_Month_Min.state + " °C (" + temp2 + ")")    
+end
+
+rule "Min/Max Temperatures Yearly"
+when
+    Item GY1SS8_temp changed
+then
+    if(
+        Temp_Year_Max.state == NULL
+    ){
+        postUpdate(Temp_Year_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Year_Max_Time, new DateTimeType)
+        temp3 = Temp_Year_Max_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + ", " + "%1$tR")
+        postUpdate(Temp_Year_Max_Time_Format, Temp_Year_Max.state + " °C (" + temp3 + ")")    
+    } 
+    if(
+        GY1SS8_temp.state as Number > Temp_Year_Max.state as Number
+    ){
+        postUpdate(Temp_Year_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Year_Max_Time, new DateTimeType)
+        temp3 = Temp_Year_Max_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + ", " + "%1$tR")
+        postUpdate(Temp_Year_Max_Time_Format, Temp_Year_Max.state + " °C (" + temp3 + ")")    
+    }        
+    if(
+        Temp_Year_Min.state == NULL
+    ){
+        postUpdate(Temp_Year_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Year_Min_Time, new DateTimeType)
+        temp3 = Temp_Year_Min_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + ", " + "%1$tR")
+        postUpdate(Temp_Year_Min_Time_Format, Temp_Year_Min.state + " °C (" + temp3 + ")")    
+        }
+    if(
+        Temp_Year_Min.state as Number > GY1SS8_temp.state as Number
+    ){
+        postUpdate(Temp_Year_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_Year_Min_Time, new DateTimeType)
+        temp3 = Temp_Year_Min_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + ", " + "%1$tR")
+        postUpdate(Temp_Year_Min_Time_Format, Temp_Year_Min.state + " °C (" + temp3 + ")")    
+    }
+end
+
+rule "Clear Min/Max Yearly Temperatures"
+when
+    Time cron "	0 0 0 1 1 ? * "
+then
+    postUpdate(Temp_Year_Max, GY1SS8_temp.state as Number)
+    postUpdate(Temp_Year_Max_Time, new DateTimeType)
+    temp3 = Temp_Year_Max_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + ", " + "%1$tR")
+    postUpdate(Temp_Year_Max_Time_Format, Temp_Year_Max.state + " °C (" + temp3 + ")")    
+    
+    postUpdate(Temp_Year_Min, GY1SS8_temp.state as Number)
+    postUpdate(Temp_Year_Min_Time, new DateTimeType)
+    temp3 = Temp_Year_Min_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + ", " + "%1$tR")
+    postUpdate(Temp_Year_Min_Time_Format, Temp_Year_Min.state + " °C (" + temp3 + ")")    
+end
+
+rule "Min/Max Temperatures All Time"
+when
+    Item GY1SS8_temp changed
+then
+    if(
+        Temp_All_Max.state == NULL
+    ){
+        postUpdate(Temp_All_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_All_Max_Time, new DateTimeType)
+        temp4 = Temp_Year_Max_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
+        postUpdate(Temp_All_Max_Time_Format, Temp_All_Max.state + " °C (" + temp4 + ")")    
+    } 
+    if(
+        GY1SS8_temp.state as Number > Temp_All_Max.state as Number
+    ){
+        postUpdate(Temp_All_Max, GY1SS8_temp.state as Number)
+        postUpdate(Temp_All_Max_Time, new DateTimeType)
+        temp4 = Temp_Year_Max_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
+        postUpdate(Temp_All_Max_Time_Format, Temp_All_Max.state + " °C (" + temp4 + ")")    
+    }        
+    if(
+        Temp_All_Min.state == NULL
+    ){
+        postUpdate(Temp_All_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_All_Min_Time, new DateTimeType)
+        temp4 = Temp_Year_Min_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
+        postUpdate(Temp_All_Min_Time_Format, Temp_All_Min.state + " °C (" + temp4 + ")")    
+        }
+    if(
+        Temp_All_Min.state as Number > GY1SS8_temp.state as Number
+    ){
+        postUpdate(Temp_All_Min, GY1SS8_temp.state as Number)
+        postUpdate(Temp_All_Min_Time, new DateTimeType)
+        temp4 = Temp_Year_Min_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
+        postUpdate(Temp_All_Min_Time_Format, Temp_Year_Min.state + " °C (" + temp4 + ")")    
+    }
+end

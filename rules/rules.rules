@@ -1,0 +1,881 @@
+//import java.util.Map  // for timers
+
+var Number a = 0  // represents lighting mode - "OFF", "DUSK", "EVENING", "NIGHT"
+var Number b = 0  // used as a holding variable to switch back to the correct mode once motion timer has elapsed
+var Number c = 0  // used to control hall dark daytime lights
+var Number d = 0  // used to control kitchen dark daytime lights
+
+var Number bedTimeoutMins
+var Number bedTimeoutSecs
+var Number motionTimeoutMins
+var Number motionTimeoutSecs
+var Number motionSetpoint
+var Number darkDayMinHall
+var Number darkDayMaxHall
+var Number darkDayMinKit
+var Number darkDayMaxKit
+
+var String light_status
+var String motion_lights_status
+
+var Timer motionTimer = null
+var Timer timerHall = null
+var Timer timerKitchen = null
+var Timer timerMornings = null
+var Timer timerBedtime = null
+var Timer timerLeaveHome = null
+var Timer timerDoorBell = null
+
+/*============= TRIGGERS =============*/
+
+// SYSTEM
+
+rule "Reload Variables"
+    when
+        System started
+    then
+        a = A.state as Number
+        b = B.state as Number
+        motionTimeoutMins = Motion_Time.state as Number
+end
+
+// LIGHTS
+
+// Motion Timer
+
+rule "Motion Timer"
+    when   
+            Item GH1MS1_motion changed to "active"
+    then 
+            //logInfo("rules.rules", "Lighting mode is: " + Motion_Lights.state )
+            if((motionTimer === null) && (Motion_Lights.state == ON) && (A.state == 2 || A.state == 3)){
+                    motionTimeoutMins = Motion_Time.state as Number
+                    motionTimeoutSecs = motionTimeoutMins * 60
+                    motionSetpoint = Motion_Setpoint.state as Number
+                    b = A.state as Number
+                    postUpdate(B, b)
+                    a = 100
+                    postUpdate(A, a)
+                    light_status = "Motion detected"
+                    postUpdate(Light_Status, light_status)
+                    //sendCommand (gHueDimmer, motionSetpoint)
+                    sendCommand (GH1HB1_dimmer, motionSetpoint)
+                    Thread::sleep(500)
+                    sendCommand (FL1HB2_dimmer, motionSetpoint)
+                    Thread::sleep(500)
+                    sendCommand (FL1HB3_dimmer, motionSetpoint)
+                    motionTimer = createTimer(now.plusSeconds(motionTimeoutSecs.intValue), [ |
+                       motionTimer = null
+                       if(A.state == 100){
+                                a = B.state as Number
+                                postUpdate(A, a)
+                                b = 0
+                                postUpdate(B, b)
+                       }
+                ])
+            }
+            else if (motionTimer !== null && A.state == 100) {
+        motionTimer.reschedule(now.plusSeconds(motionTimeoutSecs.intValue))
+    }
+end
+
+rule "Motion Lights Status"
+/* Set variable a = 3 when scene controller button 4 is pressed */
+        when
+                Item A changed
+        then 
+                if((A.state == 2) || (A.state == 3)){
+                        motion_lights_status = "Standby"
+                        postUpdate(Motion_Lights_Status, motion_lights_status)
+                }
+                else if(A.state == 100){
+                        motion_lights_status = "Active"
+                        postUpdate(Motion_Lights_Status, motion_lights_status)                        
+                }
+                else{
+                        motion_lights_status = "Unavailable"
+                        postUpdate(Motion_Lights_Status, motion_lights_status)
+                }
+end
+
+// Dark Mornings
+
+rule "Dark Mornings"
+/* If it is 07:00 and the sun has not risen, set variable a = 4 */
+        when
+                Time cron "0 0 7 1/1 * ? *"
+        then
+                if(now.isBefore((Astro_SunriseEnd.state as DateTimeType).getZonedDateTime.toInstant.toEpochMilli)){
+                        a = 4
+                        postUpdate(A, a)
+                }
+end
+
+rule "Dark Mornings Override"
+        when
+                Item GH1MS1_motion changed to "active"
+        then
+                if((now.getHourOfDay < 7) && (now.getHourOfDay > 3) && (A.state != 0))
+                {
+                        a = 4
+                        postUpdate(A, a)
+                }                
+end
+
+// Dark Daytime (Hall)
+
+rule "Dark Daytime Hall"
+/* When Multisensor illuminance changes, is below 'x' lx and a = 0, wait 10 minutes, then set a = 5 if the previous conditions are still true */
+        when
+                Item GH1MS1_illuminance changed
+        then
+                darkDayMinHall = Lux_Min_Hall.state as Number
+                darkDayMaxHall = Lux_Max_Hall.state as Number
+                if(
+                        (GH1MS1_illuminance.state < darkDayMinHall) && (A.state == 0) && (C.state == 0)
+                ){
+                        c = 1
+                        postUpdate(C, c)
+                        logInfo("rules.rules", "Dark daytime hall trigger timer start")
+                        timerHall = createTimer(now.plusMinutes(5), [ |
+                        if(
+                                (GH1MS1_illuminance.state < darkDayMinHall) && (C.state == 1) && (A.state == 0)
+                        )
+                        {
+                                c = 2
+                                postUpdate(C, c)
+                                timerHall = null
+                        }
+                        else
+                        {
+                                c = 0
+                                postUpdate(C, c)
+                                timerHall = null
+                        }
+                ])
+                }
+end
+
+rule "Dark Daytime Hall Recovered"
+/* When Multisensor illuminance changes, is above 'x + y' lx and a = 5, wait 10 minutes, then set a = 0 if the previous conditions are still true */
+        when
+                Item GH1MS1_illuminance changed
+        then
+                if(
+                        (GH1MS1_illuminance.state > darkDayMaxHall) && (C.state == 2)
+                ){
+                        timerHall = createTimer(now.plusMinutes(5), [ |
+                        if(GH1MS1_illuminance.state > darkDayMaxHall && C.state == 2){
+                                c = 0
+                                postUpdate(C, c)
+                                timerHall = null
+                                sendCommand (GO1SP1_switch, "OFF")
+                                sendCommand (GL1SP2_switch, "OFF")
+                                sendCommand (XM1SS21_switch, "OFF")
+                                sendCommand (gHueDimmer, 0)
+                                sendCommand (gHueYard, 0)
+                                sendCommand (gHueFront, 0)
+                                sendCommand (GY1HB15_dimmer, 0)              
+                        }                         
+                        ])
+                }
+end
+
+rule "Dark Day Hall Lights Present"
+/* When variable a = 5 and presence = present, turn on Smart Plugs, turn on Sonoff Relays and dim Hue bulbs to 50% */
+        when   
+                Item C changed to 2
+        then    
+                sendCommand (GO1SP1_switch, "ON")                
+                sendCommand (gHueYard, 33)
+                sendCommand (gHueFront, HueFrontDarkDaytime_Setpoint.state as Number)
+                sendCommand (GY1HB15_dimmer, 25)
+                if(XM1AS1_presence.state.toString == "present"){
+                        //sendCommand (GL1SP2_switch, "ON")
+                        sendCommand (XM1SS21_switch, "ON")
+                        sendCommand (gHueDimmer, DarkHall_Setpoint.state as Number)
+                }
+end
+
+// Dark Daytime (Kitchen)
+
+rule "Dark Day Kitchen Lights Present"
+/* When variable a = 5 and presence = present, turn on Smart Plugs, turn on Sonoff Relays and dim Hue bulbs to 50% */
+        when   
+                Item D changed to 2
+        then    
+                if(
+                        GK1HB4_dimmer.state < 5
+                ){
+                        sendCommand (gHueKitchen, DarkKitchen_Setpoint.state as Number)
+                }
+                if(XM1AS1_presence.state.toString == "present"){
+                        sendCommand (gSonoff, "ON")
+                }
+end
+
+
+
+// Dark Daytime (General)
+
+rule "Dark Daytime Status (Hall)"
+
+        when
+                Item C changed
+        then
+                if(
+                        ((C.state == 2) && (D.state == 2))
+                ){
+                        light_status = "Dark day hall/kitchen"
+                        postUpdate(Light_Status, light_status)
+                }
+                else
+                {
+                        if(
+                                ((D.state == 2) && (C.state != 2))
+                        ){
+                                light_status = "Dark day kitchen"
+                                postUpdate(Light_Status, light_status)
+                        }
+                        if(
+                                ((C.state == 2) && (D.state != 2))
+                        ){
+                                light_status = "Dark day hall"
+                                postUpdate(Light_Status, light_status)
+                        }
+                        if(
+                                ((D.state == 0) && (C.state == 0) && (A.state == 0))
+                        ){
+                                light_status = "Off"
+                                postUpdate(Light_Status, light_status)
+                        }
+                }
+        end
+
+rule "Dark Daytime Status (Kitchen)"
+
+        when
+                Item D changed
+        then
+                if(
+                        ((C.state == 2) && (D.state == 2))
+                ){
+                        light_status = "Dark day hall/kitchen"
+                        postUpdate(Light_Status, light_status)
+                }
+                else
+                {
+                        if(
+                                ((C.state == 2) && (D.state != 2))
+                        ){
+                                light_status = "Dark day hall"
+                                postUpdate(Light_Status, light_status)
+                        }
+                        if(
+                                ((D.state == 2) && (C.state != 2))
+                        ){
+                                light_status = "Dark day kitchen"
+                                postUpdate(Light_Status, light_status)
+                        }
+                        if(
+                                ((D.state == 0) && (C.state == 0) && (A.state == 0))
+                        ){
+                                light_status = "Off"
+                                postUpdate(Light_Status, light_status)
+                        }
+                }
+        end
+
+rule "Dark Daytime Left Home"
+// When Multisensor illuminance changes, is above 60 lx and a = 5, wait 10 minutes, then set a = 0 if the previous conditions are still true */
+        when
+                Item XM1AS1_presence changed to "not present"
+        then
+                if(
+                        ((C.state == 2) || (D.state == 2))  // Dark day hall or kitchen active
+                ){
+                        timerLeaveHome = createTimer(now.plusMinutes(5), [ |
+                        if (XM1AS1_presence.state == "not present"){
+                                //sendCommand (GO1SP1_switch, "OFF")
+                                sendCommand (GL1SP2_switch, "OFF")
+                                sendCommand (XM1SS21_switch, "OFF")
+                                sendCommand (gHueDimmer, 0)
+                                sendCommand (gHueKitchen, 0)
+                                sendCommand (gHueGlass, 0)
+                                sendCommand (GK1SS1_switch, "OFF")
+                                sendCommand (GK1SS2_switch, "OFF")
+                                //sendCommand(BlueIris_trigger, "profile=2")
+                        }
+                        timerLeaveHome = null
+                        ])
+                }
+                if (A.state == 1 || A.state == 2){              // Lighting mode dusk or evening
+                        timerLeaveHome = createTimer(now.plusMinutes(5), [ |
+                        if (XM1AS1_presence.state == "not present"){
+                                sendCommand (gHueKitchen, 0)
+                                sendCommand (gHueGlass, 0)
+                                sendCommand (GK1SS1_switch, OFF)
+                                sendCommand (GK1SS2_switch, OFF)
+                                sendCommand (XM1SS21_switch, OFF)
+                                //sendCommand(BlueIris_trigger, "profile=2")
+                        }
+                        timerLeaveHome = null
+                        ])
+                }
+                else {              
+                        timerLeaveHome = createTimer(now.plusMinutes(5), [ |
+                        if (XM1AS1_presence.state == "not present"){
+                                sendCommand (gHueKitchen, 0)
+                                sendCommand (gHueGlass, 0)
+                                //sendCommand(BlueIris_trigger, "profile=2")
+                        }
+                        timerLeaveHome = null
+                        ])
+                }
+end
+
+rule "Dark Day Lights Return"
+// When presence = present and variable a = 5, turn on Smart Plugs, turn on Sonoff Relays and dim Hue bulbs to 50% */
+        when   
+                Item XM1AS1_presence changed to "present"
+        then    
+                sendCommand(BlueIris_trigger, "profile=1")
+                if(A.state == 0 && C.state == 2){               // Dark daytime hall active
+                        sendCommand (GO1SP1_switch, "ON")
+                        sendCommand (GL1SP2_switch, "ON")
+                        sendCommand (XM1SS21_switch, "ON")
+                        sendCommand (gHueDimmer, DarkHall_Setpoint.state as Number)
+                }
+                if (A.state == 0 && D.state == 2){              // Dark daytime kitchen
+                        sendCommand (gSonoff, "ON")
+                        sendCommand (gHueKitchen, DarkKitchen_Setpoint.state as Number)
+                }
+                if (A.state == 1){  // Lighting mode dusk
+                        sendCommand (gHueKitchen, KitDusk_Setpoint.state as Number)
+                        //sendCommand (gHueGlass, 25)
+                        sendCommand (GK1SS1_switch, ON)
+                        sendCommand (GK1SS2_switch, ON)
+                        sendCommand (XM1SS21_switch, ON)
+                }
+                if (A.state == 2 || A.state == 100){  // Lighting mode evening
+                        sendCommand (gHueKitchen, KitEvening_Setpoint.state as Number)
+                        //sendCommand (gHueGlass, 25)
+                        sendCommand (GK1SS1_switch, ON)
+                        sendCommand (GK1SS2_switch, ON)
+                        sendCommand (XM1SS21_switch, ON)
+                }
+end
+
+// MORNING LIGHTS
+
+rule "Morning Override"
+        when
+                Item Lighting_Mode changed to 4
+        then
+                a = 4
+                postUpdate(A, a)
+end
+
+rule "Light Mornings"
+/* If the sun has risen and it is before 07:00, set variable a = 0 */
+        when
+                Channel 'astro:sun:local:rise#event' triggered START
+        then
+                if(now.getHourOfDay < 7){
+                        a = 0
+                        postUpdate(A, a)
+                }
+
+// trigger dark day hall if light levels already low
+
+                darkDayMinHall = Lux_Min_Hall.state as Number
+                darkDayMaxHall = Lux_Max_Hall.state as Number
+                if(
+                        (GH1MS1_illuminance.state < darkDayMinHall) && (A.state == 0) && (C.state == 0)
+                ){
+                        c = 1
+                        postUpdate(C, c)
+                        logInfo("rules.rules", "Dark daytime hall trigger timer start")
+                        timerHall = createTimer(now.plusSeconds(1), [ |
+                        if(
+                                (GH1MS1_illuminance.state < darkDayMinHall) && (C.state == 1) && (A.state == 0)
+                        )
+                        {
+                                c = 2
+                                postUpdate(C, c)
+                                timerHall = null
+                        }
+                        else
+                        {
+                                c = 0
+                                postUpdate(C, c)
+                                timerHall = null
+                        }
+                ])
+                }
+
+// trigger dark day kitchen if light levels already low
+
+                darkDayMinKit = Lux_Min_Kitchen.state as Number
+                darkDayMaxKit = Lux_Max_Kitchen.state as Number
+                if(
+                        (GK1SS1_illuminance.state < darkDayMinKit) && (A.state == 0) && (D.state == 0)
+                ){
+                        d = 1
+                        postUpdate(D, d)
+                        logInfo("rules.rules", "Dark daytime kitchen trigger timer start")
+                        timerKitchen = createTimer(now.plusSeconds(1), [ |
+                        if(
+                                (GK1SS1_illuminance.state < darkDayMinKit) && (D.state == 1) && (A.state == 0)
+                        )
+                        {
+                                d = 2
+                                postUpdate(D, d)
+                                timerKitchen = null
+                        }
+                        else
+                        {
+                                d = 0
+                                postUpdate(D, d)
+                                timerKitchen = null
+                        }
+                ])
+                }
+end
+
+// Evening & Night
+
+rule "Sunset -30 Minutes"
+/* Set variable a = 1 when it is 30 minutes prior to sunset, set item A to equal variable a */
+        when
+                Channel "astro:sun:c7d0dedc:set#event" triggered END
+        then 
+                a = 1
+                c = 0
+                d = 0 
+                postUpdate(C, c)
+                postUpdate(A, a)
+                postUpdate(B, b)
+                sendCommand(GY1SS24_switch, ON)
+                sendCommand(gChristmas, ON)
+                logInfo("Christmas.rules", "gChristmas ON - sunset -30 mins" )
+
+end
+
+rule "Midnight"
+        when
+                Time cron "0 0 0 1/1 * ? *"
+        then
+                sendCommand(GY1SS24_switch, OFF)
+                sendCommand(gHueFront, HueFrontMidnight_Setpoint.state as Number)
+                sendCommand(gHueYard, 30)
+                sendCommand(Presence_Override, OFF)
+
+end
+
+rule "Sunset"
+/* Set variable a = 2 when sunset ends, set item A to equal variable a */
+        when
+                Channel 'astro:sun:local:set#event' triggered END
+        then 
+                a = 2
+                postUpdate(A, a)
+end
+
+rule "Bedtime"
+/* Set variable a = 3 when scene controller button 4 is pressed */
+        when
+                Item FB1SC1_power changed to 4
+        then 
+                a = 3
+                postUpdate(A, a)
+                sendCommand(FB1SC1_power, 0)
+end
+
+rule "Night Lights Away"
+/* Set variable a = 3 when it is 23:00 if not present */
+        when
+                Time cron "0 0 23 1/1 * ? *"
+        then
+                if(XM1AS1_presence.state.toString == "not present"){
+                        a = 3
+                        postUpdate(A, a)
+                }
+end
+
+rule "Night Lights Reset Arrive Home"
+/* Set variable a = 2 when presence changes to present, it is after 23:00 and variable a = 0 */
+        when
+                Item XM1AS1_presence changed to "present"
+        then
+                if(((now.getHourOfDay > 22) || (now.getHourOfDay < 4)) && (A.state == 5)){
+                        a = 2
+                        postUpdate(A, a)
+                }
+
+                if(A.state == 1){
+                        sendCommand (gHueKitchen, KitDusk_Setpoint.state as Number) 
+                }
+
+                if(A.state == 2){
+                        sendCommand (gHueKitchen, KitEvening_Setpoint.state as Number) 
+                }
+
+end
+
+/*============ ACTIONS ============*/
+
+rule "Reset Dark Day Variables"
+
+        when
+                Item A changed
+        then
+                if(
+                        A.state > 0
+                )
+                {
+                        c = 0
+                        d = 0 
+                        postUpdate(C, c)
+                        postUpdate(D, d)
+                }
+end                
+
+rule "Dark Morning Lights On"
+/* Turn on Smart Plugs (except bedroom), turn on Sonoff Relays and dim Hue bulbs to 50% when item A changes to 4 */
+        when   
+                Item A changed to 4
+        then    
+                light_status = "Dark morning"
+                postUpdate(Light_Status, light_status)
+                sendCommand (GO1SP1_switch, "ON")
+                sendCommand (GL1SP2_switch, "ON")
+                sendCommand (XM1SS21_switch, "ON")
+                sendCommand (gSonoff, "ON")
+                sendCommand (gHueDimmer, DarkMorning_Setpoint.state as Number)
+                sendCommand (gHueYard, 33)
+                sendCommand (gHueFront, HueFrontDarkMorning_Setpoint.state as Number)
+                sendCommand (GY1HB15_dimmer, 25)
+end
+
+rule "Dark Morning Lights Off"
+/* If variable a = 4 at sunrise, wait for 30 minutes, then set a = 0 */
+        when   
+                Channel 'astro:sun:local:rise#event' triggered START
+        then    
+                
+                timerMornings = createTimer(now.plusMinutes(30), [ |
+                timerMornings = null
+
+/*                darkDayMinHall = Lux_Min_Hall.state as Number
+                darkDayMaxHall = Lux_Max_Hall.state as Number
+
+                if(
+                        (GH1MS1_illuminance.state < darkDayMinHall) 
+                ){
+                        c = 1
+                        postUpdate(C, c)
+                }
+
+                darkDayMinKit = Lux_Min_Kitchen.state as Number
+                darkDayMaxKit = Lux_Max_Kitchen.state as Number
+
+                if(
+                        (GK1SS1_illuminance.state < darkDayMinKit)
+                ){
+                        d = 1
+                        postUpdate(D, d)
+                }
+*/
+                sendCommand (gHueYard, 0)
+                sendCommand (gHueFront, 0)
+                sendCommand (GY1HB15_dimmer, 0)
+                if(A.state == 4){
+                        a = 0
+                        postUpdate(A, a)
+                        darkDayMinHall = Lux_Min_Hall.state as Number
+                        darkDayMaxHall = Lux_Max_Hall.state as Number
+                        if(GH1MS1_illuminance.state < darkDayMinHall)
+                        {
+                                c = 2
+                                postUpdate(C, c)
+                        }
+                        darkDayMinKit = Lux_Min_Kitchen.state as Number
+                        darkDayMaxKit = Lux_Max_Kitchen.state as Number
+                        if(GK1SS1_illuminance.state < darkDayMinKit)
+                        {
+                                d = 2
+                                postUpdate(D, d)
+                        }
+
+/*                if(C.state == 1){
+                        c = 2
+                        postUpdate(C, c)
+  
+                }
+
+                if(D.state == 1){
+                        d = 2
+                        postUpdate(D, d)
+  
+                }
+*/
+                }])
+
+end
+
+rule "Dusk Lights"
+/* Turn on Smart Plugs, turn on Sonoff Relays and dim Hue bulbs to 75% when item A changes to 1 */
+        when   
+                Item A changed to 1
+        then    
+                light_status = "Dusk"
+                postUpdate(Light_Status, light_status)
+                /*logInfo("rules.rules", "Lighting mode is: " + Light_Status.state )*/
+                sendCommand (gPlugs, "ON")
+                //sendCommand (GK1SS2_switch, "ON")
+                sendCommand (gHueDimmer, Dusk_Setpoint.state as Number)
+                sendCommand (gHueYard, 15)
+                sendCommand (gHueFront, HueFrontDusk_Setpoint.state as Number)
+                sendCommand (GY1HB15_dimmer, 25)
+                if(XM1AS1_presence.state.toString == "present"){
+                      sendCommand (gHueKitchen, KitDusk_Setpoint.state as Number)
+                      sendCommand (GK1SS1_switch, "ON")
+                      sendCommand (GK1SS2_switch, "ON")
+                      sendCommand (XM1SS21_switch, "ON")                                
+                }
+end
+
+rule "Evening Lights"
+/* Dim Hue bulbs to 30% when item A changes to 2 */
+        when   
+                Item A changed to 2
+        then    
+                light_status = "Evening"
+                postUpdate(Light_Status, light_status)
+                sendCommand (gPlugs, "ON")
+                //sendCommand (GK1SS1_switch, "ON")
+                sendCommand (gHueDimmer, Evening_Setpoint.state as Number) 
+                sendCommand (gHueYard, 45)
+                sendCommand (gHueFront, HueFrontEvening_Setpoint.state as Number)
+                sendCommand (GY1HB15_dimmer, 66)
+                if(XM1AS1_presence.state.toString == "present"){
+                      sendCommand (gHueKitchen, KitEvening_Setpoint.state as Number)          
+                }
+                sendCommand (Lighting_Mode, "1")
+end
+
+rule "Kitchen Lights"
+        when
+                Item GK1_mode changed
+        then
+                if(GK1_mode.state == 1)
+                {
+                        sendCommand (gHueKitchen, KitEvening_Setpoint.state as Number)
+                        sendCommand (gHueGlass, 0)
+                }
+                if(GK1_mode.state == 2)
+                {
+                        sendCommand (GK1HB4_dimmer, 0)
+                        sendCommand (GK1HB5_dimmer, 0)
+                        sendCommand (GK1HB6_dimmer, 5)
+                        sendCommand (GK1HB7_dimmer, 5)
+                        sendCommand (GK1HB8_dimmer, 25)
+                        sendCommand (GK1HB9_dimmer, 25)
+                        sendCommand (gHueTable, 40)
+                        sendCommand (gHueGlass, 0)
+                        sendCommand (GK1SS1_switch, OFF)
+                        sendCommand (GK1SS2_switch, OFF)
+                }
+                if(GK1_mode.state == 3)
+                {
+                        sendCommand (GK1HB4_dimmer, 100)
+                        sendCommand (GK1HB5_dimmer, 100)
+                        sendCommand (GK1HB6_dimmer, 100)
+                        sendCommand (GK1HB7_dimmer, 100)
+                        sendCommand (GK1HB8_dimmer, 100)
+                        sendCommand (GK1HB9_dimmer, 100)
+                        sendCommand (gHueTable, 25)
+                        sendCommand (gHueGlass, 25)
+                        sendCommand (GK1SS1_switch, ON)
+                        sendCommand (GK1SS2_switch, ON)
+                }
+end
+
+rule "Night lights"
+/* Turn off Smart Plugs, turn off Sonoff Relays and dim Hue bulbs when item A changes to 3 */
+        when   
+                Item A changed to 3
+        then    
+                light_status = "Night"
+                postUpdate (Light_Status, light_status)
+                sendCommand (GO1SP1_switch, "OFF")
+                sendCommand (GL1SP2_switch, "OFF")
+                sendCommand (XM1SS21_switch, "OFF")
+                sendCommand (gSonoff, "OFF")
+                sendCommand (GH1HB1_dimmer, NightHallFront_Setpoint.state as Number)
+                sendCommand (FL1HB2_dimmer, NightHallMid_Setpoint.state as Number)
+                sendCommand (FL1HB3_dimmer, NightHallRear_Setpoint.state as Number)
+                sendCommand (gHueKitchen, 0)
+                sendCommand (Lighting_Mode, "2") 
+                sendCommand (FB1BE3_position, 1)
+
+                if(XM1AS1_presence.state.toString == "not present"){
+                        a = 5
+                        postUpdate(A, a)
+                        sendCommand (FB1SP3_switch, "OFF")
+                }
+
+                else(XM1AS1_presence.state == "present"){
+                        bedTimeoutMins = Bed_Time.state as Number
+                        bedTimeoutSecs = bedTimeoutMins * 60
+                        timerHall = createTimer(now.plusSeconds(bedTimeoutSecs.intValue), [ |
+                        if(A.state == 3 || B.state == 3){
+                        sendCommand (FB1SP3_switch, "OFF")
+                        } 
+                ])}                             
+end
+
+rule "Lights Off"
+/* Turn off Smart Plugs and Sonoff Relays when item A changes to 0 */
+        when   
+                Item A changed to 0
+        then    
+                /*Thread::sleep(1000)
+                if(A.state !== 100)
+                        {
+                        sendCommand(GH1HB1_dimmer, Evening_Setpoint.state as Number)
+                        }   
+                */
+                light_status = "Off"
+                postUpdate(Light_Status, light_status)
+                sendCommand (gPlugs, "OFF")
+                sendCommand (gSonoff, "OFF")
+                sendCommand (gHueDimmer, 0)
+                sendCommand (gHueYard, 0)
+                sendCommand (gHueFront, 0)
+                sendCommand (GY1HB15_dimmer, 0)
+                sendCommand (gHueKitchen, 0)
+                sendCommand (Lighting_Mode, "3")     
+end
+
+rule "Bedside Lamp Toggle"
+/* Turn off Smart Plugs and Sonoff Relays when item A changes to 0 */
+        when   
+                Item FB1SC1_power changed to 3
+        then
+        if(FB1SP3_switch.state == ON){    
+                sendCommand (FB1SP3_switch, "OFF")
+                sendCommand(FB1SC1_power, 0)}
+        else{
+                sendCommand (FB1SP3_switch, "ON")
+                sendCommand(FB1SC1_power, 0)}              
+end
+
+rule "Lighting Mode Override"
+        when
+                Item Lighting_Mode changed
+        then
+        if(Lighting_Mode.state == "1"){
+                a = 2
+                postUpdate(A, a)
+        }
+        else if(Lighting_Mode.state == "2"){
+                a = 3
+                postUpdate(A, a)
+        }
+        else if(Lighting_Mode.state == "3"){
+                a = 0
+                postUpdate(A, a)
+        }
+end
+
+rule "Test3"
+        when
+                Item FB1SC1_power changed to 1
+        then
+                a = 2
+                postUpdate(A, a)
+end
+
+/*============ TEST RULES USING BUTTONS ============*/
+/*
+rule "Test1"
+        when
+                Item FB1SC1_power changed to 3
+        then
+                a = 1
+                postUpdate(A, a)
+end*/
+
+/*rule "Test2"
+        when
+                Item FB1SC1_power changed to 2
+        then
+                a = 2
+                postUpdate(A, a)
+                sendCommand(FB1SC1_power, 0)
+end*/
+
+/*rule "Test"
+        when
+                Item FB1SC1_power changed to 3
+        then
+                z = z + 1
+                postUpdate(A, z)
+                sendCommand(GH1HB1_dimmer, 40)
+                sendCommand(FB1SC1_power, 0)
+                createTimer(now.plusSeconds(5), [sendCommand(GH1HB1_dimmer, 10) postUpdate(GH1HB1_dimmer, 10)])
+end*/
+
+/*rule "Lights_Off"
+        when
+                Channel 'astro:sun:local:rise#end' triggered START
+        then
+                if(GH1HB1_dimmer.state > 0){
+                createTimer(now.plusMinutes(20), [sendCommand(GH1HB1_dimmer, 0) postUpdate(GH1HB1_dimmer, 0)])
+                }              
+end*/
+
+/*rule "corLightOn"
+    when   
+            Item GH1MS1_motion changed to "active"
+
+    then
+            b = a
+            a = 100 
+            postUpdate(A, a) 
+            postUpdate(B, b)
+            sendCommand(GH1HB1_dimmer, 80) 
+            Thread::sleep(750)
+            sendCommand(FL1HB2_dimmer, 80)
+            Thread::sleep(750)
+            sendCommand(FL1HB3_dimmer, 80)
+            Thread::sleep(750)
+            Thread::sleep(1500)   
+            /*sendCommand(FL1HB3_dimmer, 1)
+            Thread::sleep(750)
+            sendCommand(FL1HB2_dimmer, 1)
+            Thread::sleep(750)
+            sendCommand(GH1HB1_dimmer, 1)
+            postUpdate(A, b)
+    end*/
+
+/*rule "corLightOnA"
+    when   
+            Member of Plugs changed to "ON"
+
+    then   
+            sendCommand(GH1HB1_dimmer, 80) 
+            createTimer(now.plusSeconds(2)) [sendCommand(GH1HB1_dimmer, 1) ]
+    end
+*/
+
+/*rule "corLightOn1"
+    when   
+            Time cron "	0 0 0 1/1 * ? * "
+
+    then   
+            sendCommand(FL1HB2_dimmer, 0) 
+            /*createTimer(now.plusSeconds(2)) [sendCommand(GH1HB1_dimmer, 1) ]
+    end*/

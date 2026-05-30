@@ -1,0 +1,120 @@
+var Timer christmasTimer = null
+var Timer christmasTimer1 = null
+
+rule "Schedule Morning ON"
+        when
+                Time cron "0 0 7 1/1 * ? *"
+        then
+                if(Christmas_Auto.state == ON){
+                    sendCommand(gChristmas, ON)
+                    logInfo("Christmas.rules", "gChristmas ON - schedule morning" )
+                }
+end
+
+/*
+rule "Schedule Morning OFF"
+        when
+                Time cron "0 0 9 1/1 * ? *"
+        then
+                if(Christmas_Auto.state == ON){
+                    sendCommand(gChristmas, OFF)
+                }
+end
+*/
+
+/*
+rule "Schedule Evening ON"
+        when
+                Item A changed to 1
+        then 
+                if(Christmas_Auto.state == ON){
+                    sendCommand(gChristmas, ON)
+                }
+end
+*/
+
+rule "Schedule Evening OFF"
+        when
+                Item FB1SC1_power changed to 4
+                or
+                Time cron "0 0 0 1/1 * ? *"
+        then  
+                if(Christmas_Auto.state == ON){
+                    sendCommand(gChristmas, OFF)
+                    sendCommand(Christmas_Override, 0)
+                    logInfo("Christmas.rules", "gChristmas OFF - schedule evening off" )
+                }
+end
+
+rule "Dark Day OFF"
+        when
+                Item A changed to 0
+                or
+                Item C changed to 0
+                or
+                Item D changed to 0
+        then
+                if(Christmas_Override.state == 0)
+                {
+                        Thread::sleep(1000)
+                        if(Christmas_Auto.state == ON && A.state != 1){
+                        sendCommand(gChristmas, OFF)
+                        logInfo("Christmas.rules", "gChristmas OFF - dark day" )
+                        }
+                }
+end
+
+rule "Dark Day ON"
+        when
+                Item C changed to 2
+                or
+                Item D changed to 2
+        then
+                if(Christmas_Auto.state == ON){
+                    sendCommand(gChristmas, ON)
+                    logInfo("Christmas.rules", "gChristmas ON - dark day" )
+                }
+end         
+
+rule "Lights Refresh"
+        when   
+                Item gChristmas changed to ON
+        then
+                        christmasTimer = null
+                        christmasTimer1 = null
+                        christmasTimer = createTimer(now.plusMinutes(240), [ |
+                        sendCommand(gChristmas, OFF)
+                        logInfo("Christmas.rules", "gChristmas - lights refresh" )
+                        christmasTimer1 = createTimer(now.plusSeconds(10), [ |
+                        sendCommand(gChristmas, ON)
+                ])])
+end
+
+rule "Lights Refresh Cancel"
+        when   
+                Item gChristmas changed to OFF
+        then
+                        christmasTimer.cancel()
+end
+
+rule "Office Blind Morning"
+
+        when
+                Time cron "0 0 7 1/1 * ? *"
+        then
+                if(Blinds_Christmas.state == ON)
+                {
+                        sendCommand(GO1BE1_position, 100)
+                }  
+end
+
+rule "Office Blind Evening"
+
+        when
+                Time cron "0 0 23 1/1 * ? *"
+        then
+                if(Blinds_Christmas.state == ON)
+                {
+                        sendCommand(GO1BE1_position, 0)
+                }  
+end

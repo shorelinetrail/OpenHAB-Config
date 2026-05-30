@@ -1,0 +1,6 @@
+rule "Update Last MQTT message timestamp"
+when
+    Item GK1SA1_online received update
+then
+    GK1SA1_LastUpdate.postUpdate(now.toString) // ISO string avoids type ambiguity
+end

@@ -1,0 +1,91 @@
+var Number boiler_delta = 0
+var Number boiler_runtime = 0
+var Number boiler_runtime_week = 0
+var Number boiler_runtime_month = 0
+var Timer hCheck = null
+var Timer hRetry = null
+var Number boiler_retry = 0
+
+rule "Boiler Differential"
+    when
+        Item GY1NM2_temp1 changed 
+    then
+        boiler_delta = (GY1NM2_temp1.state as Number) - (GY1NM2_temp2.state as Number)
+        postUpdate(GY1NM2_delta, boiler_delta)
+end
+
+/*rule "Boiler Failed to Start"
+    when
+        Item GY1SS8_switch changed to ON
+    then
+        postUpdate(hRetryFlag, boiler_retry)
+        if(hRetryFlag.state == 0){
+            logInfo("boiler.rules", "Start")
+            hCheck = createTimer(now.plusMinutes(1.intValue), [ |
+                hCheck = null
+                if(GY1SS8_switch.state == ON && GY1SS8_power == OFF){
+                    sendPushoverMessage(pushoverBuilder("Boiler failed to start, retrying..."))
+                    boiler_retry = 1
+                    postUpdate(hRetryFlag, boiler_retry)
+                    sendCommand(GY1SS8_switch, OFF)
+                    Thread::sleep(1000)
+                    sendCommand(GY1SS8_switch, ON)
+                    hRetry = createTimer(now.plusMinutes(1.intValue), [ |
+                        hRetry = null
+                        if(GY1SS8_switch.state == ON && GY1SS8_power == OFF){
+                            sendPushoverMessage(pushoverBuilder("Boiler failed to start, check boiler."))
+                            sendCommand(GY1SS8_switch, OFF)
+                            boiler_retry = 0
+                            postUpdate(hRetryFlag, boiler_retry)
+                        }
+                        if(GY1SS8_switch.state == ON && GY1SS8_power == ON){
+                            sendPushoverMessage(pushoverBuilder("Boiler started OK."))
+                            boiler_retry = 0
+                            postUpdate(hRetryFlag, boiler_retry)
+                        }   
+                    ])
+                }
+            ])
+        }
+end*/
+
+rule "Boiler Run Time"
+    when
+        Time cron "0 0/1 * 1/1 * ? *"
+    then
+        if(GY1NM2_temp1.state > 60){
+            boiler_runtime = boiler_runtime + 1
+            boiler_runtime_week = boiler_runtime_week + 1
+            boiler_runtime_month = boiler_runtime_month + 1
+            postUpdate(hRuntimeToday, boiler_runtime)
+            postUpdate(hRuntimeThisWeek, boiler_runtime_week / 60)
+            postUpdate(hRuntimeThisMonth, boiler_runtime_month / 60)
+        }
+end
+
+rule "Boiler Run Time Reset Daily"
+    when
+        Time cron "0 0 0 1/1 * ? *"
+    then
+        postUpdate(hRuntimeYesterday, boiler_runtime)
+        boiler_runtime = 0
+        postUpdate(hRuntimeToday, boiler_runtime)
+end
+
+rule "Boiler Run Time Reset Weekly"
+    when
+        Time cron "0 0 0 ? * SUN *"
+    then
+        postUpdate(hRuntimeLastWeek, boiler_runtime_week)
+        boiler_runtime_week = 0
+        postUpdate(hRuntimeThisWeek, boiler_runtime_week)
+end
+
+rule "Boiler Run Time Reset Monthly"
+    when
+        Time cron "0 0 0 1 1/1 ? *"
+    then
+        postUpdate(hRuntimeLastMonth, boiler_runtime_month)
+        boiler_runtime_month = 0
+        postUpdate(hRuntimeThisMonth, boiler_runtime_month)
+end

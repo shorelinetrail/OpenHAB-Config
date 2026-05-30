@@ -1,0 +1,285 @@
+var Number blindsSP
+var Number blindsDelay
+
+var Timer timerBlinds = null
+
+var Timer GO1BE1_timer = null
+var Timer GL1BE2_timer = null
+var Timer FB1BE3_timer = null
+var Timer FB1BE3_timer1 = null
+
+var Number e = 0  // used for blinds control (surnise)
+var Number f = 0  // used for blinds control (post-sunrise)
+
+var Number GO1BE1_retry = 0
+var Number GL1BE2_retry = 0
+var Number FB1BE3_retry = 0
+
+var GO1BE1_lastcommand = now
+var GL1BE2_lastcommand = now
+var FB1BE3_lastcommand = now
+
+var Number GO1BE1_command = 0
+var Number GL1BE2_command = 0
+var Number FB1BE3_command = 0
+
+// BLINDS
+/*
+rule "Check Received Command (Office)"
+        when
+                Item GO1BE1_position received command 
+        then 
+                GO1BE1_command = receivedCommand as Number
+                if(GO1BE1_lastcommand.isBefore(now.minusSeconds(10))){
+                        GO1BE1_timer = createTimer(now.plusSeconds(60.intValue), [ |
+                                if(GO1BE1_retry < 4){
+                                        if(GO1BE1_command == GO1BE1_position.state){
+                                                logInfo("blinds.rules", "Office blind OK" )
+                                                GO1BE1_retry = 0 
+                                        }
+                                        else{
+                                                logInfo("blinds.rules", "Offic blind not OK, retrying..." )
+                                                sendCommand(GO1BE1_position, GO1BE1_command)
+                                                GO1BE1_retry = GO1BE1_retry + 1
+                                        }
+                                }
+                                else{
+                                        logInfo("blinds.rules", "Office blind not responding" )
+                                        sendPushoverMessage(pushoverBuilder("Office blind not responding"))
+                                        GO1BE1_retry = 0
+                                }
+                        ])
+                }
+                GO1BE1_lastcommand = now
+end
+
+rule "Check Received Command (Living Room)"
+        when
+                Item GL1BE2_position received command 
+        then 
+                GL1BE2_command = receivedCommand as Number
+                if(GL1BE2_lastcommand.isBefore(now.minusSeconds(10))){
+                        GL1BE2_timer = createTimer(now.plusSeconds(60.intValue), [ |
+                                if(GL1BE2_retry < 4){
+                                        if(GL1BE2_command == GL1BE2_position.state){
+                                                logInfo("blinds.rules", "Living Room blind OK" )
+                                                GL1BE2_retry = 0 
+                                        }
+                                        else{
+                                                logInfo("blinds.rules", "Living Room blind not OK, retrying..." )
+                                                sendCommand(GL1BE2_position, GL1BE2_command)
+                                                GL1BE2_retry = GL1BE2_retry + 1
+                                        }
+                                }
+                                else{
+                                        logInfo("blinds.rules", "Living Room blind not responding" )
+                                        sendPushoverMessage(pushoverBuilder("Living Room blind not responding"))
+                                        GL1BE2_retry = 0
+                                }
+                        ])
+                }
+                GL1BE2_lastcommand = now
+end
+
+rule "Check Received Command (Master Bedroom)"
+        when
+                Item FB1BE3_position received command 
+        then 
+                FB1BE3_command = receivedCommand as Number
+                if(FB1BE3_lastcommand.isBefore(now.minusSeconds(10))){
+                        FB1BE3_timer = createTimer(now.plusSeconds(60.intValue), [ |
+                                if(FB1BE3_retry < 4){
+                                        if(FB1BE3_command == FB1BE3_position.state){
+                                                logInfo("blinds.rules", "Master Bedroom blind OK" )
+                                                FB1BE3_retry = 0 
+                                        }
+                                        else{
+                                                logInfo("blinds.rules", "Master Bedroom blind not OK, retrying..." )
+                                                        if(FB1BE3_release.state == 1)
+                                                        {
+                                                        sendCommand(FB1BE3_position, FB1BE3_command)
+                                                        }
+                                                FB1BE3_retry = FB1BE3_retry + 1
+                                        }
+                                }
+                                else{
+                                        logInfo("blinds.rules", "Master Bedroom blind not responding" )
+                                        sendPushoverMessage(pushoverBuilder("Master Bedroom blind not responding"))
+                                        FB1BE3_retry = 0
+                                }
+                        ])
+                }
+                FB1BE3_lastcommand = now
+end
+*/
+rule "Blinds Sunset -30 Minutes"
+/* Set variable a = 1 when it is 30 minutes prior to sunset, set item A to equal variable a */
+        when
+                Channel "astro:sun:c7d0dedc:set#event" triggered END
+        then 
+                if(Blinds_Auto.state == ON)
+                {
+                        blindsSP = Blinds_Pre_Sunset.state as Number
+                        sendCommand(GL1BE2_position, blindsSP)
+                        sendCommand(FB1BE3_position, blindsSP)
+                        if(Blinds_Christmas.state == OFF)
+                        {
+                                sendCommand(GO1BE1_position, blindsSP)
+                        }               
+                }
+end
+
+rule "Blinds Sunset"
+
+       when
+                Channel 'astro:sun:local:set#event' triggered END
+
+        then 
+                if(Blinds_Auto.state == ON)
+                {
+                        blindsSP = Blinds_Sunset.state as Number
+                        if(Blinds_Christmas.state == OFF)
+                                {
+                                sendCommand(GO1BE1_position, blindsSP)
+                                }   
+                        sendCommand(GL1BE2_position, blindsSP)
+                        sendCommand(FB1BE3_position, blindsSP)
+                        
+                        blindsDelay = Blinds_Post_Sunset_T.state as Number
+                        timerBlinds = createTimer(now.plusMinutes(blindsDelay.intValue), [ |
+                        timerBlinds = null
+                        blindsSP = Blinds_Post_Sunset.state as Number
+                        sendCommand(GL1BE2_position, blindsSP)
+                        //sendCommand(FB1BE3_position, blindsSP)
+                        sendCommand(FB1BE3_release, 0)                                            
+                        if(Blinds_Christmas.state == OFF)
+                                {
+                                sendCommand(GO1BE1_position, blindsSP)
+                                }   
+                ])
+                }
+end
+
+rule "Blinds Sunrise before 07:00"
+        when
+                Time cron "0 0 7 1/1 * ? *"
+                //Time cron "0 57 17 1/1 * ? *"
+        then
+                if(now.isAfter((Astro_SunriseEnd.state as DateTimeType).getZonedDateTime.toInstant.toEpochMilli)){
+                        f = 1
+                        postUpdate(Blinds_Sunrise_Trigger, f)
+                        if(Blinds_Auto.state == ON)
+                        {
+                                blindsSP = Blinds_Sunrise.state as Number
+                                sendCommand(GO1BE1_position, blindsSP)
+                                sendCommand(GL1BE2_position, blindsSP)
+                                if(((Blinds_Bedroom_Mode.state == ON) || (XM1AS1_presence.state == "not present")) || (FB1BE3_release.state == 1))
+                                {
+                                        sendCommand(FB1BE3_position, blindsSP)
+                                }
+                        }
+                }
+                else
+                {
+                        e = 1
+                        postUpdate(Blinds_Sunrise_After, e)
+                }
+end
+
+rule "Blinds Sunrise after 07:00"
+        when
+                Channel 'astro:sun:local:rise#event' triggered END
+                //Time cron "0 58 17 1/1 * ? *"
+        then
+                if (Blinds_Sunrise_After.state == 1)
+                {
+                        f = 1
+                        postUpdate(Blinds_Sunrise_Trigger, f)
+                        if(Blinds_Auto.state == ON)
+                        {
+                                blindsSP = Blinds_Sunrise.state as Number
+                                sendCommand(GL1BE2_position, blindsSP)
+                                if((Blinds_Bedroom_Mode.state == ON) || (XM1AS1_presence.state == "not present") || (FB1BE3_release.state == 1))
+                                {
+                                        sendCommand(FB1BE3_position, blindsSP)
+                                }
+                        }
+                        e = 0
+                        postUpdate(Blinds_Sunrise_After, e)
+                        if(Blinds_Christmas.state == OFF)
+                        {
+                                sendCommand(GO1BE1_position, blindsSP)
+                        }   
+                }
+end
+
+rule "Blinds Post-Sunrise"
+        when
+                Item Blinds_Sunrise_Trigger changed to 1
+        then 
+                f = 0
+                postUpdate(Blinds_Sunrise_Trigger, f)
+                blindsDelay = Blinds_Post_Sunrise_T.state as Number
+                timerBlinds = createTimer(now.plusMinutes(blindsDelay.intValue), [ |
+                        timerBlinds = null
+                        blindsSP = Blinds_Post_Sunrise.state as Number
+                        sendCommand(GL1BE2_position, blindsSP)
+                        if(FB1BE3_release.state == 1)
+                                {
+                                sendCommand(FB1BE3_position, blindsSP)
+                                }
+                        if(Blinds_Christmas.state == OFF)
+                                {
+                                sendCommand(GO1BE1_position, blindsSP)
+                                }   
+                ])
+end
+
+rule "Bedroom Blind Open/Close"
+        when
+                Item FB1SC1_power changed to 2
+        then
+                if(FB1BE3_position.state > 0)
+                {
+                        sendCommand(FB1BE3_position, 1)                       
+                }
+                else
+                {
+                        sendCommand(FB1BE3_position, 100)
+                }
+                sendCommand(FB1SC1_power, 0)
+end
+
+rule "Bedroom Blind Morning Release"
+        when
+                Item GH1MS1_motion changed to "active"
+        then
+                if((FB1BE3_position.state == 1) && (now.getDayOfWeek < 6) && ((now.getHourOfDay > 6) && (now.getHourOfDay < 11)))
+                {
+                        sendCommand(FB1BE3_position, blindsSP)
+                        sendCommand(FB1BE3_release, 1)
+                        FB1BE3_timer1 = createTimer(now.plusSeconds(30), [ |
+                                FB1BE3_timer1 = null
+                                if(FB1BE3_position.state < blindsSP)
+                                {
+                                        sendCommand(FB1BE3_release, 0)
+                                }                      
+                ])                       
+                }
+                if((FB1BE3_position.state == 1) && (phoneChargingRelease.state == ON) && (now.getDayOfWeek > 5) && ((now.getHourOfDay > 9) && (now.getHourOfDay < 12)))
+                {
+                        sendCommand(FB1BE3_position, blindsSP)
+                        sendCommand(FB1BE3_release, 1)                       
+                }
+end
+
+rule "Bedroom Blind Morning Release Delayed"
+        when
+                Item phoneChargingRelease changed to ON
+        then
+                if((FB1BE3_position.state == 1) && (now.getDayOfWeek > 5) && ((now.getHourOfDay > 9) && (now.getHourOfDay < 12)))
+                {
+                        sendCommand(FB1BE3_position, blindsSP)
+                        sendCommand(FB1BE3_release, 1)                       
+                }
+end

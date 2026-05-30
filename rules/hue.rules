@@ -1,0 +1,13 @@
+rule "Hue Present"
+        when
+                Channel "hue:0820:001788678581:2:dimmer_switch_event" triggered 1002.0
+        then
+                sendCommand (XM1AS1_presence, "present")  
+        end
+
+rule "Hue Not Present"
+        when
+                Channel "hue:0820:001788678581:2:dimmer_switch_event" triggered 2002.0
+        then
+                sendCommand (XM1AS1_presence, "not present")  
+        end
