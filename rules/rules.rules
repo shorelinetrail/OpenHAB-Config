@@ -1,9 +1,19 @@
 //import java.util.Map  // for timers
 
-var Number a = 0  // represents lighting mode - "OFF", "DUSK", "EVENING", "NIGHT"
-var Number b = 0  // used as a holding variable to switch back to the correct mode once motion timer has elapsed
-var Number c = 0  // used to control hall dark daytime lights
-var Number d = 0  // used to control kitchen dark daytime lights
+/*
+ * LIGHTING STATE MODEL
+ *   A (var a) - primary lighting mode:
+ *       0 = daytime / off      1 = dusk (sunset -30)   2 = evening (sunset)
+ *       3 = night              4 = dark morning        5 = night, away
+ *     100 = motion active (var b holds the mode to restore when motion clears)
+ *   C (var c) - hall    dark-daytime sub-state: 0 = idle, 1 = pending (debouncing), 2 = active
+ *   D (var d) - kitchen dark-daytime sub-state: 0 = idle, 1 = pending (debouncing), 2 = active
+ *   C/D run only while A == 0 (daytime) and are reset whenever A > 0.
+ */
+var Number a = 0  // primary lighting mode (see legend above)
+var Number b = 0  // holding variable: mode to restore after the motion timer elapses
+var Number c = 0  // hall dark-daytime sub-state (0/1/2)
+var Number d = 0  // kitchen dark-daytime sub-state (0/1/2)
 
 var Number bedTimeoutMins
 var Number bedTimeoutSecs
@@ -36,6 +46,8 @@ rule "Reload Variables"
     then
         a = A.state as Number
         b = B.state as Number
+        c = C.state as Number
+        d = D.state as Number
         motionTimeoutMins = Motion_Time.state as Number
 end
 
@@ -80,7 +92,7 @@ rule "Motion Timer"
 end
 
 rule "Motion Lights Status"
-/* Set variable a = 3 when scene controller button 4 is pressed */
+/* Update Motion_Lights_Status whenever A changes: Standby (2/3), Active (100), otherwise Unavailable */
         when
                 Item A changed
         then 
@@ -115,11 +127,11 @@ rule "Dark Mornings Override"
         when
                 Item GH1MS1_motion changed to "active"
         then
-                if((now.getHourOfDay < 7) && (now.getHourOfDay > 3) && (A.state != 0))
+                if((now.getHourOfDay < 7) && (now.getHourOfDay > 3) && (A.state != 0) && (A.state != 100))
                 {
                         a = 4
                         postUpdate(A, a)
-                }                
+                }
 end
 
 // Dark Daytime (Hall)
@@ -137,6 +149,7 @@ rule "Dark Daytime Hall"
                         c = 1
                         postUpdate(C, c)
                         logInfo("rules.rules", "Dark daytime hall trigger timer start")
+                        if (timerHall !== null) { timerHall.cancel; timerHall = null }
                         timerHall = createTimer(now.plusMinutes(5), [ |
                         if(
                                 (GH1MS1_illuminance.state < darkDayMinHall) && (C.state == 1) && (A.state == 0)
@@ -164,6 +177,7 @@ rule "Dark Daytime Hall Recovered"
                 if(
                         (GH1MS1_illuminance.state > darkDayMaxHall) && (C.state == 2)
                 ){
+                        if (timerHall !== null) { timerHall.cancel; timerHall = null }
                         timerHall = createTimer(now.plusMinutes(5), [ |
                         if(GH1MS1_illuminance.state > darkDayMaxHall && C.state == 2){
                                 c = 0
@@ -182,7 +196,7 @@ rule "Dark Daytime Hall Recovered"
 end
 
 rule "Dark Day Hall Lights Present"
-/* When variable a = 5 and presence = present, turn on Smart Plugs, turn on Sonoff Relays and dim Hue bulbs to 50% */
+/* When hall dark-daytime becomes active (C == 2): turn on yard/front Hue and, if present, hall plugs + dimmers */
         when   
                 Item C changed to 2
         then    
@@ -199,17 +213,71 @@ end
 
 // Dark Daytime (Kitchen)
 
+rule "Dark Daytime Kitchen"
+/* When the kitchen Sonoff illuminance falls below Lux_Min_Kitchen while in daytime mode (A == 0), wait 5 minutes, then set D = 2 if still dark */
+        when
+                Item GK1SS1_illuminance changed
+        then
+                darkDayMinKit = Lux_Min_Kitchen.state as Number
+                darkDayMaxKit = Lux_Max_Kitchen.state as Number
+                if(
+                        (GK1SS1_illuminance.state < darkDayMinKit) && (A.state == 0) && (D.state == 0)
+                ){
+                        d = 1
+                        postUpdate(D, d)
+                        logInfo("rules.rules", "Dark daytime kitchen trigger timer start")
+                        if (timerKitchen !== null) { timerKitchen.cancel; timerKitchen = null }
+                        timerKitchen = createTimer(now.plusMinutes(5), [ |
+                        if(
+                                (GK1SS1_illuminance.state < darkDayMinKit) && (D.state == 1) && (A.state == 0)
+                        )
+                        {
+                                d = 2
+                                postUpdate(D, d)
+                                timerKitchen = null
+                        }
+                        else
+                        {
+                                d = 0
+                                postUpdate(D, d)
+                                timerKitchen = null
+                        }
+                ])
+                }
+end
+
+rule "Dark Daytime Kitchen Recovered"
+/* When the kitchen brightens above Lux_Max_Kitchen while dark-day kitchen is active (D == 2), wait 5 minutes, then set D = 0 and turn the kitchen lights off */
+        when
+                Item GK1SS1_illuminance changed
+        then
+                darkDayMaxKit = Lux_Max_Kitchen.state as Number
+                if(
+                        (GK1SS1_illuminance.state > darkDayMaxKit) && (D.state == 2)
+                ){
+                        if (timerKitchen !== null) { timerKitchen.cancel; timerKitchen = null }
+                        timerKitchen = createTimer(now.plusMinutes(5), [ |
+                        if(GK1SS1_illuminance.state > darkDayMaxKit && D.state == 2){
+                                d = 0
+                                postUpdate(D, d)
+                                timerKitchen = null
+                                sendCommand (gHueKitchen, 0)
+                                sendCommand (gSonoff, "OFF")
+                        }
+                        ])
+                }
+end
+
 rule "Dark Day Kitchen Lights Present"
-/* When variable a = 5 and presence = present, turn on Smart Plugs, turn on Sonoff Relays and dim Hue bulbs to 50% */
+/* When kitchen dark-daytime becomes active (D == 2) AND someone is home: dim the kitchen Hue
+   and turn on the kitchen Sonoff relays. When away, the kitchen stays dark. */
         when   
                 Item D changed to 2
         then    
-                if(
-                        GK1HB4_dimmer.state < 5
-                ){
-                        sendCommand (gHueKitchen, DarkKitchen_Setpoint.state as Number)
-                }
                 if(XM1AS1_presence.state.toString == "present"){
+                        if(GK1HB4_dimmer.state < 5){
+                                sendCommand (gHueKitchen, DarkKitchen_Setpoint.state as Number)
+                        }
                         sendCommand (gSonoff, "ON")
                 }
 end
@@ -309,7 +377,7 @@ rule "Dark Daytime Left Home"
                         timerLeaveHome = null
                         ])
                 }
-                if (A.state == 1 || A.state == 2){              // Lighting mode dusk or evening
+                else if (A.state == 1 || A.state == 2){              // Lighting mode dusk or evening
                         timerLeaveHome = createTimer(now.plusMinutes(5), [ |
                         if (XM1AS1_presence.state == "not present"){
                                 sendCommand (gHueKitchen, 0)
@@ -322,7 +390,7 @@ rule "Dark Daytime Left Home"
                         timerLeaveHome = null
                         ])
                 }
-                else {              
+                else {
                         timerLeaveHome = createTimer(now.plusMinutes(5), [ |
                         if (XM1AS1_presence.state == "not present"){
                                 sendCommand (gHueKitchen, 0)
@@ -377,69 +445,15 @@ rule "Morning Override"
 end
 
 rule "Light Mornings"
-/* If the sun has risen and it is before 07:00, set variable a = 0 */
+/* If the sun rises before 07:00, return to daytime mode (a = 0).
+   Dark-day re-detection after sunrise is handled by the continuous
+   "Dark Daytime Hall" / "Dark Daytime Kitchen" rules. */
         when
                 Channel 'astro:sun:local:rise#event' triggered START
         then
                 if(now.getHourOfDay < 7){
                         a = 0
                         postUpdate(A, a)
-                }
-
-// trigger dark day hall if light levels already low
-
-                darkDayMinHall = Lux_Min_Hall.state as Number
-                darkDayMaxHall = Lux_Max_Hall.state as Number
-                if(
-                        (GH1MS1_illuminance.state < darkDayMinHall) && (A.state == 0) && (C.state == 0)
-                ){
-                        c = 1
-                        postUpdate(C, c)
-                        logInfo("rules.rules", "Dark daytime hall trigger timer start")
-                        timerHall = createTimer(now.plusSeconds(1), [ |
-                        if(
-                                (GH1MS1_illuminance.state < darkDayMinHall) && (C.state == 1) && (A.state == 0)
-                        )
-                        {
-                                c = 2
-                                postUpdate(C, c)
-                                timerHall = null
-                        }
-                        else
-                        {
-                                c = 0
-                                postUpdate(C, c)
-                                timerHall = null
-                        }
-                ])
-                }
-
-// trigger dark day kitchen if light levels already low
-
-                darkDayMinKit = Lux_Min_Kitchen.state as Number
-                darkDayMaxKit = Lux_Max_Kitchen.state as Number
-                if(
-                        (GK1SS1_illuminance.state < darkDayMinKit) && (A.state == 0) && (D.state == 0)
-                ){
-                        d = 1
-                        postUpdate(D, d)
-                        logInfo("rules.rules", "Dark daytime kitchen trigger timer start")
-                        timerKitchen = createTimer(now.plusSeconds(1), [ |
-                        if(
-                                (GK1SS1_illuminance.state < darkDayMinKit) && (D.state == 1) && (A.state == 0)
-                        )
-                        {
-                                d = 2
-                                postUpdate(D, d)
-                                timerKitchen = null
-                        }
-                        else
-                        {
-                                d = 0
-                                postUpdate(D, d)
-                                timerKitchen = null
-                        }
-                ])
                 }
 end
 
@@ -511,14 +525,15 @@ rule "Night Lights Reset Arrive Home"
                 if(((now.getHourOfDay > 22) || (now.getHourOfDay < 4)) && (A.state == 5)){
                         a = 2
                         postUpdate(A, a)
+                        sendCommand (gHueKitchen, KitEvening_Setpoint.state as Number)
                 }
 
-                if(A.state == 1){
-                        sendCommand (gHueKitchen, KitDusk_Setpoint.state as Number) 
+                else if(A.state == 1){
+                        sendCommand (gHueKitchen, KitDusk_Setpoint.state as Number)
                 }
 
-                if(A.state == 2){
-                        sendCommand (gHueKitchen, KitEvening_Setpoint.state as Number) 
+                else if(A.state == 2){
+                        sendCommand (gHueKitchen, KitEvening_Setpoint.state as Number)
                 }
 
 end
@@ -559,7 +574,9 @@ rule "Dark Morning Lights On"
 end
 
 rule "Dark Morning Lights Off"
-/* If variable a = 4 at sunrise, wait for 30 minutes, then set a = 0 */
+/* 30 minutes after sunrise, turn off the morning-boost lights; if we were in
+   dark-morning mode (a = 4), return to daytime (a = 0). Dark-day re-detection
+   is handled by the continuous "Dark Daytime Hall" / "Dark Daytime Kitchen" rules. */
         when   
                 Channel 'astro:sun:local:rise#event' triggered START
         then    
@@ -587,26 +604,18 @@ rule "Dark Morning Lights Off"
                         postUpdate(D, d)
                 }
 */
-                sendCommand (gHueYard, 0)
-                sendCommand (gHueFront, 0)
-                sendCommand (GY1HB15_dimmer, 0)
+                // End the overnight / morning-boost outdoor Hues only once it is light.
+                // If it is still dark they are left on and the "Lights Off" rule (fired
+                // when A returns to 0 below) hands them to dark-day, so they never drop out.
+                darkDayMinHall = Lux_Min_Hall.state as Number
+                if(!((GH1MS1_illuminance.state instanceof Number) && ((GH1MS1_illuminance.state as Number) < darkDayMinHall))){
+                        sendCommand (gHueYard, 0)
+                        sendCommand (gHueFront, 0)
+                        sendCommand (GY1HB15_dimmer, 0)
+                }
                 if(A.state == 4){
                         a = 0
                         postUpdate(A, a)
-                        darkDayMinHall = Lux_Min_Hall.state as Number
-                        darkDayMaxHall = Lux_Max_Hall.state as Number
-                        if(GH1MS1_illuminance.state < darkDayMinHall)
-                        {
-                                c = 2
-                                postUpdate(C, c)
-                        }
-                        darkDayMinKit = Lux_Min_Kitchen.state as Number
-                        darkDayMaxKit = Lux_Max_Kitchen.state as Number
-                        if(GK1SS1_illuminance.state < darkDayMinKit)
-                        {
-                                d = 2
-                                postUpdate(D, d)
-                        }
 
 /*                if(C.state == 1){
                         c = 2
@@ -726,10 +735,11 @@ rule "Night lights"
                         sendCommand (FB1SP3_switch, "OFF")
                 }
 
-                else(XM1AS1_presence.state == "present"){
+                else {
                         bedTimeoutMins = Bed_Time.state as Number
                         bedTimeoutSecs = bedTimeoutMins * 60
-                        timerHall = createTimer(now.plusSeconds(bedTimeoutSecs.intValue), [ |
+                        if (timerBedtime !== null) { timerBedtime.cancel; timerBedtime = null }
+                        timerBedtime = createTimer(now.plusSeconds(bedTimeoutSecs.intValue), [ |
                         if(A.state == 3 || B.state == 3){
                         sendCommand (FB1SP3_switch, "OFF")
                         } 
@@ -737,7 +747,9 @@ rule "Night lights"
 end
 
 rule "Lights Off"
-/* Turn off Smart Plugs and Sonoff Relays when item A changes to 0 */
+/* When entering daytime (A = 0): turn plugs/relays off. Each Hue zone is only
+   switched off if it is actually light; if a zone is still dark, dark-day is
+   engaged so its Hues go to dark-day levels instead of dropping out. */
         when   
                 Item A changed to 0
         then    
@@ -751,11 +763,39 @@ rule "Lights Off"
                 postUpdate(Light_Status, light_status)
                 sendCommand (gPlugs, "OFF")
                 sendCommand (gSonoff, "OFF")
-                sendCommand (gHueDimmer, 0)
-                sendCommand (gHueYard, 0)
-                sendCommand (gHueFront, 0)
-                sendCommand (GY1HB15_dimmer, 0)
-                sendCommand (gHueKitchen, 0)
+                /* Only switch the Hue groups off if the zone is actually light. If it is
+                   still dark, engage dark-day instead so the Hues move straight to their
+                   dark-day levels (via the "Dark Day ... Lights Present" rules) rather
+                   than dropping to 0 and waiting for the continuous rules to re-detect. */
+                darkDayMinHall = Lux_Min_Hall.state as Number
+                darkDayMinKit  = Lux_Min_Kitchen.state as Number
+                val hallLux = GH1MS1_illuminance.state
+                val kitLux  = GK1SS1_illuminance.state
+
+                if((hallLux instanceof Number) && ((hallLux as Number) < darkDayMinHall)){
+                        c = 2
+                        postUpdate(C, c)                 // -> "Dark Day Hall Lights Present" sets yard/front/GY1HB15 (+ ceiling if present)
+                        if(XM1AS1_presence.state.toString != "present"){
+                                sendCommand (gHueDimmer, 0)   // away: keep the hall ceiling off (yard/front stay on as security)
+                        }
+                }
+                else {
+                        sendCommand (gHueDimmer, 0)
+                        sendCommand (gHueYard, 0)
+                        sendCommand (gHueFront, 0)
+                        sendCommand (GY1HB15_dimmer, 0)
+                }
+
+                if((kitLux instanceof Number) && ((kitLux as Number) < darkDayMinKit)){
+                        d = 2
+                        postUpdate(D, d)                 // -> "Dark Day Kitchen Lights Present" sets the kitchen Hue (only when home)
+                        if(XM1AS1_presence.state.toString != "present"){
+                                sendCommand (gHueKitchen, 0)   // away: keep the kitchen Hue off
+                        }
+                }
+                else {
+                        sendCommand (gHueKitchen, 0)
+                }
                 sendCommand (Lighting_Mode, "3")     
 end
 
