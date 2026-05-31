@@ -1,3 +1,14 @@
+// --- Pushover (OH5 binding) reusable lambda (null-guarded: log + return if offline) ---
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - message dropped: " + message)
+        false
+    } else {
+        actions.sendMessage(message)
+    }
+]
+
 /*
 rule "Outside Temperature"
         when
@@ -5,7 +16,7 @@ rule "Outside Temperature"
         then
 
             if(GY1SS24_Online.state == ON && (now.getHourOfDay > 6) && (now.getHourOfDay < 24)){
-                sendPushoverMessage(pushoverBuilder("T: " + GY1SS24_temp.state + " °C, RH: " + GY1SS24_humid.state + " %, P: " + GY1SS24_press.state + " mbar"))
+                pushover.apply("T: " + GY1SS24_temp.state + " °C, RH: " + GY1SS24_humid.state + " %, P: " + GY1SS24_press.state + " mbar")
             }
 
         end
@@ -17,7 +28,7 @@ rule "BBQ Temperature"
         then
 
             if(remoteTempEnable.state == ON){
-                sendPushoverMessage(pushoverBuilder("BBQ Temperature: " + GL1NM1_temp.state + " °C"))
+                pushover.apply("BBQ Temperature: " + GL1NM1_temp.state + " °C")
             }
 
         end
@@ -28,7 +39,7 @@ rule "Daily Electricity"
                 Time cron "0 0 12 1/1 * ? *"
         then
 
-        sendPushoverMessage(pushoverBuilder("Power used yesterday: " + Power_Day.state.format("%.2f") + " kWh, £" + Power_Cost.state.format("%.2f")))
+        pushover.apply("Power used yesterday: " + Power_Day.state.format("%.2f") + " kWh, £" + Power_Cost.state.format("%.2f"))
 
         end
 */

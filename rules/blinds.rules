@@ -1,3 +1,14 @@
+// --- Pushover (OH5 binding) reusable lambda (null-guarded: log + return if offline) ---
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - message dropped: " + message)
+        false
+    } else {
+        actions.sendMessage(message)
+    }
+]
+
 var Number blindsSP
 var Number blindsDelay
 
@@ -45,7 +56,7 @@ rule "Check Received Command (Office)"
                                 }
                                 else{
                                         logInfo("blinds.rules", "Office blind not responding" )
-                                        sendPushoverMessage(pushoverBuilder("Office blind not responding"))
+                                        pushover.apply("Office blind not responding")
                                         GO1BE1_retry = 0
                                 }
                         ])
@@ -73,7 +84,7 @@ rule "Check Received Command (Living Room)"
                                 }
                                 else{
                                         logInfo("blinds.rules", "Living Room blind not responding" )
-                                        sendPushoverMessage(pushoverBuilder("Living Room blind not responding"))
+                                        pushover.apply("Living Room blind not responding")
                                         GL1BE2_retry = 0
                                 }
                         ])
@@ -104,7 +115,7 @@ rule "Check Received Command (Master Bedroom)"
                                 }
                                 else{
                                         logInfo("blinds.rules", "Master Bedroom blind not responding" )
-                                        sendPushoverMessage(pushoverBuilder("Master Bedroom blind not responding"))
+                                        pushover.apply("Master Bedroom blind not responding")
                                         FB1BE3_retry = 0
                                 }
                         ])

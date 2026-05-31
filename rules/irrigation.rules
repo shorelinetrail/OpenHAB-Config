@@ -1,3 +1,14 @@
+// --- Pushover (OH5 binding) reusable lambda (null-guarded: log + return if offline) ---
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - message dropped: " + message)
+        false
+    } else {
+        actions.sendMessage(message)
+    }
+]
+
 var Number front_flow_T = 0
 var Timer timerFront = null
 var Timer timerFront1 = null
@@ -23,7 +34,7 @@ rule "Front Irrigation Control"
                     Iri_F_Total.sendCommand(flow)
                 } else {
                     Iri_F_Switch.sendCommand(2)
-                    sendPushoverMessage(pushoverBuilder("No front irrigation flow, cancelled."))
+                    pushover.apply("No front irrigation flow, cancelled.")
                 }
             ])
         }
@@ -50,7 +61,7 @@ rule "Front Irrigation Stop"
     then
         if(Iri_F_Total.state as Number >= Iri_F_SP.state as Number){
             sendCommand(Iri_F_Switch, 2)
-            sendPushoverMessage(pushoverBuilder("Front irrigation complete."))
+            pushover.apply("Front irrigation complete.")
             }
 end
 
@@ -91,7 +102,7 @@ rule "Rear Irrigation Control"
                     Iri_F_Total_R.sendCommand(flow_R)
                 } else {
                     Iri_F_Switch_R.sendCommand(2)
-                    sendPushoverMessage(pushoverBuilder("No rear irrigation flow, cancelled."))
+                    pushover.apply("No rear irrigation flow, cancelled.")
                 }
             ])
         }
@@ -118,6 +129,6 @@ rule "Rear Irrigation Stop"
     then
         if(Iri_F_Total_R.state as Number >= Iri_F_SP_R.state as Number){
             sendCommand(Iri_F_Switch_R, 2)
-            sendPushoverMessage(pushoverBuilder("Rear irrigation complete."))
+            pushover.apply("Rear irrigation complete.")
             }
 end

@@ -1,3 +1,14 @@
+// --- Pushover (OH5 binding) reusable lambda (null-guarded: log + return if offline) ---
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - message dropped: " + message)
+        false
+    } else {
+        actions.sendMessage(message)
+    }
+]
+
 var Timer frontLightsTimer = null
 var Timer rearLightsTimer = null
 var Number HueFrontTemp = 0
@@ -10,7 +21,7 @@ rule "Doorbell"
                 Item XM1DB1_doorbell changed to "ON"
         then
                 sendCommand(BlueIris_trigger, "camera=Front&trigger") 
-                //sendPushoverMessage(pushoverBuilder("There's someone at the door!"))
+                //pushover.apply("There's someone at the door!")
                 //sendPushoverImage("Pushover test attachment", "http://192.168.0.40:2541/ipcamera.jpg")
                 /*sendCommand(GH1HB1_dimmer, 80)
                 timerDoorBell = createTimer(now.plusMinutes(2.intValue), [ |
@@ -27,7 +38,7 @@ rule "Gate Open"
                 Item gatePosition changed to 3
         then
                 sendCommand(BlueIris_trigger, "camera=Rear&trigger") 
-                //sendPushoverMessage(pushoverBuilder("Rear camera trigger"))
+                //pushover.apply("Rear camera trigger")
                 //sendPushoverImage("Pushover test attachment", "http://192.168.0.40:2541/ipcamera.jpg")
                 /*sendCommand(GH1HB1_dimmer, 80)
                 timerDoorBell = createTimer(now.plusMinutes(2.intValue), [ |

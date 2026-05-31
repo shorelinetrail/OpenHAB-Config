@@ -1,5 +1,34 @@
 // GATE
 
+// --- Pushover (OH5 binding) reusable lambdas (null-guarded: log + return if offline) ---
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - message dropped: " + message)
+        false
+    } else {
+        actions.sendMessage(message)
+    }
+]
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, String> pushoverEmergency = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - emergency dropped: " + message)
+        null
+    } else {
+        actions.sendPriorityMessage(message, null, 2)
+    }
+]
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> cancelPushoverEmergency = [ String receipt |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - cannot cancel emergency: " + receipt)
+        false
+    } else {
+        actions.cancelPriorityMessage(receipt)
+    }
+]
+
 var Timer gateTimer = null
 var Timer gateOpen = null
 var Timer gateTravel = null
@@ -46,7 +75,7 @@ rule "Bin Day"
                 gateCheckTimer = null
                 if(gatePosition.state !== 1)
                 {
-                    sendPushoverMessage(pushoverBuilder("Gate open for bin day!"))
+                    pushover.apply("Gate open for bin day!")
                     sendCommand(gateBinDay, "OFF")
                 }
                 else
@@ -60,12 +89,12 @@ rule "Bin Day"
                         gateCheckTimer = null
                         if(gatePosition.state !== 1)
                         {
-                            sendPushoverMessage(pushoverBuilder("Gate open for bin day!"))
+                            pushover.apply("Gate open for bin day!")
                             sendCommand(gateBinDay, "OFF")
                         }
                         else
                         {
-                            sendPushoverMessage(pushoverBuilder("Gate open for bin day failed!").withEmergencyPriority())
+                            pushoverEmergency.apply("Gate open for bin day failed!")
                             sendCommand(gateBinDay, "OFF")
                         }
                     ])
@@ -96,22 +125,22 @@ rule "Gate Notifications"
             }  
             if(gatePosition.state == 1)
             {
-                sendPushoverMessage(pushoverBuilder("Gate closed"))
+                pushover.apply("Gate closed")
             }
             else if(gatePosition.state == 3)
             {
-                sendPushoverMessage(pushoverBuilder("Gate open"))
+                pushover.apply("Gate open")
                 gateOpen = createTimer(now.plusMinutes(10), [ |
                 gateOpen = null
                 if(gatePosition.state == 3)
                 {
-                    sendPushoverMessage(pushoverBuilder("Gate open alert").withEmergencyPriority())
+                    pushoverEmergency.apply("Gate open alert")
                 }
                 ])
             }
             else if(gatePosition.state == 4)
             {
-                sendPushoverMessage(pushoverBuilder("Gate in between"))
+                pushover.apply("Gate in between")
             }
 end
 

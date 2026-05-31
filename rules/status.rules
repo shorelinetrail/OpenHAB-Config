@@ -7,6 +7,35 @@
 import org.eclipse.smarthome.core.types.UnDefType  // OH2; for OH3 use org.openhab.core.types.UnDefType
 import org.eclipse.smarthome.model.script.ScriptServiceUtil
 
+// --- Pushover (OH5 binding) reusable lambdas (null-guarded: log + return if offline) ---
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - message dropped: " + message)
+        false
+    } else {
+        actions.sendMessage(message)
+    }
+]
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, String> pushoverEmergency = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - emergency dropped: " + message)
+        null
+    } else {
+        actions.sendPriorityMessage(message, null, 2)
+    }
+]
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> cancelPushoverEmergency = [ String receipt |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - cannot cancel emergency: " + receipt)
+        false
+    } else {
+        actions.cancelPriorityMessage(receipt)
+    }
+]
+
 var Timer GK1SS1_timer = null
 var Number phoneDelay
 var Timer timerPhoneCharging = null
@@ -69,21 +98,21 @@ rule "Shed Power On Notification"
     when
             Item GY1SS24_Online changed to ON
     then
-            sendPushoverMessage(pushoverBuilder("Shed power on"))
+            pushover.apply("Shed power on")
 end
 
 rule "Shed Power Off Notification"
     when
             Item GY1SS24_Online changed to OFF
     then
-            sendPushoverMessage(pushoverBuilder("Shed power off"))
+            pushover.apply("Shed power off")
 end
 
 rule "Gate Offline"
     when
             Item GY1SS9_Online changed to OFF
     then
-            sendPushoverMessage(pushoverBuilder("Gate offline"))
+            pushover.apply("Gate offline")
             sendCommand(gateSamsungOnline, OFF)
 end
 
@@ -91,7 +120,7 @@ rule "Gate Online"
     when
             Item GY1SS9_Online changed to ON
     then
-            sendPushoverMessage(pushoverBuilder("Gate online"))
+            pushover.apply("Gate online")
             sendCommand(gateSamsungOnline, ON)
 end
 
@@ -99,14 +128,14 @@ rule "Boiler Online"
     when
             Item GY1SS8_Online changed to ON
     then
-            sendPushoverMessage(pushoverBuilder("Boiler connected"))
+            pushover.apply("Boiler connected")
 end
 
 rule "Boiler Offline"
     when
             Item GY1SS8_Online changed to OFF
     then
-            sendPushoverMessage(pushoverBuilder("Boiler disconnected").withEmergencyPriority())
+            pushoverEmergency.apply("Boiler disconnected")
 end
 
 rule "Poll Sonoff"

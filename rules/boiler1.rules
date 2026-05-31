@@ -1,3 +1,14 @@
+// --- Pushover (OH5 binding) reusable lambda (null-guarded: log + return if offline) ---
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - message dropped: " + message)
+        false
+    } else {
+        actions.sendMessage(message)
+    }
+]
+
 var Number boiler_delta = 0
 var Number boiler_runtime = 0
 var Number boiler_runtime_week = 0
@@ -24,7 +35,7 @@ end
             hCheck = createTimer(now.plusMinutes(1.intValue), [ |
                 hCheck = null
                 if(GY1SS8_switch.state == ON && GY1SS8_power == OFF){
-                    sendPushoverMessage(pushoverBuilder("Boiler failed to start, retrying..."))
+                    pushover.apply("Boiler failed to start, retrying...")
                     boiler_retry = 1
                     postUpdate(hRetryFlag, boiler_retry)
                     sendCommand(GY1SS8_switch, OFF)
@@ -33,13 +44,13 @@ end
                     hRetry = createTimer(now.plusMinutes(1.intValue), [ |
                         hRetry = null
                         if(GY1SS8_switch.state == ON && GY1SS8_power == OFF){
-                            sendPushoverMessage(pushoverBuilder("Boiler failed to start, check boiler."))
+                            pushover.apply("Boiler failed to start, check boiler.")
                             sendCommand(GY1SS8_switch, OFF)
                             boiler_retry = 0
                             postUpdate(hRetryFlag, boiler_retry)
                         }
                         if(GY1SS8_switch.state == ON && GY1SS8_power == ON){
-                            sendPushoverMessage(pushoverBuilder("Boiler started OK."))
+                            pushover.apply("Boiler started OK.")
                             boiler_retry = 0
                             postUpdate(hRetryFlag, boiler_retry)
                         }   

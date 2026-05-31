@@ -2,6 +2,35 @@
 // HEATING ZONES
 // Office
 
+// --- Pushover (OH5 binding) reusable lambdas (null-guarded: log + return if offline) ---
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - message dropped: " + message)
+        false
+    } else {
+        actions.sendMessage(message)
+    }
+]
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, String> pushoverEmergency = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - emergency dropped: " + message)
+        null
+    } else {
+        actions.sendPriorityMessage(message, null, 2)
+    }
+]
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> cancelPushoverEmergency = [ String receipt |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - cannot cancel emergency: " + receipt)
+        false
+    } else {
+        actions.cancelPriorityMessage(receipt)
+    }
+]
+
 var Timer timerHeating = null
 var String h_status
 var Timer timerSonoffReset = null
@@ -218,7 +247,7 @@ rule "Heating ON"
                                 }
                                 if(GY1SS8_power.state == "OFF" && GY1SS8_switch.state == ON){
                                         logInfo("heating.rules", "Boiler call for heat failed")
-                                        sendPushoverMessage(pushoverBuilder("Boiler call for heat failed").withEmergencyPriority())
+                                        pushoverEmergency.apply("Boiler call for heat failed")
                                 }                      
                         }
                 }
@@ -253,7 +282,7 @@ rule "Heating OFF"
                                 }
                                 if(GY1SS8_power.state == "ON" && GY1SS8_switch.state == OFF){
                                         logInfo("heating.rules", "Boiler failed to switch off")
-                                        sendPushoverMessage(pushoverBuilder("Boiler failed to switch off").withEmergencyPriority())
+                                        pushoverEmergency.apply("Boiler failed to switch off")
                                 }                      
                         }
                 }
@@ -542,7 +571,7 @@ rule "Sensor Office"
                                 {
                                         timerSonoffReset = null
                                         sendCommand(hGO1_Radiator, 0)
-                                        sendPushoverMessage(pushoverBuilder("GO1-SS4 temperature bad"))
+                                        pushover.apply("GO1-SS4 temperature bad")
                                 }
                         ])
                 }
@@ -559,7 +588,7 @@ rule "Sensor Living Room"
                                 {
                                         timerSonoffReset = null
                                         sendCommand(hGL1_Radiator, 0)
-                                        sendPushoverMessage(pushoverBuilder("GL1-SS5 temperature bad"))
+                                        pushover.apply("GL1-SS5 temperature bad")
                                 }
                         ])
                 }
@@ -576,7 +605,7 @@ rule "Sensor Master Bedroom"
                                 {
                                         timerSonoffReset = null
                                         sendCommand(hFB1_Radiator, 0)
-                                        sendPushoverMessage(pushoverBuilder("FB1-SS6 temperature bad"))
+                                        pushover.apply("FB1-SS6 temperature bad")
                                 }
                         ])
                 }
@@ -593,7 +622,7 @@ rule "Sensor Workshop"
                                 {
                                         timerSonoffReset = null
                                         sendCommand(hFB2_Radiator, 0)
-                                        sendPushoverMessage(pushoverBuilder("FB2-SS7 temperature bad"))
+                                        pushover.apply("FB2-SS7 temperature bad")
                                 }
                         ])
                 }
@@ -610,7 +639,7 @@ rule "Sensor Guest Bedroom"
                                 {
                                         timerSonoffReset = null
                                         sendCommand(hFB3_Radiator, 0)
-                                        sendPushoverMessage(pushoverBuilder("FB3-SS20 temperature bad"))
+                                        pushover.apply("FB3-SS20 temperature bad")
                                 }
                         ])
                 }
@@ -627,7 +656,7 @@ rule "Sensor Kitchen"
                                 {
                                         timerSonoffReset = null
                                         sendCommand(hGK1_Radiator, 0)
-                                        sendPushoverMessage(pushoverBuilder("GK1-SS3 temperature bad"))
+                                        pushover.apply("GK1-SS3 temperature bad")
                                 }
                         ])
                 }
@@ -644,7 +673,7 @@ rule "Sensor Sun Room"
                                 {
                                         timerSonoffReset = null
                                         sendCommand(hGS1_Radiator, 0)
-                                        sendPushoverMessage(pushoverBuilder("GS1-SS10 temperature bad"))
+                                        pushover.apply("GS1-SS10 temperature bad")
                                 }
                         ])
                 }
