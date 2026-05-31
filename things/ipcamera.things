@@ -1,0 +1,31 @@
+// =====================================================================
+// IP Camera — generated from JSONDB. One Thing exists: a HIKVISION camera.
+// Channels (binding-provided): image, updateImageNow, motionAlarm, pan,
+// tilt, zoom, gotoPreset, streamUrl, rtspUrl, imageUrl, hlsUrl, ... (and
+// many alarm channels).
+//
+// WARNING: the `cctv` Item links to ipcamera:HTTPONLY:cd166936:image, which
+// is NOT this Thing. Re-point `cctv` to ipcamera:HIKVISION:Camera1:image
+// (or recreate the HTTPONLY thing) — see report.
+// =====================================================================
+
+Thing ipcamera:HIKVISION:Camera1 "HIKVISION Camera1" [
+    IPADDRESS="192.168.0.52",
+    PORT=81,
+    ONVIF_PORT=81,
+    ONVIF_MEDIA_PROFILE=1,
+    NVR_CHANNEL=1,
+    USERNAME="admin",
+    PASSWORD="PackTS77",
+    SERVER_PORT=2541,
+    IP_WHITELIST="DISABLE",
+    UPDATE_IMAGE=false,
+    POLL_CAMERA_MS=2000,
+    IMAGE_UPDATE_EVENTS=1,
+    GIF_PREROLL=0,
+    GIF_POSTROLL=8,
+    FFMPEG_LOCATION="/usr/bin/ffmpeg",
+    FFMPEG_OUTPUT="/cameratmpfs/camera1/",
+    FFMPEG_GIF_OUT_ARGUMENTS="-r 2 -filter_complex scale=-2:360:flags=lanczos,setpts=0.5*PTS,split[o1][o2];[o1]palettegen[p];[o2]fifo[o3];[o3][p]paletteuse",
+    FFMPEG_HLS_OUT_ARGUMENTS="-strict -2 -f lavfi -i aevalsrc=0 -acodec aac -vcodec copy -hls_flags delete_segments -segment_list_flags live -flags -global_header"
+]

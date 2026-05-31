@@ -1,0 +1,8 @@
+// =====================================================================
+// System Info (local host metrics) — generated from JSONDB.
+// Binding auto-creates channels (memory#, storage#, cpu#, sensors#,
+// network#, ...). Only managed link in use: network#ip ->
+// LocalComputer_Network_IPAddress (UI item; not in items/*.items — see report).
+// =====================================================================
+
+Thing systeminfo:computer:openHABianPi "Local computer" [ interval_high=1, interval_medium=60 ]

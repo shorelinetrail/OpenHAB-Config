@@ -1,0 +1,22 @@
+// =====================================================================
+// Astro — generated from JSONDB. The binding auto-creates all sun/moon
+// channels (rise/set/noon/night/position/...). Only channels carrying a
+// non-default config (the -30 min "Offset" sun) are declared explicitly.
+//
+//   astro:sun:local      -> used by Astro_SunriseEnd (rise#end) and by
+//                           rules (rise#event, set#event)
+//   astro:sun:c7d0dedc   -> "Offset" sun: set events fire 30 min early;
+//                           used by rules "Sunset -30 Minutes" and
+//                           "Blinds Sunset -30 Minutes"
+//   astro:moon:local     -> currently unlinked (kept for completeness)
+// =====================================================================
+
+Thing astro:sun:local  "Local Sun"  [ geolocation="54.593385,-1.311973,0", interval=300 ]
+Thing astro:moon:local "Local Moon" [ geolocation="54.593385,-1.311973,0", interval=300 ]
+
+Thing astro:sun:c7d0dedc "Local Sun (Offset -30 min)" [ geolocation="54.593385,-1.311973,0", interval=300 ] {
+    Channels:
+        Type rangeEvent : set#event [ offset=-30 ]
+        Type start      : set#start [ offset=-30 ]
+        Type end        : set#end   [ offset=86 ]
+}

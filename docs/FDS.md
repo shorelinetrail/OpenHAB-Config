@@ -24,6 +24,7 @@ _Newest at top. One row per change. Claude Code appends a row for every modifica
 
 | Date | Version | Change | Files affected | Author |
 |---|---|---|---|---|
+| 2026-05-31 | 0.3 | Generated textual Things from JSONDB for hue/sonos/tplinksmarthome/astro/systeminfo/ipcamera; pointed mqtt broker bridge at the old Pi (192.168.0.40); confirmed `astro:sun:c7d0dedc` is the real −30-min "Offset" sun Thing | things/hue·sonos·tplinksmarthome·astro·systeminfo·ipcamera.things, things/mqtt.things, docs/FDS.md | Claude Code |
 | 2026-05-31 | 0.2 | Fixed duplicate "Gate Offline" rule name, all-time temp copy-paste bug, and Online-switch mislabels; removed orphaned `GY1SS25_Online`/`myClock` + `de.map`/`en.map`/`numberToClock.js`; left `gHeating` OR-order unchanged (drives boiler) | status.rules, temperatures.rules, items.items, main.sitemap, transform/ | Claude Code |
 | 2026-05-30 | 0.1 | Initial FDS populated from config | (all) | Claude Code |
 
@@ -604,11 +605,10 @@ camera was via `Image`/`Video` (now commented).
   referenced by `blueiris.rules` (`Doorbell`, `Front Trigger`, `Rear Trigger` — these rules
   never fire) and `BlueIris_motionFront`/`XM1DB1_doorbell` appear as **live** switches in the
   sitemap "Diagnostics" frame. Define them or remove the references.
-- **Astro Thing-UID mismatch:** `Sunset -30 Minutes` (`rules.rules`) and `Blinds Sunset -30
-  Minutes` (`blinds.rules`) trigger on `astro:sun:c7d0dedc:set#event`, while everything else
-  (and `Astro_SunriseEnd`) uses `astro:sun:local`. If `c7d0dedc` is not a real second Astro
-  Thing (with a −30-min offset), Dusk mode + pre-sunset blinds + Christmas-on never trigger.
-  _(TODO: confirm the Astro Things.)_
+- **Astro Thing-UID — RESOLVED (2026-05-31):** `astro:sun:c7d0dedc` is a genuine Astro Thing
+  ("Local Sun (Offset)") whose `set#start`/`set#event` channels carry a −30-min offset
+  (confirmed from the JSONDB export). So `Sunset -30 Minutes` and `Blinds Sunset -30 Minutes`
+  are correct, not stale. The Thing is now declared textually in `things/astro.things`.
 - **Duplicate rule name — RESOLVED (2026-05-31):** the second `status.rules` rule (on
   `GY1SS9_Online changed to ON`) was renamed from "Gate Offline" to **"Gate Online"**.
 - **All-time temperature bug — RESOLVED (2026-05-31):** "Min/Max Temperatures All Time" now

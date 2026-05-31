@@ -1,4 +1,4 @@
-Bridge mqtt:broker:mosquitto "Mosquitto Broker" [ host="localhost", port=1883, secure=false, username="openhabian", password="OHmosquitto*" ] {
+Bridge mqtt:broker:mosquitto "Mosquitto Broker" [ host="192.168.0.40", port=1883, secure=false, username="openhabian", password="OHmosquitto*" ] {
 
   // -----------------------------
   // Positions / Blinds

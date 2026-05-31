@@ -1,0 +1,46 @@
+// =====================================================================
+// Philips Hue — generated from JSONDB (_migration/Thing.json).
+// Channels are provided automatically by the hue binding; item links use
+// <thingUID>:<channel>:
+//   0100 (dimmable)      -> brightness, alert
+//   0220 (colour temp)   -> brightness, color_temperature, alert, effect
+//   0820 (dimmer switch) -> dimmer_switch_event (trigger), dimmer_switch,
+//                           last_updated, battery_level, battery_low
+// NOTE: JSONDB bridge label read "Philips hue (192.168.0.12)" but its
+// configured ipAddress is 192.168.0.231 — using the configured value.
+// =====================================================================
+
+Bridge hue:bridge:001788678581 "Philips Hue Bridge" [ ipAddress="192.168.0.231", userName="OgjxrxDAgEZJFs7kJCwJZoI5yeMy9r9uVBBm3S7U", pollingInterval=10, sensorPollingInterval=500 ] {
+
+    // --- 0100 dimmable bulbs ---
+    Thing 0100 1  "Hue Hall (GH1-HB1)"                  [ lightId="1",  fadetime=400 ]
+    Thing 0100 3  "Hue Landing Front (FL1-HB2)"         [ lightId="3",  fadetime=400 ]
+    Thing 0100 2  "Hue Landing Rear (FL1-HB3)"          [ lightId="2",  fadetime=400 ]
+    Thing 0100 7  "Hue Kitchen Front Left (GK1-HB4)"    [ lightId="7",  fadetime=400 ]
+    Thing 0100 5  "Hue Kitchen Front Mid (GK1-HB4)"     [ lightId="5",  fadetime=400 ]
+    Thing 0100 4  "Hue Kitchen Front Right (GK1-HB4)"   [ lightId="4",  fadetime=400 ]
+    Thing 0100 9  "Hue Kitchen Rear Left (GK1-HB4)"     [ lightId="9",  fadetime=400 ]
+    Thing 0100 10 "Hue Kitchen Rear Mid (GK1-HB4)"      [ lightId="10", fadetime=400 ]
+    Thing 0100 8  "Hue Kitchen Rear Right (GK1-HB4)"    [ lightId="8",  fadetime=400 ]
+    Thing 0100 14 "Hue Kitchen Table Left (GK1-HB10)"   [ lightId="14", fadetime=400 ]
+    Thing 0100 15 "Hue Kitchen Table Centre (GK1-HB13)" [ lightId="15", fadetime=400 ]
+    Thing 0100 16 "Hue Kitchen Table Right (GK1-HB14)"  [ lightId="16", fadetime=400 ]
+
+    // --- 0220 colour-temperature bulbs ---
+    Thing 0220 11 "Hue Kitchen Glass Left (GK1-HB11)"   [ lightId="11", fadetime=400 ]
+    Thing 0220 12 "Hue Kitchen Glass Right (GK1-HB12)"  [ lightId="12", fadetime=400 ]
+    Thing 0220 25 "Hue Front Door L (GH1-HB18)"         [ lightId="25", fadetime=400 ]
+    Thing 0220 24 "Hue Front Door R (GH1-HB19)"         [ lightId="24", fadetime=400 ]
+    Thing 0220 21 "Hue Yard Side (GY1-HB16)"            [ lightId="21", fadetime=400 ]
+    Thing 0220 23 "Hue Yard Rear (GY1-HB17)"            [ lightId="23", fadetime=400 ]
+    Thing 0220 26 "Hue Yard Door (GY1-HB15)"            [ lightId="26", fadetime=400 ]
+    Thing 0220 30 "Hue Rear Yard 1 (GY1-HB20)"          [ lightId="30", fadetime=400 ]
+    Thing 0220 31 "Hue Rear Yard 2 (GY1-HB21)"          [ lightId="31", fadetime=400 ]
+    Thing 0220 32 "Hue Rear Yard 3 (GY1-HB22)"          [ lightId="32", fadetime=400 ]
+    Thing 0220 33 "Hue Rear Yard 4 (GY1-HB23)"          [ lightId="33", fadetime=400 ]
+    Thing 0220 34 "Shed (GY1-HB24)"                     [ lightId="34", fadetime=400 ]
+
+    // --- 0820 dimmer switch (sensor) ---
+    // JSONDB also held config "on=true"; omitted (binding default, not required).
+    Thing 0820 2  "Hue Kitchen Switch (GK1-HS1)"        [ sensorId="2" ]
+}

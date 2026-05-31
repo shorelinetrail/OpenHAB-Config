@@ -1,0 +1,9 @@
+// =====================================================================
+// TP-Link Kasa (HS110 smart plugs) — generated from JSONDB.
+// Channels (binding-provided): switch, led, rssi, power, energyUsage,
+// current, voltage.
+// =====================================================================
+
+Thing tplinksmarthome:hs110:26D077 "Plug Office (GO1-SP1)"       [ ipAddress="192.168.0.81",  deviceId="8006694E01854079C7553AEE6A8F42E01B26D077", refresh=30 ]
+Thing tplinksmarthome:hs110:26249D "Plug Living Room (GL1-SP2)"  [ ipAddress="192.168.0.210", deviceId="80060D9A9C630CB4334A21678E32FDC91B26249D", refresh=30 ]
+Thing tplinksmarthome:hs110:2647A8 "Plug Bedroom (FB1-SP3)"      [ ipAddress="192.168.0.146", deviceId="8006EA8ED89D9A2890B4ED962E4D774F1B2647A8", refresh=30 ]

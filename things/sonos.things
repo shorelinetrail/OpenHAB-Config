@@ -1,0 +1,15 @@
+// =====================================================================
+// Sonos — generated from JSONDB (_migration/Thing.json).
+// Standalone Things (no bridge). The sonos binding provides the full
+// channel set automatically; item links use <thingUID>:<channel>, e.g.
+// control (Player), volume, mute, currenttrack, coordinator, add,
+// standalone, plus ~40 more (alarm, repeat, shuffle, radio, playlist, ...).
+// =====================================================================
+
+Thing sonos:CONNECT:RINCON_B8E93790762601400    "Sonos Connect (Sun Room Aux)"   [ udn="RINCON_B8E93790762601400", refresh=60, notificationTimeout=20 ]
+Thing sonos:CONNECTAMP:RINCON_B8E937A0059601400 "Sonos Connect:Amp (Living Room)" [ udn="RINCON_B8E937A0059601400", refresh=60, notificationTimeout=20 ]
+Thing sonos:PLAY1:RINCON_5CAAFD78130601400      "Sonos Play:1 (Bedroom)"          [ udn="RINCON_5CAAFD78130601400", refresh=60, notificationTimeout=20 ]
+Thing sonos:PLAY1:RINCON_949F3E0A318401400      "Sonos Play:1 (Sun Room)"         [ udn="RINCON_949F3E0A318401400", refresh=60, notificationTimeout=20 ]
+Thing sonos:PLAY1:RINCON_B8E93786DBE001400      "Sonos Play:1 (Workshop)"         [ udn="RINCON_B8E93786DBE001400", refresh=60, notificationTimeout=20 ]
+Thing sonos:PLAY3:RINCON_000E587143F201400      "Sonos Play:3 (Office)"           [ udn="RINCON_000E587143F201400", refresh=60, notificationTimeout=20 ]
+Thing sonos:PLAY3:RINCON_B8E93733144401400      "Sonos Play:3 (Kitchen)"          [ udn="RINCON_B8E93733144401400", refresh=60, notificationTimeout=20 ]
