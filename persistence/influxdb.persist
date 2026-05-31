@@ -1,6 +1,0 @@
-Strategies {
-}
- 
-Items {
-   *: strategy = everyChange
-}

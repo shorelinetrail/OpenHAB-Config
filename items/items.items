@@ -69,7 +69,7 @@ Number phoneChargingTimer "Phone Charging Delay Timer [%.0f min]" <energy>
 
 /* Arrival Sensor */
 
-Number XM1AS1_battery "Battery Status [%.0f %%]"   {channel="smartthings:presenceSensor:d5f94ca3:Arrival_Sensor_XM1-AS1:battery"}
+Number XM1AS1_battery "Battery Status [%.0f %%]"
 String XM1AS1_presence "Presence Sensor" <switch>
 String XM1AS1_presence_S "Ste Present" <switch>
 String XM1AS1_presence_J "Jacqui Present" <switch>
@@ -124,23 +124,10 @@ Dimmer GY1HB24_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:
 
 /* Multisensor */
 
-Number GH1MS1_illuminance "Illuminance [%.0f lx]" <light> (gMultisensor, gIlluminance) {channel="smartthings:illuminanceMeasurement:d5f94ca3:Multisensor_GH1-MS1:illuminance"}
+Number GH1MS1_illuminance "Illuminance [%.0f lx]" <light> (gMultisensor, gIlluminance)
 Number GH1MS1_illuminance_avg "Average Illuminance Measurement [%.0f lx]" <light> (gMultisensor, gIlluminance)
 Switch GH1MS1_illuminance_switch "Front Illuminance Bypass"
-String GH1MS1_motion "Motion Sensor" <motion> (gMultisensor) {channel="smartthings:motionSensor:d5f94ca3:Multisensor_GH1-MS1:motion"}
-Number GH1MS1_humidity "Humidity Sensor [%.1f %%]" <humidity> (gMultisensor, gHumidity) {channel="smartthings:relativeHumidityMeasurement:d5f94ca3:Multisensor_GH1-MS1:humidity"}
-
-/* Fibaro Smoke Detectors */
-
-//String GK1SA1_tamper "Tamper Alert" <alarm> (gSmoke_GK1) {channel="smartthings:tamperAlert:d5f94ca3:Smoke_Alarm_Kitchen_GK1-SA1:tamper"}
-//String GK1SA1_smoke "Smoke Detected" <fire> (gSmoke_GK1) {channel="smartthings:smokeDetector:d5f94ca3:Smoke_Alarm_Kitchen_GK1-SA1:smoke"}
-//Number GK1SA1_temperature "Temperature [%.1f °C]" <temperature> (gSmoke_GK1) {channel="smartthings:temperatureMeasurement:d5f94ca3:Smoke_Alarm_Kitchen_GK1-SA1:temperature"}
-//Number GK1SA1_battery "Battery Status [%.0f %%]" <batterylevel> (gSmoke_GK1) {channel="smartthings:battery:d5f94ca3:Smoke_Alarm_Kitchen_GK1-SA1:battery"}
-
-//String FL1SA2_tamper "Tamper Alert" <alarm> (gSmoke_FL1) {channel="smartthings:tamperAlert:d5f94ca3:Smoke_Alarm_Landing_FL1-SA2:tamper"}
-//String FL1SA2_smoke "Smoke Detected" <fire> (gSmoke_FL1) {channel="smartthings:smokeDetector:d5f94ca3:Smoke_Alarm_Landing_FL1-SA2:smoke"}
-//Number FL1SA2_temperature "Temperature [%.1f °C]" <temperature> (gSmoke_FL1) {channel="smartthings:temperatureMeasurement:d5f94ca3:Smoke_Alarm_Landing_FL1-SA2:temperature"}
-//Number FL1SA2_battery "Battery Status [%.0f %%]" <batterylevel> (gSmoke_FL1) {channel="smartthings:battery:d5f94ca3:Smoke_Alarm_Landing_FL1-SA2:battery"}
+Number GH1MS1_humidity "Humidity Sensor [%.1f %%]" <humidity> (gMultisensor, gHumidity)
 
 /* hive */
 
@@ -346,7 +333,7 @@ Number hFB3_Radiator "Guest Bedroom Radiator" <radiator> (gHeatingFault)
 
 /* Hank Scene Controller */
 
-Number FB1SC1_power "Scene No." <settings> (gSceneControl) {channel="smartthings:powerMeter:d5f94ca3:Scene_Controller_FB1-SC1:power"}
+Number FB1SC1_power "Scene No." <settings> (gSceneControl)
 
 /* Astro */
 
@@ -445,9 +432,6 @@ String Temp_All_Min_Time_Format "All Time Min. Temperature [%s]" <temperature>
 
 /* Blind Engines */
 
-//Switch GO1BE1_switch "Switch" <blinds>  {channel="smartthings:switchLevel:d5f94ca3:Blind_Engine_Office_GO1-BE1:switch"}
-//Switch GL1BE2_switch "Switch" <blinds>  {channel="smartthings:switchLevel:d5f94ca3:Blind_Engine_Living_Room_GO1-BE2:switch"}
-//Switch FB1BE3_switch "Switch" <blinds>  {channel="smartthings:switchLevel:d5f94ca3:Blind_Engine_Bedroom_FB1-BE3:switch"}
 Number FB1BE3_release "Release" <blinds>
 Number FB1BE3_block "Block" <blinds>
 
@@ -502,13 +486,11 @@ Switch gateTimerActive "Timer Status"
 Number gateRemoteTimer "Gate Remote Auto-Reclose Timer [%.1f]" <time>
 Number gatePosition "Gate Position" <motion>
 Number gatePositionHold "Gate Position" <motion>
-//Switch gateSamsungOpen "Gate Open Switch" {channel="smartthings:switch:d5f94ca3:Gate_Open:switch", autoupdate="true"}
-//Switch gateSamsungClosed "Gate Closed Switch" {channel="smartthings:switch:d5f94ca3:Gate_Closed:switch", autoupdate="true"}
 Switch gateBinDay "Bin Day" <motion>
 
 // SwitchBot
 
-Switch GK1SW04_switch "Coffee Machine" {channel="smartthings:switch:d5f94ca3:Coffee_Machine_Switch_GK1-SW04:switch", autoupdate="true"}
+Switch GK1SW04_switch "Coffee Machine"
 
 // Electric Blanket
 
@@ -519,9 +501,6 @@ Number Blanket_control "Control" <switch>
 //String Blanket_test "Test switch"
 
 Switch remoteTempEnable "Notify Remote Temperature"
-
-Number  HallTemp "Multisensor Temp" <slider> { channel="smartthings:temperatureMeasurement:Home:Multisensor:temperature" }
-String  HallMotion "Multisensor Motion" <slider> { channel="smartthings:motionSensor:Home:Multisensor1:motion" }
 
 Number GO1EM1_M "Meter Reading [%.1f kWh]" <energy>
 
