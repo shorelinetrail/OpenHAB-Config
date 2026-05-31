@@ -137,8 +137,7 @@ Frame label="Dashboard" {
 				Text item=GY1NM2_temp2 label="Boiler Return"
 				Text item=GY1NM2_delta label="Boiler Delta"
 				Text item=hRuntimeToday label="Boiler Runtime Today"
-				//Text item=gHeatingFault label="Zones Faults [%s]" 
-				//Setpoint item=myClock label="Clock [JS(numberToClock.js):%s]" minValue=0 maxValue=1425 step=1
+				//Text item=gHeatingFault label="Zones Faults [%s]"
 			}
 
 			Frame label="Room Temperatures"{
@@ -990,7 +989,6 @@ Frame label="Data" {
 			Switch item=XM1SS16_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=XM1SS21_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=GY1SS24_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
-			Switch item=GY1SS25_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 			Switch item=GY1SS26_Online mappings=[ON="ONLINE", OFF="OFFLINE"]
 		}
 		Frame label="IP Addresses"{

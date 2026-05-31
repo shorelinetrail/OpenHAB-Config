@@ -236,7 +236,7 @@ then
     ){
         postUpdate(Temp_All_Max, GY1SS8_temp.state as Number)
         postUpdate(Temp_All_Max_Time, new DateTimeType)
-        temp4 = Temp_Year_Max_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
+        temp4 = Temp_All_Max_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
         postUpdate(Temp_All_Max_Time_Format, Temp_All_Max.state + " °C (" + temp4 + ")")    
     } 
     if(
@@ -244,7 +244,7 @@ then
     ){
         postUpdate(Temp_All_Max, GY1SS8_temp.state as Number)
         postUpdate(Temp_All_Max_Time, new DateTimeType)
-        temp4 = Temp_Year_Max_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
+        temp4 = Temp_All_Max_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
         postUpdate(Temp_All_Max_Time_Format, Temp_All_Max.state + " °C (" + temp4 + ")")    
     }        
     if(
@@ -252,7 +252,7 @@ then
     ){
         postUpdate(Temp_All_Min, GY1SS8_temp.state as Number)
         postUpdate(Temp_All_Min_Time, new DateTimeType)
-        temp4 = Temp_Year_Min_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
+        temp4 = Temp_All_Min_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
         postUpdate(Temp_All_Min_Time_Format, Temp_All_Min.state + " °C (" + temp4 + ")")    
         }
     if(
@@ -260,7 +260,7 @@ then
     ){
         postUpdate(Temp_All_Min, GY1SS8_temp.state as Number)
         postUpdate(Temp_All_Min_Time, new DateTimeType)
-        temp4 = Temp_Year_Min_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
-        postUpdate(Temp_All_Min_Time_Format, Temp_Year_Min.state + " °C (" + temp4 + ")")    
+        temp4 = Temp_All_Min_Time.state.format("%1$tA" + " " + "%1$td" + " " + "%1$tB" + " " + "%1$tY" + ", " + "%1$tR")
+        postUpdate(Temp_All_Min_Time_Format, Temp_All_Min.state + " °C (" + temp4 + ")")    
     }
 end

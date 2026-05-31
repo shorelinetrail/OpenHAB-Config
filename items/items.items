@@ -61,8 +61,6 @@ Group:Dimmer                    gGBlinds   "Dimmer [(%d)]" <blinds>
 
 /*============ ITEMS ============*/
 
-Number myClock
-
 /* Tasker */
 Switch phoneCharging "Phone Wireless Charging Status" <energy>
 Switch phoneChargingRelease "Phone Wireless Charging Status" <energy>
@@ -248,14 +246,13 @@ Switch FB1SS13_Online "FB1-SS13"
 Switch GO1SS12_Online "GO1-SS12"
 Switch GO1SS15_Online "GO1-SS15"
 Switch XM1SS16_Online "XM1-SS16"
-Switch GS1SS17_Online "GO1-SS17"
+Switch GS1SS17_Online "GS1-SS17"
 Switch GL1SS18_Online "GL1-SS18"
 Switch FB3SS19_Online "FB3-SS19"
 Switch FB3SS20_Online "FB3-SS20"
 Switch XM1SS21_Online "XM1-SS21"
 Switch GY1SS24_Online "GY1-SS24"
-Switch GY1SS25_Online "GY1-SS25"
-Switch GY1SS26_Online "GY1-SS25"
+Switch GY1SS26_Online "GY1-SS26"
 
 Switch Sonoff_Refresh "Refresh" <network>
 
