@@ -35,6 +35,17 @@ var Timer timerHeating = null
 var String h_status
 var Timer timerSonoffReset = null
 
+rule "Heating Defaults"
+    when
+        System started
+    then
+        // hHysteresis is a user setpoint with no value on a fresh system; default it so the
+        // per-room hysteresis casts (hHysteresis.state as Number) don't error on NULL.
+        if (!(hHysteresis.state instanceof Number)) {
+            hHysteresis.postUpdate(0.5)
+        }
+end
+
 rule "Office"
     when 
             Item GO1SS4_temp changed 

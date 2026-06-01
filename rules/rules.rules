@@ -468,7 +468,6 @@ rule "Sunset -30 Minutes"
                 postUpdate(C, c)
                 postUpdate(A, a)
                 postUpdate(B, b)
-                sendCommand(GY1SS24_switch, ON)
                 sendCommand(gChristmas, ON)
                 logInfo("Christmas.rules", "gChristmas ON - sunset -30 mins" )
 
@@ -478,7 +477,6 @@ rule "Midnight"
         when
                 Time cron "0 0 0 1/1 * ? *"
         then
-                sendCommand(GY1SS24_switch, OFF)
                 sendCommand(gHueFront, HueFrontMidnight_Setpoint.state as Number)
                 sendCommand(gHueYard, 30)
                 sendCommand(Presence_Override, OFF)
