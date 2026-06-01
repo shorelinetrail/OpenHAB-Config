@@ -1,27 +1,10 @@
-// rrd4j persistence — OH5 migration (replaces influxdb).
-//
-// mapdb.persist still handles full state restore for ALL item types (incl.
-// Strings). rrd4j is numeric-only and provides the round-robin chart history.
-//
-// Goal: every item charted in sitemaps/main.sitemap keeps a continuous series
-// so no chart regresses. NOTE: a Chart of a Group plots the Group's MEMBERS, so
-// groups are listed with a trailing "*" (e.g. gBoiler*) to persist members; the
-// bare group name would persist only the (empty) aggregate.
-
 Strategies {
     everyMinute : "0 * * * * ?"
-    default = everyChange
 }
 
 Items {
-    // restore last value at startup
-    * : strategy = restoreOnStartup
-
-    // --- charted items, sampled every minute for rrd4j ---
-    // gTemperature + gOutside members (all end in _temp); plus Temp_* records
-    Temp_*, *_temp : strategy = everyMinute, restoreOnStartup
-    // group members: gBoiler (GY1NM2_temp1/temp2/delta), gPressure, gHumidity, gPower (GO1EM1_P/Q)
-    gBoiler*, gPressure*, gHumidity*, gPower* : strategy = everyMinute, restoreOnStartup
-    // individually-charted items
-    FB1SS6_gas, GY1SS28_moisture, GY1FT1_level_pc, GO1EM1_V, GO1EM1_I : strategy = everyMinute, restoreOnStartup
+    * : strategy = everyChange, restoreOnStartup
+    Temp_*, *_temp : strategy = everyMinute, everyChange, restoreOnStartup
+    gBoiler*, gPressure*, gHumidity*, gPower* : strategy = everyMinute, everyChange, restoreOnStartup
+    FB1SS6_gas, GY1SS28_moisture, GY1FT1_level_pc, GO1EM1_V, GO1EM1_I : strategy = everyMinute, everyChange, restoreOnStartup
 }
