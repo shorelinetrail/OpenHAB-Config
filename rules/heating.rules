@@ -35,12 +35,18 @@ var Timer timerHeating = null
 var String h_status
 var Timer timerSonoffReset = null
 
+// Null-safe hysteresis: returns hHysteresis, or 0.1 if it has no value yet (boot race),
+// so the per-room "as Number" casts can never throw "cast NULL to Number".
+val org.eclipse.xtext.xbase.lib.Functions$Function0<Number> hyst = [ |
+    if (hHysteresis.state instanceof Number) (hHysteresis.state as Number) else (0.1 as Number)
+]
+
 rule "Heating Defaults"
     when
         System started
     then
         // hHysteresis is a user setpoint with no value on a fresh system; default it so the
-        // per-room hysteresis casts (hHysteresis.state as Number) don't error on NULL.
+        // per-room hysteresis casts (hyst.apply()) don't error on NULL.
         if (!(hHysteresis.state instanceof Number)) {
             hHysteresis.postUpdate(0.1)
         }
@@ -56,11 +62,11 @@ rule "Office"
             or
             Item hGO1_Radiator changed
     then 
-            if (((GO1SS4_temp.state as Number) <= ((hSP_GO1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (GO1SS12_switch.state == ON) && (hMode.state == 1) && (hGO1_Radiator.state == 1)) {
+            if (((GO1SS4_temp.state as Number) <= ((hSP_GO1.state as Number) - (hyst.apply()))) && (hStandby.state == 0) && (GO1SS12_switch.state == ON) && (hMode.state == 1) && (hGO1_Radiator.state == 1)) {
                     sendCommand(GO1SS12_switch, OFF)
             }
-            else if ((((GO1SS4_temp.state as Number) >= ((hSP_GO1.state as Number) + (hHysteresis.state as Number))) && (GO1SS12_switch.state == OFF) && (hMode.state == 1)) || (hGO1_Radiator.state == 0))  {
-                    if(hStandby.state == 0 || ((GO1SS4_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+            else if ((((GO1SS4_temp.state as Number) >= ((hSP_GO1.state as Number) + (hyst.apply()))) && (GO1SS12_switch.state == OFF) && (hMode.state == 1)) || (hGO1_Radiator.state == 0))  {
+                    if(hStandby.state == 0 || ((GO1SS4_temp_delta.state as Number + hyst.apply()) < 0))
                     {
                         sendCommand (GO1SS12_switch, ON)
                     }
@@ -77,11 +83,11 @@ rule "Kitchen"
             or
             Item hGK1_Radiator changed
     then 
-            if (((GK1SS3_temp.state as Number) <= ((hSP_GK1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (GL1SS5_switch.state == ON) && (hMode.state == 1) && (hGK1_Radiator.state == 1)) {
+            if (((GK1SS3_temp.state as Number) <= ((hSP_GK1.state as Number) - (hyst.apply()))) && (hStandby.state == 0) && (GL1SS5_switch.state == ON) && (hMode.state == 1) && (hGK1_Radiator.state == 1)) {
                     sendCommand (GL1SS5_switch, OFF)
             }
-            else if ((((GK1SS3_temp.state as Number) >= ((hSP_GK1.state as Number) + (hHysteresis.state as Number))) && (GL1SS5_switch.state == OFF) && (hMode.state == 1)) || (hGK1_Radiator.state == 0)) {
-                    if(hStandby.state == 0 || ((GK1SS3_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+            else if ((((GK1SS3_temp.state as Number) >= ((hSP_GK1.state as Number) + (hyst.apply()))) && (GL1SS5_switch.state == OFF) && (hMode.state == 1)) || (hGK1_Radiator.state == 0)) {
+                    if(hStandby.state == 0 || ((GK1SS3_temp_delta.state as Number + hyst.apply()) < 0))
                     {
                         sendCommand (GL1SS5_switch, ON)
                     }
@@ -98,11 +104,11 @@ rule "Living Room"
             or
             Item hGL1_Radiator changed
     then 
-            if (((GL1SS5_temp.state as Number) <= ((hSP_GL1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (GL1SS11_switch.state == ON) && (hMode.state == 1) && (hGL1_Radiator.state == 1)) {
+            if (((GL1SS5_temp.state as Number) <= ((hSP_GL1.state as Number) - (hyst.apply()))) && (hStandby.state == 0) && (GL1SS11_switch.state == ON) && (hMode.state == 1) && (hGL1_Radiator.state == 1)) {
                     sendCommand (GL1SS11_switch, OFF)
             }
-            else if ((((GL1SS5_temp.state as Number) >= ((hSP_GL1.state as Number) + (hHysteresis.state as Number))) && (GL1SS11_switch.state == OFF) && (hMode.state == 1)) || (hGL1_Radiator.state == 0)) {
-                    if(hStandby.state == 0 || ((GL1SS5_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+            else if ((((GL1SS5_temp.state as Number) >= ((hSP_GL1.state as Number) + (hyst.apply()))) && (GL1SS11_switch.state == OFF) && (hMode.state == 1)) || (hGL1_Radiator.state == 0)) {
+                    if(hStandby.state == 0 || ((GL1SS5_temp_delta.state as Number + hyst.apply()) < 0))
                     {
                         sendCommand (GL1SS11_switch, ON)
                     }
@@ -119,11 +125,11 @@ rule "Sun Room"
             or
             Item hGS1_Radiator changed
     then 
-            if (((GS1SS10_temp.state as Number) <= ((hSP_GS1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (GS1SS10_switch.state == ON) && (hMode.state == 1) && (hGS1_Radiator.state == 1)) {
+            if (((GS1SS10_temp.state as Number) <= ((hSP_GS1.state as Number) - (hyst.apply()))) && (hStandby.state == 0) && (GS1SS10_switch.state == ON) && (hMode.state == 1) && (hGS1_Radiator.state == 1)) {
                     sendCommand (GS1SS10_switch, OFF)
             }
-            else if ((((GS1SS10_temp.state as Number) >= ((hSP_GS1.state as Number) + (hHysteresis.state as Number))) && (GS1SS10_switch.state == OFF) && (hMode.state == 1)) || (hGS1_Radiator.state == 0)) {
-                    if(hStandby.state == 0 || ((GS1SS10_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+            else if ((((GS1SS10_temp.state as Number) >= ((hSP_GS1.state as Number) + (hyst.apply()))) && (GS1SS10_switch.state == OFF) && (hMode.state == 1)) || (hGS1_Radiator.state == 0)) {
+                    if(hStandby.state == 0 || ((GS1SS10_temp_delta.state as Number + hyst.apply()) < 0))
                     {
                         sendCommand (GS1SS10_switch, ON)
                     }
@@ -141,12 +147,12 @@ rule "Master Bedroom"
             Item hFB1_Radiator changed
     then 
             //Switch ON
-            if (((FB1SS6_temp.state as Number) <= ((hSP_FB1.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (FB1SS13_switch1.state == ON) && (hMode.state == 1) && (hFB1_Radiator.state == 1)) {
+            if (((FB1SS6_temp.state as Number) <= ((hSP_FB1.state as Number) - (hyst.apply()))) && (hStandby.state == 0) && (FB1SS13_switch1.state == ON) && (hMode.state == 1) && (hFB1_Radiator.state == 1)) {
                     sendCommand (FB1SS13_switch1, OFF)
             }
             //Switch OFF
-            else if ((((FB1SS6_temp.state as Number) >= ((hSP_FB1.state as Number) + (hHysteresis.state as Number))) && (FB1SS13_switch1.state == OFF) && (hMode.state == 1)) || (hFB1_Radiator.state == 0)) {
-                    if(hStandby.state == 0 || ((FB1SS6_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+            else if ((((FB1SS6_temp.state as Number) >= ((hSP_FB1.state as Number) + (hyst.apply()))) && (FB1SS13_switch1.state == OFF) && (hMode.state == 1)) || (hFB1_Radiator.state == 0)) {
+                    if(hStandby.state == 0 || ((FB1SS6_temp_delta.state as Number + hyst.apply()) < 0))
                     {
                         sendCommand (FB1SS13_switch1, ON)
                     }
@@ -163,11 +169,11 @@ rule "Workshop"
             or
             Item hFB2_Radiator changed
     then 
-            if (((FB2SS7_temp.state as Number) <= ((hSP_FB2.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (FB1SS13_switch2.state == ON) && (hMode.state == 1) && (hFB2_Radiator.state == 1)) {
+            if (((FB2SS7_temp.state as Number) <= ((hSP_FB2.state as Number) - (hyst.apply()))) && (hStandby.state == 0) && (FB1SS13_switch2.state == ON) && (hMode.state == 1) && (hFB2_Radiator.state == 1)) {
                     sendCommand (FB1SS13_switch2, OFF)
             }
-            else if ((((FB2SS7_temp.state as Number) >= ((hSP_FB2.state as Number) + (hHysteresis.state as Number))) && (FB1SS13_switch2.state == OFF) && (hMode.state == 1)) || (hFB2_Radiator.state == 0)){
-                    if(hStandby.state == 0 || ((FB2SS7_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+            else if ((((FB2SS7_temp.state as Number) >= ((hSP_FB2.state as Number) + (hyst.apply()))) && (FB1SS13_switch2.state == OFF) && (hMode.state == 1)) || (hFB2_Radiator.state == 0)){
+                    if(hStandby.state == 0 || ((FB2SS7_temp_delta.state as Number + hyst.apply()) < 0))
                     {
                         sendCommand (FB1SS13_switch2, ON)
                     }
@@ -184,11 +190,11 @@ rule "Guest Bedroom"
             or
             Item hFB3_Radiator changed
     then 
-            if (((FB3SS20_temp.state as Number) <= ((hSP_FB3.state as Number) - (hHysteresis.state as Number))) && (hStandby.state == 0) && (FB3SS19_switch.state == ON) && (hMode.state == 1) && (hFB3_Radiator.state == 1)) {
+            if (((FB3SS20_temp.state as Number) <= ((hSP_FB3.state as Number) - (hyst.apply()))) && (hStandby.state == 0) && (FB3SS19_switch.state == ON) && (hMode.state == 1) && (hFB3_Radiator.state == 1)) {
                     sendCommand (FB3SS19_switch, OFF)
             }
-            else if ((((FB3SS20_temp.state as Number) >= ((hSP_FB3.state as Number) + (hHysteresis.state as Number))) && (FB3SS19_switch.state == OFF) && (hMode.state == 1)) || (hFB3_Radiator.state == 0)){
-                    if(hStandby.state == 0 || ((FB3SS20_temp_delta.state as Number + hHysteresis.state as Number) < 0))
+            else if ((((FB3SS20_temp.state as Number) >= ((hSP_FB3.state as Number) + (hyst.apply()))) && (FB3SS19_switch.state == OFF) && (hMode.state == 1)) || (hFB3_Radiator.state == 0)){
+                    if(hStandby.state == 0 || ((FB3SS20_temp_delta.state as Number + hyst.apply()) < 0))
                     {
                         sendCommand (FB3SS19_switch, ON)
                     }
