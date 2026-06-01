@@ -4,7 +4,6 @@ Strategies {
 
 Items {
     * : strategy = everyChange, restoreOnStartup
-    Temp_*, *_temp : strategy = everyMinute, everyChange, restoreOnStartup
-    gBoiler*, gPressure*, gHumidity*, gPower* : strategy = everyMinute, everyChange, restoreOnStartup
+    gTemperature*, gOutside*, gBoiler*, gPressure*, gHumidity*, gPower* : strategy = everyMinute, everyChange, restoreOnStartup
     FB1SS6_gas, GY1SS28_moisture, GY1FT1_level_pc, GO1EM1_V, GO1EM1_I : strategy = everyMinute, everyChange, restoreOnStartup
 }
