@@ -265,7 +265,7 @@ rule "Bedroom Blind Morning Release"
         when
                 Item GH1MS1_motion changed to "active"
         then
-                if((FB1BE3_position.state == 1) && (now.getDayOfWeek < 6) && ((now.getHourOfDay > 6) && (now.getHourOfDay < 11)))
+                if((FB1BE3_position.state == 1) && (now.getDayOfWeek.getValue < 6) && ((now.getHour > 6) && (now.getHour < 11)))
                 {
                         sendCommand(FB1BE3_position, blindsSP)
                         sendCommand(FB1BE3_release, 1)
@@ -277,7 +277,7 @@ rule "Bedroom Blind Morning Release"
                                 }                      
                 ])                       
                 }
-                if((FB1BE3_position.state == 1) && (phoneChargingRelease.state == ON) && (now.getDayOfWeek > 5) && ((now.getHourOfDay > 9) && (now.getHourOfDay < 12)))
+                if((FB1BE3_position.state == 1) && (phoneChargingRelease.state == ON) && (now.getDayOfWeek.getValue > 5) && ((now.getHour > 9) && (now.getHour < 12)))
                 {
                         sendCommand(FB1BE3_position, blindsSP)
                         sendCommand(FB1BE3_release, 1)                       
@@ -288,7 +288,7 @@ rule "Bedroom Blind Morning Release Delayed"
         when
                 Item phoneChargingRelease changed to ON
         then
-                if((FB1BE3_position.state == 1) && (now.getDayOfWeek > 5) && ((now.getHourOfDay > 9) && (now.getHourOfDay < 12)))
+                if((FB1BE3_position.state == 1) && (now.getDayOfWeek.getValue > 5) && ((now.getHour > 9) && (now.getHour < 12)))
                 {
                         sendCommand(FB1BE3_position, blindsSP)
                         sendCommand(FB1BE3_release, 1)                       

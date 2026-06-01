@@ -15,7 +15,7 @@ rule "Outside Temperature"
                 Time cron "0 0 0/1 1/1 * ? *"
         then
 
-            if(GY1SS24_Online.state == ON && (now.getHourOfDay > 6) && (now.getHourOfDay < 24)){
+            if(GY1SS24_Online.state == ON && (now.getHour > 6) && (now.getHour < 24)){
                 pushover.apply("T: " + GY1SS24_temp.state + " °C, RH: " + GY1SS24_humid.state + " %, P: " + GY1SS24_press.state + " mbar")
             }
 

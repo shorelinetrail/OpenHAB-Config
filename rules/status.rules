@@ -4,8 +4,7 @@
 // Add a check of up time to provide status alarm
 // Refresh button
 
-import org.eclipse.smarthome.core.types.UnDefType  // OH2; for OH3 use org.openhab.core.types.UnDefType
-import org.eclipse.smarthome.model.script.ScriptServiceUtil
+import org.openhab.core.types.UnDefType
 
 // --- Pushover (OH5 binding) reusable lambdas (null-guarded: log + return if offline) ---
 val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
@@ -171,7 +170,7 @@ when
 then
     gSonoff_IP.members.forEach[ ip |
         val onlineName = ip.name.replace("_IPAddress", "_Online")
-        val online = ScriptServiceUtil.getItemRegistry.getItem(onlineName)
+        val online = itemRegistry.getItem(onlineName)
 
         val target = if (ip.state instanceof UnDefType) OFF else ON
 

@@ -127,7 +127,7 @@ rule "Dark Mornings Override"
         when
                 Item GH1MS1_motion changed to "active"
         then
-                if((now.getHourOfDay < 7) && (now.getHourOfDay > 3) && (A.state != 0) && (A.state != 100))
+                if((now.getHour < 7) && (now.getHour > 3) && (A.state != 0) && (A.state != 100))
                 {
                         a = 4
                         postUpdate(A, a)
@@ -449,7 +449,7 @@ rule "Light Mornings"
         when
                 Channel 'astro:sun:local:rise#event' triggered START
         then
-                if(now.getHourOfDay < 7){
+                if(now.getHour < 7){
                         a = 0
                         postUpdate(A, a)
                 }
@@ -520,7 +520,7 @@ rule "Night Lights Reset Arrive Home"
         when
                 Item XM1AS1_presence changed to "present"
         then
-                if(((now.getHourOfDay > 22) || (now.getHourOfDay < 4)) && (A.state == 5)){
+                if(((now.getHour > 22) || (now.getHour < 4)) && (A.state == 5)){
                         a = 2
                         postUpdate(A, a)
                         sendCommand (gHueKitchen, KitEvening_Setpoint.state as Number)
