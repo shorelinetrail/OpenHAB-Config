@@ -1,5 +1,5 @@
 Strategies {
-    default = everyChange
+    everyMinute : "0 * * * * ?"
 }
 
 Items {
