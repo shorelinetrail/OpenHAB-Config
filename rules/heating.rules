@@ -42,7 +42,7 @@ rule "Heating Defaults"
         // hHysteresis is a user setpoint with no value on a fresh system; default it so the
         // per-room hysteresis casts (hHysteresis.state as Number) don't error on NULL.
         if (!(hHysteresis.state instanceof Number)) {
-            hHysteresis.postUpdate(0.5)
+            hHysteresis.postUpdate(0.1)
         }
 end
 
