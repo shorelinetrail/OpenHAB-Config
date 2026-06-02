@@ -24,6 +24,7 @@ _Newest at top. One row per change. Claude Code appends a row for every modifica
 
 | Date | Version | Change | Files affected | Author |
 |---|---|---|---|---|
+| 2026-06-02 | 0.5 | SmartThings→Z-Wave cutover for the Hall multisensor: added `GH1MS1_temperature` (Z-Wave MS6; gMultisensor/gTemperature) and uncommented its Hall row in the Temperature frame; moved `GH1MS1_motion` into items.items as an unbound `String` (UI-linked via `motion.map`) and removed the MQTT passthrough Item + Thing | items/items.items, items/mqtt.items, things/mqtt.things, sitemaps/main.sitemap, docs/FDS.md | Claude Code |
 | 2026-06-02 | 0.4 | OH5: adopted Z-Wave binding (`binding=…,zwave` in addons.cfg); recorded that Z-Wave Things + channel links are UI-managed in JSONDB (off-repo) by design; added `transform/motion.map` to map a Z-Wave binary motion channel (ON/OFF) onto the `String GH1MS1_motion` ("active"/"inactive") via a link profile (rules unchanged); stopped tracking openHAB runtime-generated files (`runtime.cfg`, `basicui.cfg`, `rrd4j.cfg`, `automation/`, `tags/`, `yaml/`); added Basic UI (`ui = basic`) | services/addons.cfg, docs/FDS.md, transform/motion.map, .gitignore | Claude Code |
 | 2026-05-31 | 0.3 | Generated textual Things from JSONDB for hue/sonos/tplinksmarthome/astro/systeminfo/ipcamera; pointed mqtt broker bridge at the old Pi (192.168.0.40); confirmed `astro:sun:c7d0dedc` is the real −30-min "Offset" sun Thing | things/hue·sonos·tplinksmarthome·astro·systeminfo·ipcamera.things, things/mqtt.things, docs/FDS.md | Claude Code |
 | 2026-05-31 | 0.2 | Fixed duplicate "Gate Offline" rule name, all-time temp copy-paste bug, and Online-switch mislabels; removed orphaned `GY1SS25_Online`/`myClock` + `de.map`/`en.map`/`numberToClock.js`; left `gHeating` OR-order unchanged (drives boiler) | status.rules, temperatures.rules, items.items, main.sitemap, transform/ | Claude Code |
@@ -164,7 +165,7 @@ in one row). Channels shown as `binding:…`; `mqtt:topic:mosquitto:<id>` abbrev
 | `GY1SS8_temp` / `_press` | Number | °C / mbar | `mqtt:GY1SS8_temp/_press` (BMP280) | gOutside / gPressure | Outdoor temperature / pressure |
 | `GY1SS24_temp` / `_humid` / `_press` | Number | °C / % / mbar | `mqtt:GY1SS24_*` (BME280) | (humid→gHumidity) | Shed temperature / humidity / pressure |
 | `GK1SS1_illuminance` | Number | lux | `mqtt:GK1SS1_illuminance` (BH1750) | — | Kitchen illuminance (drives kitchen dark-day) |
-| `GH1MS1_illuminance` / `_humidity` / `_motion` | Number/String | lux / % / — | `smartthings:…Multisensor_GH1-MS1:*` | gMultisensor, gIlluminance/gHumidity | Hall multisensor lux / humidity / motion |
+| `GH1MS1_temperature` / `_illuminance` / `_humidity` / `_motion` | Number/Number/Number/String | °C / lux / % / "active"/"inactive" | Z-Wave multisensor (MS6) — UI-managed channel links (JSONDB); motion mapped ON/OFF→active/inactive via `motion.map` profile | gMultisensor + gTemperature / gIlluminance / gHumidity | Hall multisensor temp / lux / humidity / motion |
 | `GH1MS1_illuminance_avg` | Number | lux | — (computed) | gMultisensor, gIlluminance | Hall lux 15-min average |
 | `GH1MS1_illuminance_switch` | Switch | — | — | — | "Front Illuminance Bypass" (copies office lux into hall) |
 | `XM1SS16_temp` | Number | °C | `mqtt:XM1SS16_temp` (DS18B20) | — | XM1-SS16 temperature |
@@ -593,9 +594,10 @@ camera was via `Image`/`Video` (now commented).
 
 **Seeded findings (status updated against current config):**
 
-- **Duplicate definition — OPEN:** `GH1MS1_motion` is still defined twice — `items.items:132`
-  (SmartThings `motionSensor` channel) and `mqtt.items:180` (MQTT passthrough channel).
-  openHAB loads one non-deterministically; one channel is lost. Resolve to one Item.
+- **Duplicate definition — RESOLVED:** `GH1MS1_motion` is now defined once in `items.items`
+  (unbound `String`, linked to the Z-Wave multisensor motion channel in the UI via a
+  `motion.map` profile). The old MQTT passthrough Item + Thing were removed at the
+  SmartThings→Z-Wave cutover (2026-06-02).
 - **Group-name mismatch — RESOLVED:** plug groups are now `gPlugSP1/2/3` matching the plug
   membership (`items.items:35-37`).
 - **Undefined parent groups — RESOLVED:** `Whg` / `gSpeedtest` removed (Speedtest feature deleted).

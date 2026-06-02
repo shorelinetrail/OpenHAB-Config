@@ -679,11 +679,6 @@ Thing topic XM1SS21_Uptime (mqtt:broker:mosquitto) {
   // -----------------------------
   // SmartThings passthrough + BlueIris + Gate
   // -----------------------------
-  Thing topic GH1MS1_motion "GH1MS1_motion" (mqtt:broker:mosquitto) {
-    Channels:
-      Type string : GH1MS1_motion "State"   [ stateTopic="smartthings/860be36b-3bd6-47eb-8b16-0460829feadf/motionSensor/motion" ]
-      Type string : GH1MS1_motion "Command" [ commandTopic="smartthings/860be36b-3bd6-47eb-8b16-0460829feadf/motionSensor/motion" ]
-  }
   Thing topic BlueIris_motionFront "BlueIris_motionFront" (mqtt:broker:mosquitto) { Channels: }
   Thing topic BlueIris_motionRear  "BlueIris_motionRear"  (mqtt:broker:mosquitto) { Channels: }
   Thing topic BlueIris_trigger "BlueIris_trigger" (mqtt:broker:mosquitto) {

@@ -177,7 +177,6 @@ Switch XM1SS21_switch "XM1SS21_switch" { channel="mqtt:topic:mosquitto:XM1SS21_s
 // -----------------------------------------
 // Blue Iris / Gate / Misc
 // -----------------------------------------
-String GH1MS1_motion "GH1MS1_motion" { channel="mqtt:topic:mosquitto:GH1MS1_motion:GH1MS1_motion" }
 //String BlueIris_motionFront "BlueIris_motionFront" { channel="mqtt:topic:mosquitto:BlueIris_motionFront:BlueIris_motionFront" }  // (no Thing channel defined)
 //String BlueIris_motionRear  "BlueIris_motionRear"  { channel="mqtt:topic:mosquitto:BlueIris_motionRear:BlueIris_motionRear" }    // (no Thing channel defined)
 String BlueIris_trigger "BlueIris_trigger" { channel="mqtt:topic:mosquitto:BlueIris_trigger:BlueIris_trigger" }

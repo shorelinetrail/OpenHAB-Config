@@ -631,7 +631,7 @@ Frame label="Dashboard" {
 		Text label="Room Sensors" icon="heating" {
 
 			Frame label="Temperature" {
-				//Text  item=GH1MS1_temperature label="Hall"
+				Text  item=GH1MS1_temperature label="Hall"
 				Text  item=GO1SS4_temp label="Office"
 				Text  item=GL1SS5_temp label="Living Room"
 				Text  item=GK1SS3_temp label="Kitchen"
