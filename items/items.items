@@ -242,6 +242,7 @@ Switch FB3SS20_Online "FB3-SS20"
 Switch XM1SS21_Online "XM1-SS21"
 Switch GY1SS24_Online "GY1-SS24"
 Switch GY1SS26_Online "GY1-SS26"
+Switch GY1SS27_Online "GY1-SS27"
 
 Switch Sonoff_Refresh "Refresh" <network>
 

@@ -171,10 +171,12 @@ when
 then
     gSonoff_IP.members.forEach[ ip |
         val onlineName = ip.name.replace("_IPAddress", "_Online")
-        val online = ScriptServiceUtil.getItemRegistry.getItem(onlineName)
-
-        val target = if (ip.state instanceof UnDefType) OFF else ON
-
-        if(online.state != target) online.postUpdate(target)
+        try {
+            val online = ScriptServiceUtil.getItemRegistry.getItem(onlineName)
+            val target = if (ip.state instanceof UnDefType) OFF else ON
+            if(online.state != target) online.postUpdate(target)
+        } catch(Exception e) {
+            logWarn("status", "Sonoff Status: no " + onlineName + " item for " + ip.name + " - skipped")
+        }
     ]
 end
