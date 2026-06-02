@@ -1,0 +1,7 @@
+ON=active
+OFF=inactive
+OPEN=active
+CLOSED=inactive
+NULL=inactive
+UNDEF=inactive
+-=inactive

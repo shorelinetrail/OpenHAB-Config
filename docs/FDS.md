@@ -24,6 +24,7 @@ _Newest at top. One row per change. Claude Code appends a row for every modifica
 
 | Date | Version | Change | Files affected | Author |
 |---|---|---|---|---|
+| 2026-06-02 | 0.4 | OH5: adopted Z-Wave binding (`binding=…,zwave` in addons.cfg); recorded that Z-Wave Things + channel links are UI-managed in JSONDB (off-repo) by design; added `transform/motion.map` to map a Z-Wave binary motion channel (ON/OFF) onto the `String GH1MS1_motion` ("active"/"inactive") via a link profile (rules unchanged); stopped tracking openHAB runtime-generated files (`runtime.cfg`, `basicui.cfg`, `rrd4j.cfg`, `automation/`, `tags/`, `yaml/`); added Basic UI (`ui = basic`) | services/addons.cfg, docs/FDS.md, transform/motion.map, .gitignore | Claude Code |
 | 2026-05-31 | 0.3 | Generated textual Things from JSONDB for hue/sonos/tplinksmarthome/astro/systeminfo/ipcamera; pointed mqtt broker bridge at the old Pi (192.168.0.40); confirmed `astro:sun:c7d0dedc` is the real −30-min "Offset" sun Thing | things/hue·sonos·tplinksmarthome·astro·systeminfo·ipcamera.things, things/mqtt.things, docs/FDS.md | Claude Code |
 | 2026-05-31 | 0.2 | Fixed duplicate "Gate Offline" rule name, all-time temp copy-paste bug, and Online-switch mislabels; removed orphaned `GY1SS25_Online`/`myClock` + `de.map`/`en.map`/`numberToClock.js`; left `gHeating` OR-order unchanged (drives boiler) | status.rules, temperatures.rules, items.items, main.sitemap, transform/ | Claude Code |
 | 2026-05-30 | 0.1 | Initial FDS populated from config | (all) | Claude Code |
@@ -107,7 +108,8 @@ Rules run the automation; InfluxDB stores history for charts; Pushover delivers 
 | hue | 2.x | Philips Hue bridge `001788678581` | All `*HB*_dimmer`/`_colour` bulbs (hall, landing, kitchen, glass, front door, yard), and the Hue dimmer-switch button (`GK1HS1_event`) used to toggle presence |
 | sonos | 2.x | Sonos (CONNECT, CONNECT:AMP, PLAY:1, PLAY:3) | 7 speakers (Living Room, Kitchen, Office, Bedroom, Sun Room, Sun Room Aux, Workshop) — control/volume/mute/track/coordinator/add/standalone + whole-house group rules |
 | tplinksmarthome | 2.x | TP-Link Kasa HS110 | 3 smart plugs (Office `GO1SP1`, Living Room `GL1SP2`, Bedroom `FB1SP3`) — switch/power/energy/LED/rssi/current/voltage |
-| smartthings | 2.x | SmartThings | Arrival Sensor (`XM1AS1_battery`), Multisensor (`GH1MS1_*`), Hank Scene Controller (`FB1SC1_power`), Coffee Machine (`GK1SW04`) |
+| smartthings | 2.x | SmartThings | Arrival Sensor (`XM1AS1_battery`), Multisensor (`GH1MS1_*`), Hank Scene Controller (`FB1SC1_power`), Coffee Machine (`GK1SW04`) — **being migrated to Z-Wave** (sensors) on OH5 |
+| zwave | (OH5) | Z-Wave mesh via serial controller (Thing UID assigned at node inclusion) | Replacing SmartThings sensors. First node = Hall multisensor → `GH1MS1_illuminance` / `_humidity` / `_motion`. **Things + channel→item links are UI-managed in JSONDB, not in this repo** — see note below |
 | astro | 2.x | Computed sun/moon (Thing `astro:sun:local`; a second UID `astro:sun:c7d0dedc` is also referenced — see §14) | Sunrise/sunset/-30-min triggers for lighting and blinds; `Astro_SunriseEnd` |
 | ipcamera | 2.x | Blue Iris / IP camera snapshot (`ipcamera:HTTPONLY:cd166936`) | `cctv` Image item (Thing is managed/UI, not in repo) |
 | systeminfo | 2.x | Local host metrics | **Not evidenced in repo** — no Items/Things reference it |
@@ -116,6 +118,8 @@ Rules run the automation; InfluxDB stores history for charts; Pushover delivers 
 | pushover (action) | — | Pushover API | Outbound notifications/alarms via `sendPushoverMessage(pushoverBuilder(...))` (API/user key configured out-of-repo) |
 
 _Note: legacy MQTT v1 binding (`mqtt1`) and v1 `mqtt` action removed — system is 100% MQTT 2.x (channel-based)._
+
+_Note (Z-Wave, OH5): Z-Wave **Things and their channel→item links are kept in openHAB's JSONDB (UI-managed, off-repo) by design** — a node's Thing UID is assigned at inclusion time and the mesh is administered live in the UI, so it cannot be authored on the dev PC and pushed. The `GH1MS1_*` Items stay textual in this repo and are linked to the UI-discovered channels. A Z-Wave binary motion channel reports `ON`/`OFF`; it is mapped onto the existing `String GH1MS1_motion` (`"active"`/`"inactive"`) via a MAP transform profile (`transform/motion.map`) on the link, so the motion rules are unchanged. The serial controller bridge holds the network security key (secret). Back up JSONDB via `openhab-cli backup`, not git._
 
 ---
 
