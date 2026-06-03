@@ -864,8 +864,8 @@ Frame label="Data" {
 			Group item=gVariables label="Variables" icon="settings"
 			Switch item=XM1AS1_presence label="Presence" mappings=["present" = "present", "not present" = "not present"]
 			Switch item=XM1AS1_presence_trig label="Presence Trigger"
-			Switch item=XM1AS1_presence_S label="Ste Present" mappings=[ON = "present", OFF = "not present"]
-			Switch item=XM1AS1_presence_J label="Jacqui Present" mappings=[ON = "present", OFF = "not present"]
+			Switch item=XM1AS1_presence_S label="Ste Present" mappings=["present" = "present", "not present" = "not present"]
+			Switch item=XM1AS1_presence_J label="Jacqui Present" mappings=["present" = "present", "not present" = "not present"]
 			Switch item=XM1DB1_doorbell label="Doorbell Test"
 			Switch item=remoteTempEnable label="Remote Temp. Push"
 			Switch item=BlueIris_motionFront label="Blue Iris Motion (Front)"
