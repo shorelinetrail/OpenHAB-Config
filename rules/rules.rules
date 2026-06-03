@@ -49,6 +49,9 @@ rule "Reload Variables"
         c = C.state as Number
         d = D.state as Number
         motionTimeoutMins = Motion_Time.state as Number
+        // default per-person presence so the combiner never reads NULL
+        if (XM1AS1_presence_S.state == NULL) XM1AS1_presence_S.postUpdate("not present")
+        if (XM1AS1_presence_J.state == NULL) XM1AS1_presence_J.postUpdate("not present")
 end
 
 // LIGHTS
@@ -915,3 +918,27 @@ end*/
             sendCommand(FL1HB2_dimmer, 0) 
             /*createTimer(now.plusSeconds(2)) [sendCommand(GH1HB1_dimmer, 1) ]
     end*/
+
+
+// --- Two-phone presence combiner -------------------------------------------
+// Each phone's Tasker POSTs its own item (Ste -> _S, Jacqui -> _J) as the
+// strings "present" / "not present". This rule owns the household
+// XM1AS1_presence: home if EITHER phone is home. The != guards mean the
+// household item only *changes* on a real transition, so "Left Home" fires
+// only when the LAST person leaves and "Dark Day Lights Return" only on the
+// FIRST arrival - not when one phone drops while the other is still home.
+rule "Combine Presence"
+    when
+        Item XM1AS1_presence_S changed or
+        Item XM1AS1_presence_J changed
+    then
+        val sHome = (XM1AS1_presence_S.state.toString == "present")
+        val jHome = (XM1AS1_presence_J.state.toString == "present")
+        if (sHome || jHome) {
+            if (XM1AS1_presence.state.toString != "present")
+                XM1AS1_presence.sendCommand("present")
+        } else {
+            if (XM1AS1_presence.state.toString != "not present")
+                XM1AS1_presence.sendCommand("not present")
+        }
+end
