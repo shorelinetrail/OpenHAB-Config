@@ -697,7 +697,6 @@ Frame label="Dashboard" {
 		Text label="Irrigation System" icon="garden" {	
 
 			Frame label="Front" {
-				//Text  item=GH1MS1_temperature label="Hall"
 				Switch item=Iri_F_Switch mappings=[1="START", 2="CANCEL"]
 				Setpoint item=Iri_F_SP label="Set Point [%.1f l]" minValue=1 maxValue=50 step=1
 				Text  item=GY1SS27_flow label="Flow"
@@ -706,7 +705,6 @@ Frame label="Dashboard" {
 				Text item=GY1SS28_moisture label="Moisture"
 			}
 			Frame label="Rear " {
-				//Text  item=GH1MS1_temperature label="Hall"
 				Switch item=Iri_F_Switch_R mappings=[1="START", 2="CANCEL"]
 				Setpoint item=Iri_F_SP_R label="Set Point [%.1f l]" minValue=1 maxValue=100 step=1
 				Text item=Iri_F_Total_R

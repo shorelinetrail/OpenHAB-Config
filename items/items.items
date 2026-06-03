@@ -124,9 +124,9 @@ Dimmer GY1HB24_colour "Colour" <colorlight> (gHueYardColour) {channel="hue:0220:
 
 /* Multisensor */
 
-Number GH1MS1_temperature "Temperature [%.1f °C]" <temperature> (gMultisensor, gTemperature)
-Number GH1MS1_illuminance "Illuminance [%.0f lx]" <light> (gMultisensor, gIlluminance)
-Number GH1MS1_illuminance_avg "Average Illuminance Measurement [%.0f lx]" <light> (gMultisensor, gIlluminance)
+Number GH1MS1_temperature "Hall [%.1f °C]" <temperature> (gMultisensor, gTemperature)
+Number GH1MS1_illuminance "Hall [%.0f lx]" <light> (gMultisensor, gIlluminance)
+Number GH1MS1_illuminance_avg "Hall Average [%.0f lx]" <light> (gMultisensor, gIlluminance)
 Switch GH1MS1_illuminance_switch "Front Illuminance Bypass"
 Number GH1MS1_humidity "Humidity Sensor [%.1f %%]" <humidity> (gMultisensor, gHumidity)
 String GH1MS1_motion "Motion [%s]" <motion> (gMultisensor)
