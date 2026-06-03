@@ -76,7 +76,7 @@ def clamp_pos(raw: str) -> int:
 class Bridge:
     def __init__(self, loop: asyncio.AbstractEventLoop):
         self.loop = loop
-        self.brunt = BruntClientAsync(username=BRUNT_USER, password=BRUNT_PASS)
+        self.brunt = None  # created in run(), inside the running loop
         self._brunt_lock = asyncio.Lock()
         self.mqttc = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2, client_id="brunt-bridge"
@@ -154,6 +154,8 @@ class Bridge:
                 log.error("State publish error: %s", e)
 
     async def run(self):
+        # aiohttp ClientSession (inside Brunt client) needs a running loop
+        self.brunt = BruntClientAsync(username=BRUNT_USER, password=BRUNT_PASS)
         self.mqttc.connect_async(MQTT_HOST, MQTT_PORT, keepalive=60)
         self.mqttc.loop_start()
         try:
