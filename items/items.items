@@ -128,8 +128,8 @@ Number GH1MS1_temperature "Hall [%.1f °C]" <temperature> (gMultisensor, gTemper
 Number GH1MS1_illuminance "Hall [%.0f lx]" <light> (gMultisensor, gIlluminance)
 Number GH1MS1_illuminance_avg "Hall Average [%.0f lx]" <light> (gMultisensor, gIlluminance)
 Switch GH1MS1_illuminance_switch "Front Illuminance Bypass"
-Number GH1MS1_humidity "Humidity Sensor [%.1f %%]" <humidity> (gMultisensor, gHumidity)
-String GH1MS1_motion "Motion [%s]" <motion> (gMultisensor)
+Number GH1MS1_humidity "Hall [%.1f %%]" <humidity> (gMultisensor, gHumidity)
+String GH1MS1_motion "Hall Motion [%s]" <motion> (gMultisensor)
 
 /* hive */
 
