@@ -40,7 +40,7 @@ rule "Gate Pulse"
     when   
             Item GY1SS9_switch changed to "ON"
     then 
-            gateTravel = createTimer(now.plusMillis(200), [ |
+            gateTravel = createTimer(now.plusNanos(200000000), [ |
             sendCommand(GY1SS9_switch, "OFF")
             gateTravel = null
             ])

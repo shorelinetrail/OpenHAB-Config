@@ -35,6 +35,17 @@ var Timer timerHeating = null
 var String h_status
 var Timer timerSonoffReset = null
 
+// --- Non-blocking boiler call-for-heat / switch-off confirmation ---
+// Replaces the old Thread::sleep(20000) retry chains (which blocked a rule
+// thread for up to 60s). A rescheduling timer re-checks GY1SS8_power after
+// each 20s window without holding a thread. Same logic: 3 attempts, then
+// emergency pushover on failure.
+var Timer boilerOnTimer = null
+var Timer boilerOffTimer = null
+var int boilerOnAttempts = 0
+var int boilerOffAttempts = 0
+val int BOILER_MAX_ATTEMPTS = 3
+
 // Null-safe hysteresis: returns hHysteresis, or 0.1 if it has no value yet (boot race),
 // so the per-room "as Number" casts can never throw "cast NULL to Number".
 val org.eclipse.xtext.xbase.lib.Functions$Function0<Number> hyst = [ |
@@ -241,69 +252,67 @@ rule "Heating ON"
     when
             Item gHeating changed to OFF
     then
-                timerHeating = createTimer(now.plusMinutes(6), [ |     // delay to allow thermal actuator to open
-                if((hMode.state == 1) && (gHeating.state == OFF) && (hStandby.state == 0)){
-                sendCommand(GY1SS8_switch, ON)
-                Thread::sleep(20000)
-                if(GY1SS8_power.state == "ON"){
-                        logInfo("heating.rules", "Boiler call for heat success")
-                }
-                if(GY1SS8_power.state == "OFF" && GY1SS8_switch.state == ON){
-                        logInfo("heating.rules", "Boiler call for heat failed, retrying...")
-                        sendCommand(GY1SS8_switch, ON)
-                        Thread::sleep(20000)
-                        if(GY1SS8_power.state == "ON"){
-                                logInfo("heating.rules", "Boiler call for heat success")
-                        }
-                        if(GY1SS8_power.state == "OFF" && GY1SS8_switch.state == ON){
-                                logInfo("heating.rules", "Boiler call for heat failed, retrying...")
+            // delay to allow thermal actuator to open, then start the call-for-heat
+            // confirmation. NOTE: rule name/trigger polarity is intentional - gHeating
+            // is OR(OFF,ON); the group reads OFF when a zone is calling for heat.
+            timerHeating = createTimer(now.plusMinutes(6), [ |
+                if ((hMode.state == 1) && (gHeating.state == OFF) && (hStandby.state == 0)) {
+                    boilerOnAttempts = 0
+                    sendCommand(GY1SS8_switch, ON)
+                    // re-check in 20s without blocking the thread
+                    boilerOnTimer = createTimer(now.plusSeconds(20), [ |
+                        if (GY1SS8_power.state == "ON") {
+                            logInfo("heating.rules", "Boiler call for heat success")
+                            boilerOnTimer = null
+                        } else if (GY1SS8_switch.state == ON) {
+                            boilerOnAttempts = boilerOnAttempts + 1
+                            if (boilerOnAttempts < BOILER_MAX_ATTEMPTS) {
+                                logInfo("heating.rules", "Boiler call for heat failed, retrying (" + boilerOnAttempts + ")...")
                                 sendCommand(GY1SS8_switch, ON)
-                                Thread::sleep(20000)
-                                if(GY1SS8_power.state == "ON"){
-                                        logInfo("heating.rules", "Boiler call for heat success")
-                                }
-                                if(GY1SS8_power.state == "OFF" && GY1SS8_switch.state == ON){
-                                        logInfo("heating.rules", "Boiler call for heat failed")
-                                        pushoverEmergency.apply("Boiler call for heat failed")
-                                }                      
+                                boilerOnTimer.reschedule(now.plusSeconds(20))
+                            } else {
+                                logInfo("heating.rules", "Boiler call for heat failed")
+                                pushoverEmergency.apply("Boiler call for heat failed")
+                                boilerOnTimer = null
+                            }
+                        } else {
+                            // switch no longer ON (state changed elsewhere) - stop quietly
+                            boilerOnTimer = null
                         }
+                    ])
                 }
-                timerHeating = null       
-                }
-                ])
+                timerHeating = null
+            ])
 end
 
 rule "Heating OFF"
     when
             Item gHeating changed to ON
     then
-            if(hMode.state == 1 && hStandby.state == 0){
+            // gHeating reads ON when no zone is calling - switch the boiler off and
+            // confirm via a non-blocking rescheduling timer (same 3-attempt logic).
+            if (hMode.state == 1 && hStandby.state == 0) {
+                boilerOffAttempts = 0
                 sendCommand(GY1SS8_switch, OFF)
-                Thread::sleep(20000)
-                if(GY1SS8_power.state == "OFF"){
+                boilerOffTimer = createTimer(now.plusSeconds(20), [ |
+                    if (GY1SS8_power.state == "OFF") {
                         logInfo("heating.rules", "Boiler switched off")
-                }
-                if(GY1SS8_power.state == "ON" && GY1SS8_switch.state == OFF){
-                        logInfo("heating.rules", "Boiler failed to switch off, retrying...")
-                        sendCommand(GY1SS8_switch, OFF)
-                        Thread::sleep(20000)
-                        if(GY1SS8_power.state == "OFF"){
-                                logInfo("heating.rules", "Boiler switched off")
+                        boilerOffTimer = null
+                    } else if (GY1SS8_switch.state == OFF) {
+                        boilerOffAttempts = boilerOffAttempts + 1
+                        if (boilerOffAttempts < BOILER_MAX_ATTEMPTS) {
+                            logInfo("heating.rules", "Boiler failed to switch off, retrying (" + boilerOffAttempts + ")...")
+                            sendCommand(GY1SS8_switch, OFF)
+                            boilerOffTimer.reschedule(now.plusSeconds(20))
+                        } else {
+                            logInfo("heating.rules", "Boiler failed to switch off")
+                            pushoverEmergency.apply("Boiler failed to switch off")
+                            boilerOffTimer = null
                         }
-                        if(GY1SS8_power.state == "ON" && GY1SS8_switch.state == OFF){
-                                logInfo("heating.rules", "Boiler failed to switch off, retrying...")
-                                sendCommand(GY1SS8_switch, OFF)
-                                Thread::sleep(20000)
-                                if(GY1SS8_power.state == "OFF"){
-                                        logInfo("heating.rules", "Boiler switched off")
-                                }
-                                if(GY1SS8_power.state == "ON" && GY1SS8_switch.state == OFF){
-                                        logInfo("heating.rules", "Boiler failed to switch off")
-                                        pushoverEmergency.apply("Boiler failed to switch off")
-                                }                      
-                        }
-                }
-                timerHeating = null
+                    } else {
+                        boilerOffTimer = null
+                    }
+                ])
             }
     end
 
@@ -311,17 +320,19 @@ rule "Auto Resume"
     when
             Item hMode changed to 1
     then
-            Thread::sleep(500)
-            if(gHeating.state == ON){
-                sendCommand(GY1SS8_switch, OFF)
-            }
-            else if(gHeating.state == OFF){
-                timerHeating = createTimer(now.plusMinutes(6), [ |     // delay to allow thermal actuator to open              
-                timerHeating = null
-                if(hMode.state == 1){
-                        sendCommand(GY1SS8_switch, ON)
-                }])
-            }
+            // brief settle before reading gHeating, via a timer (non-blocking)
+            createTimer(now.plusNanos(500000000), [ |
+                if (gHeating.state == ON) {
+                    sendCommand(GY1SS8_switch, OFF)
+                } else if (gHeating.state == OFF) {
+                    timerHeating = createTimer(now.plusMinutes(6), [ |   // delay to allow thermal actuator to open
+                        timerHeating = null
+                        if (hMode.state == 1) {
+                            sendCommand(GY1SS8_switch, ON)
+                        }
+                    ])
+                }
+            ])
     end
 
 rule "Schedule Morning"

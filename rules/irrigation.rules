@@ -18,6 +18,8 @@ var Number rear_flow_T = 0
 var Timer timerRear = null
 var Timer timerRear1 = null
 var Number totalStart_R = 0
+var Timer timerButtRefill = null
+var Timer timerRearStart = null
 
 rule "Front Irrigation Control"
     when
@@ -79,8 +81,13 @@ rule "Water Butt Level"
                 sendCommand(GY1FT1_switch2, OFF)
             }            
             if((GY1FT1_level_pc.state as Number) <= 90 && (GY1FT1_switch2.state == OFF)){
-                Thread::sleep(2500)
-                sendCommand(GY1FT1_switch2, ON)
+                // 2.5s settle before opening switch2 (non-blocking)
+                timerButtRefill = createTimer(now.plusSeconds(3), [ |
+                    timerButtRefill = null
+                    if ((GY1FT1_level_pc.state as Number) <= 90 && (GY1FT1_switch2.state == OFF)) {
+                        sendCommand(GY1FT1_switch2, ON)
+                    }
+                ])
             }    
 end
 
@@ -92,18 +99,22 @@ rule "Rear Irrigation Control"
         if(Iri_F_Switch_R.state == 1){
             sendCommand(Iri_F_Total_R, 0)
             sendCommand(GY1FT1_switch2, OFF)
-            Thread::sleep(2500)
-            sendCommand(GY1FT1_switch1, OFF)
-            timerRear = createTimer(now.plusSeconds(30), [ |
-            timerRear = null
-            totalStart_R = 1
-            val Number flow_R = (GY1FT1_flow3.state as Number/2)
-                if (flow_R > 0) {
-                    Iri_F_Total_R.sendCommand(flow_R)
-                } else {
-                    Iri_F_Switch_R.sendCommand(2)
-                    pushover.apply("No rear irrigation flow, cancelled.")
-                }
+            // 2.5s between closing switch2 and switch1 (non-blocking), then the
+            // existing 30s flow-check timer.
+            timerRearStart = createTimer(now.plusSeconds(3), [ |
+                timerRearStart = null
+                sendCommand(GY1FT1_switch1, OFF)
+                timerRear = createTimer(now.plusSeconds(30), [ |
+                    timerRear = null
+                    totalStart_R = 1
+                    val Number flow_R = (GY1FT1_flow3.state as Number/2)
+                    if (flow_R > 0) {
+                        Iri_F_Total_R.sendCommand(flow_R)
+                    } else {
+                        Iri_F_Switch_R.sendCommand(2)
+                        pushover.apply("No rear irrigation flow, cancelled.")
+                    }
+                ])
             ])
         }
         else if(Iri_F_Switch_R.state == 2)
