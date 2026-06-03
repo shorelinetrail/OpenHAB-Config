@@ -1,0 +1,20 @@
+[Unit]
+Description=Brunt <-> MQTT bridge for openHAB
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/brunt-bridge/secrets.env
+ExecStart=/opt/brunt-bridge/venv/bin/python /opt/brunt-bridge/brunt_bridge.py
+Restart=on-failure
+RestartSec=10
+User=openhab
+Group=openhab
+# hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
