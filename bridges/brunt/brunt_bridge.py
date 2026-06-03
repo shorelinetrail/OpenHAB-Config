@@ -118,7 +118,7 @@ class Bridge:
             try:
                 await self.brunt.async_login()
                 await self.brunt.async_change_request_position(
-                    position=pos, name=brunt_name
+                    request_position=pos, thing=brunt_name
                 )
                 log.info("Brunt '%s' set to %d OK", brunt_name, pos)
             except Exception as e:  # noqa: BLE001 - cloud API, catch all
