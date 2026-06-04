@@ -176,7 +176,7 @@ rule "Blinds Sunrise before 07:00"
                 Time cron "0 0 7 1/1 * ? *"
                 //Time cron "0 57 17 1/1 * ? *"
         then
-                if(now.isAfter((Astro_SunriseEnd.state as DateTimeType).getZonedDateTime.toInstant.toEpochMilli)){
+                if(now.toInstant.isAfter((Astro_SunriseEnd.state as DateTimeType).getInstant)){
                         f = 1
                         postUpdate(Blinds_Sunrise_Trigger, f)
                         if(Blinds_Auto.state == ON)

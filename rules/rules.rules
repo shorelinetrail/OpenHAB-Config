@@ -120,7 +120,7 @@ rule "Dark Mornings"
         when
                 Time cron "0 0 7 1/1 * ? *"
         then
-                if(now.isBefore((Astro_SunriseEnd.state as DateTimeType).getZonedDateTime.toInstant.toEpochMilli)){
+                if(now.toInstant.isBefore((Astro_SunriseEnd.state as DateTimeType).getInstant)){
                         a = 4
                         postUpdate(A, a)
                 }
