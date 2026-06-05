@@ -48,8 +48,32 @@ when
 then
         //logInfo("power.rules", "Trigger")
         var energyReading = GO1EM1_TE.state as Number
-        var meterReading = energyReading + 62554.24
-        postUpdate(GO1EM1_M, meterReading)  
+        var meterReading = energyReading + (GO1EM1_Offset.state as Number)
+        postUpdate(GO1EM1_M, meterReading)
+end
+
+rule "Recalibrate Meter Reading"
+when
+        Item GO1EM1_SetRead received command
+then
+        // User entered the ACTUAL physical dial reading on the sitemap.
+        // Back-calculate the offset so GO1EM1_M matches the dial from now on:
+        //   offset = dial_reading - device_running_total
+        val actual = receivedCommand as Number
+        val deviceTotal = GO1EM1_TE.state as Number
+        val newOffset = actual - deviceTotal
+        GO1EM1_Offset.postUpdate(newOffset)
+        GO1EM1_M.postUpdate(actual)        // snap the displayed reading immediately
+        logInfo("power.rules", "Meter recalibrated: dial=" + actual + " offset=" + newOffset)
+end
+
+rule "Seed Meter Offset"
+when
+        System started
+then
+        // Preserve the original calibration constant if the offset item is empty
+        // (e.g. first run after adding it). Avoids the meter rule throwing on NULL.
+        if (GO1EM1_Offset.state == NULL) GO1EM1_Offset.postUpdate(62554.24)
 end
 /*
 rule "Test Calculate"

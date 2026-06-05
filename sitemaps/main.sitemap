@@ -17,6 +17,8 @@ Frame label="Dashboard" {
 				Text item=GO1EM1_F
 				Text item=GO1EM1_TE
 				Text item=GO1EM1_M
+				Input item=GO1EM1_SetRead label="Correct Reading [%.1f kWh]"
+				Text item=GO1EM1_Offset
 				}
 
 				Frame label="Consumption"{

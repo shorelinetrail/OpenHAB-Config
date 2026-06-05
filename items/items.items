@@ -506,6 +506,8 @@ Number Blanket_control "Control" <switch>
 Switch remoteTempEnable "Notify Remote Temperature"
 
 Number GO1EM1_M "Meter Reading [%.1f kWh]" <energy>
+Number GO1EM1_Offset "Meter Offset [%.2f kWh]" <energy> (gSetpoints)
+Number GO1EM1_SetRead "Enter Actual Meter Reading [%.1f kWh]" <energy>
 
 // Irrigation
 
