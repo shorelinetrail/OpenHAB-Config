@@ -177,6 +177,10 @@ rule "Dark Daytime Hall Recovered"
         when
                 Item GH1MS1_illuminance changed
         then
+                // read threshold directly from the item - do NOT rely on the
+                // global set in "Dark Daytime Hall" (null after a restart -> C
+                // would stay stuck at 2 and hold the hall lights on all day)
+                darkDayMaxHall = Lux_Max_Hall.state as Number
                 if(
                         (GH1MS1_illuminance.state > darkDayMaxHall) && (C.state == 2)
                 ){
