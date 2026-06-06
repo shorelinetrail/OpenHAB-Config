@@ -184,12 +184,15 @@ rule "Dark Daytime Hall Recovered"
                 if(
                         (GH1MS1_illuminance.state > darkDayMaxHall) && (C.state == 2)
                 ){
-                        if (timerHall !== null) { timerHall.cancel; timerHall = null }
+                        // Start the 5-min confirm ONCE; do not cancel/restart on
+                        // every lux change. The MS6 updates ~every 60s, so the old
+                        // cancel-and-restart-on-change meant the 5-min timer never
+                        // survived to fire and C never cleared.
+                        if (timerHall === null) {
                         timerHall = createTimer(now.plusMinutes(5), [ |
                         if(GH1MS1_illuminance.state > darkDayMaxHall && C.state == 2){
                                 c = 0
                                 postUpdate(C, c)
-                                timerHall = null
                                 sendCommand (GO1SP1_switch, "OFF")
                                 sendCommand (GL1SP2_switch, "OFF")
                                 sendCommand (XM1SS21_switch, "OFF")
@@ -197,8 +200,10 @@ rule "Dark Daytime Hall Recovered"
                                 sendCommand (gHueYard, 0)
                                 sendCommand (gHueFront, 0)
                                 sendCommand (GY1HB15_dimmer, 0)              
-                        }                         
+                        }
+                        timerHall = null
                         ])
+                        }
                 }
 end
 
@@ -262,16 +267,18 @@ rule "Dark Daytime Kitchen Recovered"
                 if(
                         (GK1SS1_illuminance.state > darkDayMaxKit) && (D.state == 2)
                 ){
-                        if (timerKitchen !== null) { timerKitchen.cancel; timerKitchen = null }
+                        // Start the 5-min confirm ONCE (see Hall note above).
+                        if (timerKitchen === null) {
                         timerKitchen = createTimer(now.plusMinutes(5), [ |
                         if(GK1SS1_illuminance.state > darkDayMaxKit && D.state == 2){
                                 d = 0
                                 postUpdate(D, d)
-                                timerKitchen = null
                                 sendCommand (gHueKitchen, 0)
                                 sendCommand (gSonoff, "OFF")
                         }
+                        timerKitchen = null
                         ])
+                        }
                 }
 end
 
@@ -946,3 +953,5 @@ rule "Combine Presence"
                 XM1AS1_presence.sendCommand("not present")
         }
 end
+
+
