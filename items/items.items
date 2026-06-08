@@ -32,6 +32,9 @@ Group gHueYardRColour "Rear Yard Lighting"           <colorlight>     (gDevices)
 Group gHueFront      "Front Door Lighting"           <lightbulb>     (gDevices)   ["Front Door Lighting"]
 Group gHueFrontColour "Front Door Lighting"          <colorlight>     (gDevices)  ["Front Door Lighting"] 
 Group gSmoke         "Smoke Detection"               <fire>          (gDevices)   ["Smoke"]
+// gSmokeAlarm: the Fibaro FGSD002 alarm_* Items only (smoke/heat/tamper/fault/battalarm),
+// watched by smoke.rules for alerting + startup seeding. No semantic tag/parent.
+Group gSmokeAlarm    "Smoke Alarm Channels"          <fire>
 Group gPlugSP1       "Plug Office"                   <energy>        (gDevices)   ["Smart Plugs"]
 Group gPlugSP2       "Plug Living Room"              <energy>        (gDevices)   ["Smart Plugs"]
 Group gPlugSP3       "Plug Bedroom"                  <energy>        (gDevices)   ["Smart Plugs"]
@@ -140,19 +143,19 @@ String GH1MS1_motion "Hall Motion [%s]" <motion> (gMultisensor)
 // Kitchen  = zwave:device:a76def7407:GK1-SA1
 // Landing  = zwave:device:a76def7407:FL1-SA2
 
-Number GK1SA1_smoke     "Alarm [MAP(alarm.map):%s]"         <fire>        (gSmoke)
-Number GK1SA1_heat      "Heat Alarm [MAP(alarm.map):%s]"    <fire>        (gSmoke)
-Number GK1SA1_tamper    "Tamper [MAP(alarm.map):%s]"        <siren>       (gSmoke)
-Number GK1SA1_fault     "System Fault [MAP(alarm.map):%s]"  <error>       (gSmoke)
-Number GK1SA1_battalarm "Battery Alarm [MAP(alarm.map):%s]" <lowbattery>  (gSmoke)
+Number GK1SA1_smoke     "Alarm [MAP(alarm.map):%s]"         <fire>        (gSmoke, gSmokeAlarm)
+Number GK1SA1_heat      "Heat Alarm [MAP(alarm.map):%s]"    <fire>        (gSmoke, gSmokeAlarm)
+Number GK1SA1_tamper    "Tamper [MAP(alarm.map):%s]"        <siren>       (gSmoke, gSmokeAlarm)
+Number GK1SA1_fault     "System Fault [MAP(alarm.map):%s]"  <error>       (gSmoke, gSmokeAlarm)
+Number GK1SA1_battalarm "Battery Alarm [MAP(alarm.map):%s]" <lowbattery>  (gSmoke, gSmokeAlarm)
 Number GK1SA1_temp      "Temperature [%.1f °C]"             <temperature> (gSmoke)
 Number GK1SA1_battpc    "Battery [%.0f %%]"                 <battery>     (gSmoke)
 
-Number FL1SA2_smoke     "Alarm [MAP(alarm.map):%s]"         <fire>        (gSmoke)
-Number FL1SA2_heat      "Heat Alarm [MAP(alarm.map):%s]"    <fire>        (gSmoke)
-Number FL1SA2_tamper    "Tamper [MAP(alarm.map):%s]"        <siren>       (gSmoke)
-Number FL1SA2_fault     "System Fault [MAP(alarm.map):%s]"  <error>       (gSmoke)
-Number FL1SA2_battalarm "Battery Alarm [MAP(alarm.map):%s]" <lowbattery>  (gSmoke)
+Number FL1SA2_smoke     "Alarm [MAP(alarm.map):%s]"         <fire>        (gSmoke, gSmokeAlarm)
+Number FL1SA2_heat      "Heat Alarm [MAP(alarm.map):%s]"    <fire>        (gSmoke, gSmokeAlarm)
+Number FL1SA2_tamper    "Tamper [MAP(alarm.map):%s]"        <siren>       (gSmoke, gSmokeAlarm)
+Number FL1SA2_fault     "System Fault [MAP(alarm.map):%s]"  <error>       (gSmoke, gSmokeAlarm)
+Number FL1SA2_battalarm "Battery Alarm [MAP(alarm.map):%s]" <lowbattery>  (gSmoke, gSmokeAlarm)
 Number FL1SA2_temp      "Temperature [%.1f °C]"             <temperature> (gSmoke)
 Number FL1SA2_battpc    "Battery [%.0f %%]"                 <battery>     (gSmoke)
 

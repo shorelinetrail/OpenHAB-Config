@@ -1,3 +1,33 @@
+// SMOKE DETECTION
+//
+//   GK1SA1_* = Kitchen  Fibaro FGSD002  (zwave:device:a76def7407:GK1-SA1)
+//   FL1SA2_* = Landing   Fibaro FGSD002  (zwave:device:a76def7407:FL1-SA2)
+//   GY1SA4_* = Shed      Tasmota / MQTT  (separate, legacy)
+//
+// The Fibaro alarm_* channels are numeric Z-Wave notifications: 0 = Alarm, 1 = OK.
+// gSmokeAlarm holds the 10 Fibaro alarm Items (smoke/heat/tamper/fault/battalarm).
+
+// --- Pushover (OH5 binding) reusable lambdas (null-guarded: log + return if offline) ---
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - message dropped: " + message)
+        false
+    } else {
+        actions.sendMessage(message)
+    }
+]
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, String> pushoverEmergency = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - emergency dropped: " + message)
+        null
+    } else {
+        actions.sendPriorityMessage(message, null, 2)
+    }
+]
+
+
 rule "Update Last MQTT message timestamp"
 when
     Item GY1SA4_online received update
@@ -10,13 +40,86 @@ rule "Smoke Detector Alarm Init"
 when
     System started
 then
-    // The Fibaro FGSD002 alarm_* channels are Z-Wave notification channels: they
-    // only report on an event (0=Alarm) or a restore/wakeup (1=OK), so an Item that
-    // has not yet heard from its node sits at NULL and shows "Unknown". Seed those to
-    // OK (1) so the dashboard is sensible; a real notification overrides it. Exclude
-    // _temp/_battpc (analogue readings that populate on their own and aren't 0/1).
-    gSmoke.members.filter[ m |
-        (m.state == NULL || m.state == UNDEF) &&
-        !m.name.endsWith("_temp") && !m.name.endsWith("_battpc")
-    ].forEach[ m | m.postUpdate("1") ]
+    // Z-Wave notification channels report only on an event (0=Alarm) or a
+    // restore/wakeup (1=OK), so a freshly-linked Item sits at NULL ("Unknown").
+    // Seed the unreported ones to OK (1); a real notification overrides it.
+    gSmokeAlarm.members.filter[ m | m.state == NULL || m.state == UNDEF ].forEach[ m |
+        m.postUpdate("1")
+    ]
+end
+
+
+rule "Smoke Detector Alarm"
+when
+    Member of gSmokeAlarm changed
+then
+    val item = triggeringItem
+    val ns = item.state
+    if (!(ns instanceof Number)) {
+        return;   // NULL/UNDEF transition (e.g. startup seeding) - nothing to alert
+    }
+    val name = item.name
+    val location = if (name.startsWith("GK1SA1")) "Kitchen"
+                   else if (name.startsWith("FL1SA2")) "Landing"
+                   else name
+    var String desc = "alarm"
+    var boolean lifeSafety = false
+    if      (name.endsWith("_smoke"))     { desc = "SMOKE ALARM"; lifeSafety = true }
+    else if (name.endsWith("_heat"))      { desc = "HEAT ALARM";  lifeSafety = true }
+    else if (name.endsWith("_tamper"))    { desc = "tamper alarm (enclosure opened)" }
+    else if (name.endsWith("_fault"))     { desc = "system fault reported" }
+    else if (name.endsWith("_battalarm")) { desc = "low-battery alarm" }
+
+    if ((ns as Number).intValue == 0) {
+        // 0 = Alarm active
+        val msg = location + " smoke detector: " + desc
+        logWarn("smoke.rules", msg)
+        if (lifeSafety) {
+            pushoverEmergency.apply(msg)        // priority 2 - requires acknowledgement
+        } else {
+            pushover.apply(msg)
+        }
+    } else if ((ns as Number).intValue == 1 && previousState instanceof Number && (previousState as Number).intValue == 0) {
+        // restored from an active alarm
+        pushover.apply(location + " smoke detector: " + desc + " cleared")
+    }
+end
+
+
+rule "Smoke Detector Battery Low"
+when
+    Item GK1SA1_battpc changed or
+    Item FL1SA2_battpc changed
+then
+    val item = triggeringItem
+    if (!(item.state instanceof Number)) {
+        return;
+    }
+    val pc   = (item.state as Number).intValue
+    val prev = if (previousState instanceof Number) (previousState as Number).intValue else 999
+    if (pc < 20 && prev >= 20) {            // alert once, on crossing below 20 %
+        val location = if (item.name.startsWith("GK1SA1")) "Kitchen" else "Landing"
+        pushover.apply(location + " smoke detector battery low: " + pc + " %")
+    }
+end
+
+
+rule "Smoke Detector Liveness"
+when
+    Time cron "0 7 0/6 * * ?"               // 00:07, 06:07, 12:07, 18:07
+then
+    // Z-Wave nodes that stop responding are marked OFFLINE/UNINITIALIZED. A
+    // detector that never reports would otherwise sit on its seeded "OK", so
+    // re-check status periodically and nag while a node is not ONLINE.
+    val detectors = newLinkedHashMap(
+        "zwave:device:a76def7407:GK1-SA1" -> "Kitchen",
+        "zwave:device:a76def7407:FL1-SA2" -> "Landing"
+    )
+    detectors.forEach[ uid, loc |
+        val info = getThingStatusInfo(uid)
+        val status = if (info === null) "UNINITIALIZED" else info.getStatus.toString
+        if (status != "ONLINE") {
+            pushover.apply(loc + " smoke detector is " + status + " - Z-Wave node not responding")
+        }
+    ]
 end
