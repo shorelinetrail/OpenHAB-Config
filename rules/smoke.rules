@@ -158,7 +158,7 @@ then
     val lastSeen = GY1SA4_LastUpdate.state
     if (!(lastSeen instanceof DateTimeType)) {
         pushover.apply("Shed smoke detector: no MQTT heartbeat received", "🔥 Shed Detector Offline")
-    } else if ((lastSeen as DateTimeType).getZonedDateTime.isBefore(now.minusHours(2))) {
+    } else if ((lastSeen as DateTimeType).getInstant.isBefore(now.minusHours(2).toInstant)) {
         pushover.apply("Shed smoke detector: no MQTT heartbeat for over 2 hours", "🔥 Shed Detector Offline")
     }
 end
