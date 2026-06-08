@@ -4,3 +4,19 @@ when
 then
     GY1SA4_LastUpdate.postUpdate(now.toString) // ISO string avoids type ambiguity
 end
+
+
+rule "Smoke Detector Alarm Init"
+when
+    System started
+then
+    // The Fibaro FGSD002 alarm_* channels are Z-Wave notification channels: they
+    // only report on an event (0=Alarm) or a restore/wakeup (1=OK), so an Item that
+    // has not yet heard from its node sits at NULL and shows "Unknown". Seed those to
+    // OK (1) so the dashboard is sensible; a real notification overrides it. Exclude
+    // _temp/_battpc (analogue readings that populate on their own and aren't 0/1).
+    gSmoke.members.filter[ m |
+        (m.state == NULL || m.state == UNDEF) &&
+        !m.name.endsWith("_temp") && !m.name.endsWith("_battpc")
+    ].forEach[ m | m.postUpdate("1") ]
+end

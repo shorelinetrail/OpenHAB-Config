@@ -24,6 +24,7 @@ _Newest at top. One row per change. Claude Code appends a row for every modifica
 
 | Date | Version | Change | Files affected | Author |
 |---|---|---|---|---|
+| 2026-06-08 | 0.11 | Added `Smoke Detector Alarm Init` rule (`System started`): seeds any unreported (NULL/UNDEF) `gSmoke` alarm Item to `1` (OK), so the Fibaro Z-Wave notification channels show "OK" instead of "Unknown" until their first event/wakeup; a real `0`=Alarm report overrides. Excludes `_temp`/`_battpc` | rules/smoke.rules, docs/FDS.md | Claude Code |
 | 2026-06-08 | 0.10 | Fibaro FGSD002 fix after first link-up: the `alarm_*` channels deliver a **numeric notification** (`0`/`1`), not Switch, so changed the 10 alarm Items from `Switch` to `Number`; corrected `alarm.map` polarity to **0=Alarm, 1=OK** (confirmed from idle detectors reporting `1`, matching the old MQTT `smoke.map` convention) and added `0`/`1` keys. `_temp`/`_battpc` unchanged and working | items/items.items, transform/alarm.map, docs/FDS.md | Claude Code |
 | 2026-06-08 | 0.9 | Added two revived **Fibaro FGSD002** Z-Wave smoke detectors — `GK1SA1_*` (Kitchen, `zwave:device:a76def7407:GK1-SA1`) and `FL1SA2_*` (Landing, `…:FL1-SA2`), 7 channels each (smoke/heat/tamper/system/battery alarms + temperature + battery level). Items defined unbound in `items.items` (channel→item links UI-managed in JSONDB, per the Z-Wave convention) and added to `gSmoke` (previously empty); added `transform/alarm.map` (ON=Alarm/OFF=OK) and Kitchen/Landing frames to the sitemap Smoke Detection page | items/items.items, sitemaps/main.sitemap, transform/alarm.map, docs/FDS.md | Claude Code |
 | 2026-06-08 | 0.8 | Renamed the smoke detector from `GK1SA1` (Kitchen) to `GY1SA4` (Shed): all six Items + `_LastUpdate`, the six MQTT Things and their `stateTopic` base (`GK1-SA1/…` → `GY1-SA4/…`, per new device firmware config), the `smoke.rules` trigger/action, and the sitemap "Smoke Detection" frame (Kitchen → Shed) | items/mqtt.items, things/mqtt.things, rules/smoke.rules, sitemaps/main.sitemap, docs/FDS.md | Claude Code |
@@ -497,6 +498,7 @@ bank; per-room hysteresis (`hHysteresis`) switches radiator relays and fires the
 | Rule | Trigger | Actions | Purpose |
 |---|---|---|---|
 | Update Last MQTT message timestamp | `GY1SA4_online` update | `GY1SA4_LastUpdate` = now | Smoke device last-seen |
+| Smoke Detector Alarm Init | System started | Seed any NULL/UNDEF `gSmoke` alarm Item (excl. `_temp`/`_battpc`) to `1` (OK) | Z-Wave notification channels report only on event/wakeup, so unreported alarms show "Unknown" until seeded |
 
 ### 10.13 `hue.rules`
 | Rule | Trigger | Actions | Purpose |
