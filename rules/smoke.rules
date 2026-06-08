@@ -52,20 +52,25 @@ then
 end
 
 
-rule "Fibaro Smoke Detector Last Update"
+// Stamp last-seen on a real device report (temp/battery wakeup). Split per detector
+// (rather than one rule keyed on triggeringItem) because triggeringItem is not
+// reliably populated for `received update` triggers. Alarm Items are excluded so the
+// System-started seeding doesn't fake a "last update".
+rule "Kitchen Smoke Detector Last Update"
 when
     Item GK1SA1_temp received update or
-    Item GK1SA1_battpc received update or
+    Item GK1SA1_battpc received update
+then
+    GK1SA1_LastUpdate.postUpdate(now.toString)
+end
+
+
+rule "Landing Smoke Detector Last Update"
+when
     Item FL1SA2_temp received update or
     Item FL1SA2_battpc received update
 then
-    // Stamp last-seen on a real device report (temp/battery wakeup). Deliberately
-    // not the alarm Items, so the System-started seeding doesn't fake a "last update".
-    if (triggeringItem.name.startsWith("GK1SA1")) {
-        GK1SA1_LastUpdate.postUpdate(now.toString)
-    } else if (triggeringItem.name.startsWith("FL1SA2")) {
-        FL1SA2_LastUpdate.postUpdate(now.toString)
-    }
+    FL1SA2_LastUpdate.postUpdate(now.toString)
 end
 
 

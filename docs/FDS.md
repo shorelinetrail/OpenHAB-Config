@@ -24,6 +24,7 @@ _Newest at top. One row per change. Claude Code appends a row for every modifica
 
 | Date | Version | Change | Files affected | Author |
 |---|---|---|---|---|
+| 2026-06-08 | 0.17 | Fix: the `Fibaro Smoke Detector Last Update` rule threw `getName() on null` — `triggeringItem` is not reliably populated for `received update` triggers. Split it into per-detector rules (`Kitchen`/`Landing Smoke Detector Last Update`) that reference their own `_LastUpdate` directly, so the stamp no longer depends on `triggeringItem` | rules/smoke.rules, docs/FDS.md | Claude Code |
 | 2026-06-08 | 0.16 | Added `GK1SA1_LastUpdate` / `FL1SA2_LastUpdate` (DateTime) for the Fibaro detectors, mirroring the shed's last-seen. New `Fibaro Smoke Detector Last Update` rule stamps them on each `_temp`/`_battpc` report (real wakeups; excludes the alarm-seed so it isn't faked at startup). Added to the Kitchen/Landing sitemap frames | items/items.items, rules/smoke.rules, sitemaps/main.sitemap, docs/FDS.md | Claude Code |
 | 2026-06-08 | 0.15 | `smoke.rules` liveness: replaced deprecated `DateTimeType.getZonedDateTime()` with `getInstant()` (compared against `now.minusHours(2).toInstant`) to clear the OH5 model-validation deprecation warning. No behaviour change | rules/smoke.rules, docs/FDS.md | Claude Code |
 | 2026-06-08 | 0.14 | Smoke/heat emergency alerts now auto-cancel on recovery: added a `cancelPushoverEmergency` lambda + an in-memory `emergencyReceipts` map (Item name → receipt) to `smoke.rules`; the Alarm rule stores the priority-2 receipt on `_smoke`/`_heat` alarm and `cancelPriorityMessage`s it on the `0→1` clear (wiring up what gate/heating/status only scaffolded) | rules/smoke.rules, docs/FDS.md | Claude Code |
@@ -505,7 +506,8 @@ bank; per-room hysteresis (`hHysteresis`) switches radiator relays and fires the
 | Rule | Trigger | Actions | Purpose |
 |---|---|---|---|
 | Update Last MQTT message timestamp | `GY1SA4_online` update | `GY1SA4_LastUpdate` = now | Shed (MQTT) last-seen |
-| Fibaro Smoke Detector Last Update | `GK1SA1`/`FL1SA2` `_temp`/`_battpc` received update | `GK1SA1_LastUpdate` / `FL1SA2_LastUpdate` = now (by item prefix) | Kitchen/Landing (Z-Wave) last-seen, stamped on real wakeup reports |
+| Kitchen Smoke Detector Last Update | `GK1SA1_temp`/`_battpc` received update | `GK1SA1_LastUpdate` = now | Kitchen (Z-Wave) last-seen, stamped on real wakeup reports |
+| Landing Smoke Detector Last Update | `FL1SA2_temp`/`_battpc` received update | `FL1SA2_LastUpdate` = now | Landing (Z-Wave) last-seen, stamped on real wakeup reports |
 | Smoke Detector Alarm Init | System started | Seed any NULL/UNDEF `gSmokeAlarm` member to `1` (OK) | Z-Wave notification channels report only on event/wakeup, so unreported alarms show "Unknown" until seeded |
 | Smoke Detector Alarm | `Member of gSmokeAlarm` changed | On `0` (Alarm): Pushover titled `🔥 <loc> <type>` — **emergency (pri 2)** for `_smoke`/`_heat` (receipt stored per Item), normal for `_tamper`/`_fault`/`_battalarm`; on `0→1`: `cancelPriorityMessage` the stored emergency receipt + `✅ … Cleared` | Smoke/heat/tamper/fault/low-battery alerting for all three detectors (Kitchen/Landing Fibaro + Shed MQTT). Smoke/heat ack-loop auto-cancels on recovery (in-memory receipts; lost on restart → falls back to ack/expire) |
 | Smoke Detector Battery Low | `GK1SA1`/`FL1SA2`/`GY1SA4` `_battpc` changed | Pushover (titled `🔥 <loc> Battery Low`) when crossing **below 20 %** (once) | Battery-level backstop to the devices' own low-battery signals |
