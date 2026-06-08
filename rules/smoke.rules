@@ -28,6 +28,20 @@ val org.eclipse.xtext.xbase.lib.Functions$Function2<String, String, String> push
         actions.sendPriorityMessage(message, title, 2)
     }
 ]
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> cancelPushoverEmergency = [ String receipt |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - cannot cancel emergency: " + receipt)
+        false
+    } else {
+        actions.cancelPriorityMessage(receipt)
+    }
+]
+
+// Receipts for in-flight priority-2 (emergency) alerts, keyed by Item name, so a
+// smoke/heat alarm that clears can cancel its own ack/retry loop. In-memory only:
+// an openHAB restart between alarm and clear falls back to manual ack / expire.
+val java.util.concurrent.ConcurrentHashMap<String, String> emergencyReceipts = new java.util.concurrent.ConcurrentHashMap()
 
 
 rule "Update Last MQTT message timestamp"
@@ -80,12 +94,19 @@ then
         val title = "🔥 " + location + " " + label
         logWarn("smoke.rules", msg)
         if (lifeSafety) {
-            pushoverEmergency.apply(msg, title)     // priority 2 - requires acknowledgement
+            val receipt = pushoverEmergency.apply(msg, title)   // priority 2 - requires acknowledgement
+            if (receipt !== null) {
+                emergencyReceipts.put(name, receipt)            // remember it so recovery can cancel the nag
+            }
         } else {
             pushover.apply(msg, title)
         }
     } else if ((ns as Number).intValue == 1 && previousState instanceof Number && (previousState as Number).intValue == 0) {
-        // restored from an active alarm
+        // restored from an active alarm: cancel any outstanding emergency, then confirm
+        val receipt = emergencyReceipts.remove(name)
+        if (receipt !== null) {
+            cancelPushoverEmergency.apply(receipt)
+        }
         pushover.apply(location + " smoke detector: " + desc + " cleared", "✅ " + location + " " + label + " Cleared")
     }
 end
