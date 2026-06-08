@@ -24,6 +24,7 @@ _Newest at top. One row per change. Claude Code appends a row for every modifica
 
 | Date | Version | Change | Files affected | Author |
 |---|---|---|---|---|
+| 2026-06-08 | 0.13 | Added Pushover titles (`🔥 <location> <type>`, `✅ … Cleared`) to all smoke alerts, and mirrored the alerting onto the shed MQTT unit `GY1SA4`: added `GY1SA4_smoke/_tamper` to `gSmokeAlarm` (reusing the Alarm rule), `GY1SA4_battpc` to the Battery Low rule, and a Shed heartbeat-staleness check (`GY1SA4_LastUpdate` >2 h) to the Liveness rule | items/items.items, items/mqtt.items, rules/smoke.rules, docs/FDS.md | Claude Code |
 | 2026-06-08 | 0.12 | Built smoke-detector alerting: added `gSmokeAlarm` group (the 10 Fibaro alarm Items) and three rules in `smoke.rules` — **Smoke Detector Alarm** (`Member of gSmokeAlarm changed`; Pushover emergency pri-2 for smoke/heat, normal for tamper/fault/battery, all-clear on recovery), **Smoke Detector Battery Low** (`_battpc` < 20 %), **Smoke Detector Liveness** (6-hourly Z-Wave Thing-status watchdog). Refactored the Init rule onto `gSmokeAlarm`. Uses the standard per-file `pushover`/`pushoverEmergency` lambdas | items/items.items, rules/smoke.rules, docs/FDS.md | Claude Code |
 | 2026-06-08 | 0.11 | Added `Smoke Detector Alarm Init` rule (`System started`): seeds any unreported (NULL/UNDEF) `gSmoke` alarm Item to `1` (OK), so the Fibaro Z-Wave notification channels show "OK" instead of "Unknown" until their first event/wakeup; a real `0`=Alarm report overrides. Excludes `_temp`/`_battpc` | rules/smoke.rules, docs/FDS.md | Claude Code |
 | 2026-06-08 | 0.10 | Fibaro FGSD002 fix after first link-up: the `alarm_*` channels deliver a **numeric notification** (`0`/`1`), not Switch, so changed the 10 alarm Items from `Switch` to `Number`; corrected `alarm.map` polarity to **0=Alarm, 1=OK** (confirmed from idle detectors reporting `1`, matching the old MQTT `smoke.map` convention) and added `0`/`1` keys. `_temp`/`_battpc` unchanged and working | items/items.items, transform/alarm.map, docs/FDS.md | Claude Code |
@@ -184,7 +185,7 @@ in one row). Channels shown as `binding:…`; `mqtt:topic:mosquitto:<id>` abbrev
 | `GY1SS28_moisture` | Number | % | `mqtt:GY1SS28_moisture` | — | Front irrigation soil moisture |
 | `GO1EM1_I/V/P/Q/PF/F/TE` | Number | A/V/W/VAR/—/Hz/kWh | `mqtt:GO1EM1_*` | gPower (P, Q) | Whole-house energy meter |
 | `GO1EM1_M` | Number | kWh | — (computed offset) | — | Absolute meter reading |
-| `GY1SA4_smoke/_tamper` | Number | MAP(smoke.map) | `mqtt:GY1SA4_smoke/_tamper` | — | Shed smoke / tamper (0=Alarm,1=OK) |
+| `GY1SA4_smoke/_tamper` | Number | MAP(smoke.map) | `mqtt:GY1SA4_smoke/_tamper` | gSmokeAlarm | Shed smoke / tamper (0=Alarm,1=OK) — alerted by `smoke.rules` like the Fibaros |
 | `GY1SA4_battV/_battpc/_temp` | Number | mV / % / °C | `mqtt:GY1SA4_battV/_battpc/_temp` | — | Smoke detector battery / chip temp |
 | `GY1SA4_online` / `GY1SA4_LastUpdate` | String/DateTime | — | `mqtt:GY1SA4_online` / rule | — | Smoke detector connection + last-seen |
 | `GK1SA1_smoke/_heat/_tamper/_fault/_battalarm` | Number | MAP(alarm.map) | zwave `GK1-SA1` — UI link (JSONDB) | gSmoke, gSmokeAlarm | Kitchen Fibaro FGSD002 alarm channels: `alarm_smoke`/`_heat`/`_tamper`/`_system`/`_battery` (numeric notification: **0=Alarm, 1=OK**) |
@@ -303,7 +304,7 @@ gDevices
  ├─ gHueYard / gHueYardColour / gHueYardR / gHueYardRColour   ["Yard Lighting"]
  ├─ gHueFront / gHueFrontColour                               ["Front Door Lighting"]
  ├─ gSmoke               ["Smoke"]      → GK1SA1_* (Kitchen) + FL1SA2_* (Landing) Fibaro Z-Wave detectors
- ├─ gSmokeAlarm          (no tag)       → the 10 alarm_* Items above (smoke/heat/tamper/fault/battalarm); watched by smoke.rules
+ ├─ gSmokeAlarm          (no tag)       → all detector alarm Items (0=Alarm): 10 Fibaro alarm_* + shed GY1SA4_smoke/_tamper; watched by smoke.rules
  └─ gPlugSP1 / gPlugSP2 / gPlugSP3      ["Smart Plugs"]  (per-plug channel groups)
 
 gHueColour, gHueGlass                    (kitchen "glass" colour/brightness)
@@ -501,9 +502,9 @@ bank; per-room hysteresis (`hHysteresis`) switches radiator relays and fires the
 |---|---|---|---|
 | Update Last MQTT message timestamp | `GY1SA4_online` update | `GY1SA4_LastUpdate` = now | Smoke device last-seen |
 | Smoke Detector Alarm Init | System started | Seed any NULL/UNDEF `gSmokeAlarm` member to `1` (OK) | Z-Wave notification channels report only on event/wakeup, so unreported alarms show "Unknown" until seeded |
-| Smoke Detector Alarm | `Member of gSmokeAlarm` changed | On `0` (Alarm): Pushover — **emergency (pri 2)** for `_smoke`/`_heat`, normal for `_tamper`/`_fault`/`_battalarm`; on `0→1`: "cleared" message | Smoke/heat/tamper/fault/low-battery alerting (location from item prefix) |
-| Smoke Detector Battery Low | `GK1SA1_battpc` / `FL1SA2_battpc` changed | Pushover when crossing **below 20 %** (once, on the downward crossing) | Battery-level backstop to the device's own `_battalarm` |
-| Smoke Detector Liveness | cron `0 7 0/6 * * ?` (6-hourly) | Pushover if either detector's Z-Wave Thing is not `ONLINE` | Catch a dead/non-responding node that would otherwise sit on its seeded "OK" |
+| Smoke Detector Alarm | `Member of gSmokeAlarm` changed | On `0` (Alarm): Pushover titled `🔥 <loc> <type>` — **emergency (pri 2)** for `_smoke`/`_heat`, normal for `_tamper`/`_fault`/`_battalarm`; on `0→1`: `✅ … Cleared` | Smoke/heat/tamper/fault/low-battery alerting for all three detectors (Kitchen/Landing Fibaro + Shed MQTT; location from item prefix) |
+| Smoke Detector Battery Low | `GK1SA1`/`FL1SA2`/`GY1SA4` `_battpc` changed | Pushover (titled `🔥 <loc> Battery Low`) when crossing **below 20 %** (once) | Battery-level backstop to the devices' own low-battery signals |
+| Smoke Detector Liveness | cron `0 7 0/6 * * ?` (6-hourly) | Pushover if a Fibaro Z-Wave Thing is not `ONLINE`, or the Shed `GY1SA4_LastUpdate` heartbeat is >2 h stale | Catch a dead/non-responding detector that would otherwise sit on its seeded "OK" |
 
 ### 10.13 `hue.rules`
 | Rule | Trigger | Actions | Purpose |

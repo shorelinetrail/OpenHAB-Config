@@ -214,8 +214,8 @@ Number GO1EM1_TE "Total Energy [%.2f kWh]" <energy> { channel="mqtt:topic:mosqui
 // -----------------------------------------
 // Smoke Alarms
 // -----------------------------------------
-Number  GY1SA4_smoke  "Alarm [MAP(smoke.map):%s]" <fire>    { channel="mqtt:topic:mosquitto:GY1SA4_smoke:GY1SA4_smoke" }
-Number  GY1SA4_tamper "Tamper [MAP(smoke.map):%s]" <siren>  { channel="mqtt:topic:mosquitto:GY1SA4_tamper:GY1SA4_tamper" }
+Number  GY1SA4_smoke  "Alarm [MAP(smoke.map):%s]" <fire>   (gSmokeAlarm) { channel="mqtt:topic:mosquitto:GY1SA4_smoke:GY1SA4_smoke" }
+Number  GY1SA4_tamper "Tamper [MAP(smoke.map):%s]" <siren> (gSmokeAlarm) { channel="mqtt:topic:mosquitto:GY1SA4_tamper:GY1SA4_tamper" }
 Number  GY1SA4_battV  "Battery (mV) [%.0f mV]"     <battery>{ channel="mqtt:topic:mosquitto:GY1SA4_battV:GY1SA4_battV" }
 Number  GY1SA4_battpc "Battery (%) [%.0f %%]"      <battery>{ channel="mqtt:topic:mosquitto:GY1SA4_battpc:GY1SA4_battpc" }
 Number  GY1SA4_temp   "Chip Temperature [%.1f °C]" <temperature> { channel="mqtt:topic:mosquitto:GY1SA4_temp:GY1SA4_temp" }

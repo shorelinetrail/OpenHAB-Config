@@ -32,8 +32,9 @@ Group gHueYardRColour "Rear Yard Lighting"           <colorlight>     (gDevices)
 Group gHueFront      "Front Door Lighting"           <lightbulb>     (gDevices)   ["Front Door Lighting"]
 Group gHueFrontColour "Front Door Lighting"          <colorlight>     (gDevices)  ["Front Door Lighting"] 
 Group gSmoke         "Smoke Detection"               <fire>          (gDevices)   ["Smoke"]
-// gSmokeAlarm: the Fibaro FGSD002 alarm_* Items only (smoke/heat/tamper/fault/battalarm),
-// watched by smoke.rules for alerting + startup seeding. No semantic tag/parent.
+// gSmokeAlarm: every detector's binary alarm Item (0=Alarm, 1=OK) - the Fibaro
+// FGSD002 channels (smoke/heat/tamper/fault/battalarm, below) plus the shed MQTT
+// GY1SA4_smoke/_tamper (mqtt.items). Watched by smoke.rules for alerting + seeding.
 Group gSmokeAlarm    "Smoke Alarm Channels"          <fire>
 Group gPlugSP1       "Plug Office"                   <energy>        (gDevices)   ["Smart Plugs"]
 Group gPlugSP2       "Plug Living Room"              <energy>        (gDevices)   ["Smart Plugs"]
