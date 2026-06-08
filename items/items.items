@@ -160,6 +160,9 @@ Number FL1SA2_battalarm "Battery Alarm [MAP(alarm.map):%s]" <lowbattery>  (gSmok
 Number FL1SA2_temp      "Temperature [%.1f °C]"             <temperature> (gSmoke)
 Number FL1SA2_battpc    "Battery [%.0f %%]"                 <battery>     (gSmoke)
 
+DateTime GK1SA1_LastUpdate "Last Update [%1$td/%1$tm/%1$tY %1$tT]" <time>
+DateTime FL1SA2_LastUpdate "Last Update [%1$td/%1$tm/%1$tY %1$tT]" <time>
+
 /* hive */
 
 /*Number GO1HT1_temperature "Current Temperature [%.1f °C]" <temperature> (gThermostat) {channel="hive:thermostat:73f8f16a-0891-4dfe-a269-2943b621ea8f:currenttemperature"}

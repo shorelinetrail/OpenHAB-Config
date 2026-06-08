@@ -600,6 +600,7 @@ Frame label="Dashboard" {
 				Text  item=GK1SA1_battalarm
 				Text  item=GK1SA1_temp
 				Text  item=GK1SA1_battpc
+				Text  item=GK1SA1_LastUpdate
 			}
 
 			Frame label="Landing" {
@@ -610,6 +611,7 @@ Frame label="Dashboard" {
 				Text  item=FL1SA2_battalarm
 				Text  item=FL1SA2_temp
 				Text  item=FL1SA2_battpc
+				Text  item=FL1SA2_LastUpdate
 			}
 
 			Frame label="Shed" {
