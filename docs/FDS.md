@@ -24,6 +24,8 @@ _Newest at top. One row per change. Claude Code appends a row for every modifica
 
 | Date | Version | Change | Files affected | Author |
 |---|---|---|---|---|
+| 2026-06-08 | 0.9 | Added two revived **Fibaro FGSD002** Z-Wave smoke detectors — `GK1SA1_*` (Kitchen, `zwave:device:a76def7407:GK1-SA1`) and `FL1SA2_*` (Landing, `…:FL1-SA2`), 7 channels each (smoke/heat/tamper/system/battery alarms + temperature + battery level). Items defined unbound in `items.items` (channel→item links UI-managed in JSONDB, per the Z-Wave convention) and added to `gSmoke` (previously empty); added `transform/alarm.map` (ON=Alarm/OFF=OK) and Kitchen/Landing frames to the sitemap Smoke Detection page | items/items.items, sitemaps/main.sitemap, transform/alarm.map, docs/FDS.md | Claude Code |
+| 2026-06-08 | 0.8 | Renamed the smoke detector from `GK1SA1` (Kitchen) to `GY1SA4` (Shed): all six Items + `_LastUpdate`, the six MQTT Things and their `stateTopic` base (`GK1-SA1/…` → `GY1-SA4/…`, per new device firmware config), the `smoke.rules` trigger/action, and the sitemap "Smoke Detection" frame (Kitchen → Shed) | items/mqtt.items, things/mqtt.things, rules/smoke.rules, sitemaps/main.sitemap, docs/FDS.md | Claude Code |
 | 2026-06-02 | 0.7 | Sonoff Status rule: add missing `GY1SS27_Online` (the only `gSonoff_IP` member with no `_Online` switch — once `ScriptServiceUtil` resolved, `getItem` threw "could not be found" and aborted the sweep), and wrap the per-member lookup in try/catch so any future IP↔Online mismatch logs a warning instead of killing the rule | items/items.items, rules/status.rules, docs/FDS.md | Claude Code |
 | 2026-06-02 | 0.6 | Fix: the Phase-2a `itemRegistry` change in status.rules was invalid (`itemRegistry` is not a resolvable name in OH5 Rules DSL — runtime ERROR at line 173); reverted to `ScriptServiceUtil.getItemRegistry.getItem(...)` with `import org.openhab.core.model.script.ScriptServiceUtil` (the correct OH2→OH5 namespace move) | rules/status.rules, docs/FDS.md | Claude Code |
 | 2026-06-02 | 0.5 | SmartThings→Z-Wave cutover for the Hall multisensor: added `GH1MS1_temperature` (Z-Wave MS6; gMultisensor/gTemperature) and uncommented its Hall row in the Temperature frame; moved `GH1MS1_motion` into items.items as an unbound `String` (UI-linked via `motion.map`) and removed the MQTT passthrough Item + Thing | items/items.items, items/mqtt.items, things/mqtt.things, sitemaps/main.sitemap, docs/FDS.md | Claude Code |
@@ -112,7 +114,7 @@ Rules run the automation; InfluxDB stores history for charts; Pushover delivers 
 | sonos | 2.x | Sonos (CONNECT, CONNECT:AMP, PLAY:1, PLAY:3) | 7 speakers (Living Room, Kitchen, Office, Bedroom, Sun Room, Sun Room Aux, Workshop) — control/volume/mute/track/coordinator/add/standalone + whole-house group rules |
 | tplinksmarthome | 2.x | TP-Link Kasa HS110 | 3 smart plugs (Office `GO1SP1`, Living Room `GL1SP2`, Bedroom `FB1SP3`) — switch/power/energy/LED/rssi/current/voltage |
 | smartthings | 2.x | SmartThings | Arrival Sensor (`XM1AS1_battery`), Multisensor (`GH1MS1_*`), Hank Scene Controller (`FB1SC1_power`), Coffee Machine (`GK1SW04`) — **being migrated to Z-Wave** (sensors) on OH5 |
-| zwave | (OH5) | Z-Wave mesh via serial controller (Thing UID assigned at node inclusion) | Replacing SmartThings sensors. First node = Hall multisensor → `GH1MS1_illuminance` / `_humidity` / `_motion`. **Things + channel→item links are UI-managed in JSONDB, not in this repo** — see note below |
+| zwave | (OH5) | Z-Wave mesh via serial controller (Thing UID assigned at node inclusion) | Replacing SmartThings sensors. Nodes: Hall multisensor → `GH1MS1_*`; Fibaro FGSD002 smoke detectors → `GK1SA1_*` (Kitchen, `zwave:device:a76def7407:GK1-SA1`) and `FL1SA2_*` (Landing, `zwave:device:a76def7407:FL1-SA2`). **Things + channel→item links are UI-managed in JSONDB, not in this repo** — see note below |
 | astro | 2.x | Computed sun/moon (Thing `astro:sun:local`; a second UID `astro:sun:c7d0dedc` is also referenced — see §14) | Sunrise/sunset/-30-min triggers for lighting and blinds; `Astro_SunriseEnd` |
 | ipcamera | 2.x | Blue Iris / IP camera snapshot (`ipcamera:HTTPONLY:cd166936`) | `cctv` Image item (Thing is managed/UI, not in repo) |
 | systeminfo | 2.x | Local host metrics | **Not evidenced in repo** — no Items/Things reference it |
@@ -179,9 +181,13 @@ in one row). Channels shown as `binding:…`; `mqtt:topic:mosquitto:<id>` abbrev
 | `GY1SS28_moisture` | Number | % | `mqtt:GY1SS28_moisture` | — | Front irrigation soil moisture |
 | `GO1EM1_I/V/P/Q/PF/F/TE` | Number | A/V/W/VAR/—/Hz/kWh | `mqtt:GO1EM1_*` | gPower (P, Q) | Whole-house energy meter |
 | `GO1EM1_M` | Number | kWh | — (computed offset) | — | Absolute meter reading |
-| `GK1SA1_smoke/_tamper` | Number | MAP(smoke.map) | `mqtt:GK1SA1_smoke/_tamper` | — | Kitchen smoke / tamper (0=Alarm,1=OK) |
-| `GK1SA1_battV/_battpc/_temp` | Number | mV / % / °C | `mqtt:GK1SA1_battV/_battpc/_temp` | — | Smoke detector battery / chip temp |
-| `GK1SA1_online` / `GK1SA1_LastUpdate` | String/DateTime | — | `mqtt:GK1SA1_online` / rule | — | Smoke detector connection + last-seen |
+| `GY1SA4_smoke/_tamper` | Number | MAP(smoke.map) | `mqtt:GY1SA4_smoke/_tamper` | — | Shed smoke / tamper (0=Alarm,1=OK) |
+| `GY1SA4_battV/_battpc/_temp` | Number | mV / % / °C | `mqtt:GY1SA4_battV/_battpc/_temp` | — | Smoke detector battery / chip temp |
+| `GY1SA4_online` / `GY1SA4_LastUpdate` | String/DateTime | — | `mqtt:GY1SA4_online` / rule | — | Smoke detector connection + last-seen |
+| `GK1SA1_smoke/_heat/_tamper/_fault/_battalarm` | Switch | MAP(alarm.map) | zwave `GK1-SA1` — UI link (JSONDB) | gSmoke | Kitchen Fibaro FGSD002 alarm channels: `alarm_smoke`/`_heat`/`_tamper`/`_system`/`_battery` (ON=Alarm) |
+| `GK1SA1_temp/_battpc` | Number | °C / % | zwave `GK1-SA1` — UI link (JSONDB) | gSmoke | Kitchen detector `sensor_temperature` / `battery-level` |
+| `FL1SA2_smoke/_heat/_tamper/_fault/_battalarm` | Switch | MAP(alarm.map) | zwave `FL1-SA2` — UI link (JSONDB) | gSmoke | Landing Fibaro FGSD002 alarm channels: `alarm_smoke`/`_heat`/`_tamper`/`_system`/`_battery` (ON=Alarm) |
+| `FL1SA2_temp/_battpc` | Number | °C / % | zwave `FL1-SA2` — UI link (JSONDB) | gSmoke | Landing detector `sensor_temperature` / `battery-level` |
 | `GO1SS4_temp_delta … FB3SS20_temp_delta` (7) | Number | °C | — (computed) | gTemperatureDelta | Per-room (temp − setpoint) deltas: GO1SS4, GK1SS3, GL1SS5, GS1SS10, FB1SS6, FB2SS7, FB3SS20 |
 | `Temp_{Today,Week,Month,Year,All}_{Max,Min}` (10) | Number | °C | — (computed) | — | Outdoor min/max records |
 | `Temp_{…}_{Max,Min}_Time` / `_Time_Format` (20) | String | — | — (computed) | — | Timestamps for the above records |
@@ -228,7 +234,7 @@ in one row). Channels shown as `binding:…`; `mqtt:topic:mosquitto:<id>` abbrev
 | `*_rssi` (~22) | Number | `mqtt:<id>:state` STATUS11 `$.StatusSTS.Wifi.RSSI` | Wi-Fi RSSI (member `gSonoff_RSSI`) |
 | `*_Uptime` (~22) | String | `mqtt:<id>:state` STATUS11 `$.StatusSTS.Uptime` | Uptime (member `gSonoff_Uptime`) |
 | `Sonoff_Refresh` | Switch | — | Manual trigger to poll all Sonoff status |
-| `GK1SA1_online` | String | `mqtt:GK1SA1_online` | Smoke detector MQTT connection |
+| `GY1SA4_online` | String | `mqtt:GY1SA4_online` | Smoke detector MQTT connection |
 
 ### 7.5 Heating Control
 | Item(s) | Type | Purpose |
@@ -293,7 +299,7 @@ gDevices
  ├─ gPhilipsHue          ["Hue"]        (all Hue bulbs/switches)
  ├─ gHueYard / gHueYardColour / gHueYardR / gHueYardRColour   ["Yard Lighting"]
  ├─ gHueFront / gHueFrontColour                               ["Front Door Lighting"]
- ├─ gSmoke               ["Smoke"]      (no members — sub-groups removed)
+ ├─ gSmoke               ["Smoke"]      → GK1SA1_* (Kitchen) + FL1SA2_* (Landing) Fibaro Z-Wave detectors
  └─ gPlugSP1 / gPlugSP2 / gPlugSP3      ["Smart Plugs"]  (per-plug channel groups)
 
 gHueColour, gHueGlass                    (kitchen "glass" colour/brightness)
@@ -489,7 +495,7 @@ bank; per-room hysteresis (`hHysteresis`) switches radiator relays and fires the
 ### 10.12 `smoke.rules`
 | Rule | Trigger | Actions | Purpose |
 |---|---|---|---|
-| Update Last MQTT message timestamp | `GK1SA1_online` update | `GK1SA1_LastUpdate` = now | Smoke device last-seen |
+| Update Last MQTT message timestamp | `GY1SA4_online` update | `GY1SA4_LastUpdate` = now | Smoke device last-seen |
 
 ### 10.13 `hue.rules`
 | Rule | Trigger | Actions | Purpose |
@@ -571,7 +577,7 @@ Main Menu
 │   ├─ Lighting → Hall/Landing dimmers · Kitchen mode/spots/table/glasses/cooker/side ·
 │   │     Front Door · Yard · Rear Yard · Camera Lamp
 │   ├─ Smart Plugs → Office/Living Room/Bedroom (switch/LED/V/I/P/E/RSSI)
-│   ├─ Electric Blanket · Smoke Detection (GK1SA1_*) · Gate (status/remote)
+│   ├─ Electric Blanket · Smoke Detection (GY1SA4_*) · Gate (status/remote)
 │   ├─ Group gSceneControl · Group gMultisensor
 │   ├─ Room Sensors → Temperature/Humidity/Dew/Pressure/Illuminance/Gas
 │   ├─ CCTV (only BlueIris_Test live; camera Image/Video widgets commented out)

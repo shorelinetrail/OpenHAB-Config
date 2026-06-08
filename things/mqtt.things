@@ -871,12 +871,12 @@ Thing topic XM1SS21_Uptime (mqtt:broker:mosquitto) {
   // -----------------------------
   // Smoke alarms
   // -----------------------------
-  Thing topic GK1SA1_smoke  "GK1SA1_smoke"  (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_smoke  "State" [ stateTopic="GK1-SA1/1/get" ] }
-  Thing topic GK1SA1_tamper "GK1SA1_tamper" (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_tamper "State" [ stateTopic="GK1-SA1/2/get" ] }
-  Thing topic GK1SA1_battV  "GK1SA1_battV"  (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_battV  "State" [ stateTopic="GK1-SA1/voltage/get" ] }
-  Thing topic GK1SA1_battpc "GK1SA1_battpc" (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_battpc "State" [ stateTopic="GK1-SA1/battery/get" ] }
-  Thing topic GK1SA1_temp   "GK1SA1_temp"   (mqtt:broker:mosquitto) { Channels: Type number : GK1SA1_temp   "State" [ stateTopic="GK1-SA1/temp" ] }
-  Thing topic GK1SA1_online "GK1SA1_online" (mqtt:broker:mosquitto) { Channels: Type string : GK1SA1_online "State" [ stateTopic="GK1-SA1/connected" ] }
+  Thing topic GY1SA4_smoke  "GY1SA4_smoke"  (mqtt:broker:mosquitto) { Channels: Type number : GY1SA4_smoke  "State" [ stateTopic="GY1-SA4/1/get" ] }
+  Thing topic GY1SA4_tamper "GY1SA4_tamper" (mqtt:broker:mosquitto) { Channels: Type number : GY1SA4_tamper "State" [ stateTopic="GY1-SA4/2/get" ] }
+  Thing topic GY1SA4_battV  "GY1SA4_battV"  (mqtt:broker:mosquitto) { Channels: Type number : GY1SA4_battV  "State" [ stateTopic="GY1-SA4/voltage/get" ] }
+  Thing topic GY1SA4_battpc "GY1SA4_battpc" (mqtt:broker:mosquitto) { Channels: Type number : GY1SA4_battpc "State" [ stateTopic="GY1-SA4/battery/get" ] }
+  Thing topic GY1SA4_temp   "GY1SA4_temp"   (mqtt:broker:mosquitto) { Channels: Type number : GY1SA4_temp   "State" [ stateTopic="GY1-SA4/temp" ] }
+  Thing topic GY1SA4_online "GY1SA4_online" (mqtt:broker:mosquitto) { Channels: Type string : GY1SA4_online "State" [ stateTopic="GY1-SA4/connected" ] }
 
   // -----------------------------
   // Misc

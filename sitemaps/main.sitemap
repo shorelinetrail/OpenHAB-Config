@@ -112,7 +112,7 @@ Frame label="Dashboard" {
 		#Setpoint item=GO1HT1_setpoint label="Heating Setpoint" minValue=5.0 maxValue=30 step=0.5*/
 		//Switch item=gPlugs mappings=[OFF="All Off", ON="All On"]
 		//Switch item=gSonoff mappings=[OFF="All Off", ON="All On"]
-		//Text  item=GK1SA1_smoke label="Smoke Detector Kitchen"
+		//Text  item=GY1SA4_smoke label="Smoke Detector Shed"
 		//Text  item=FL1SA2_smoke label="Smoke Detector Landing"
 		/*Switch item=GO1SP1_switch label="Plug Office"
 		Switch item=GL1SP2_switch label="Plug Living Room"
@@ -593,12 +593,32 @@ Frame label="Dashboard" {
 		Text label="Smoke Detection" icon="fire" {
 
 			Frame label="Kitchen" {
-				Text  item=GK1SA1_smoke 
-				Text  item=GK1SA1_tamper 
-				Text  item=GK1SA1_battV 
+				Text  item=GK1SA1_smoke
+				Text  item=GK1SA1_heat
+				Text  item=GK1SA1_tamper
+				Text  item=GK1SA1_fault
+				Text  item=GK1SA1_battalarm
+				Text  item=GK1SA1_temp
 				Text  item=GK1SA1_battpc
-				Text  item=GK1SA1_temp 
-				Text  item=GK1SA1_LastUpdate
+			}
+
+			Frame label="Landing" {
+				Text  item=FL1SA2_smoke
+				Text  item=FL1SA2_heat
+				Text  item=FL1SA2_tamper
+				Text  item=FL1SA2_fault
+				Text  item=FL1SA2_battalarm
+				Text  item=FL1SA2_temp
+				Text  item=FL1SA2_battpc
+			}
+
+			Frame label="Shed" {
+				Text  item=GY1SA4_smoke
+				Text  item=GY1SA4_tamper
+				Text  item=GY1SA4_battV
+				Text  item=GY1SA4_battpc
+				Text  item=GY1SA4_temp
+				Text  item=GY1SA4_LastUpdate
 			}
 		}
 

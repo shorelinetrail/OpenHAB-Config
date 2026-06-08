@@ -131,6 +131,31 @@ Switch GH1MS1_illuminance_switch "Front Illuminance Bypass"
 Number GH1MS1_humidity "Hall [%.1f %%]" <humidity> (gMultisensor, gHumidity)
 String GH1MS1_motion "Hall Motion [%s]" <motion> (gMultisensor)
 
+/* Smoke Detectors (Fibaro FGSD002, Z-Wave) — 7 channels each */
+// Unbound — channel->item links are UI-managed in JSONDB (see FDS §5 Z-Wave note),
+// like GH1MS1 above. Link each item to the matching channel on the device Thing:
+//   smoke     -> alarm_smoke         heat  -> alarm_heat     tamper -> alarm_tamper
+//   fault     -> alarm_system        battalarm -> alarm_battery
+//   temp      -> sensor_temperature  battpc -> battery-level
+// Kitchen  = zwave:device:a76def7407:GK1-SA1
+// Landing  = zwave:device:a76def7407:FL1-SA2
+
+Switch GK1SA1_smoke     "Alarm [MAP(alarm.map):%s]"         <fire>        (gSmoke)
+Switch GK1SA1_heat      "Heat Alarm [MAP(alarm.map):%s]"    <fire>        (gSmoke)
+Switch GK1SA1_tamper    "Tamper [MAP(alarm.map):%s]"        <siren>       (gSmoke)
+Switch GK1SA1_fault     "System Fault [MAP(alarm.map):%s]"  <error>       (gSmoke)
+Switch GK1SA1_battalarm "Battery Alarm [MAP(alarm.map):%s]" <lowbattery>  (gSmoke)
+Number GK1SA1_temp      "Temperature [%.1f °C]"             <temperature> (gSmoke)
+Number GK1SA1_battpc    "Battery [%.0f %%]"                 <battery>     (gSmoke)
+
+Switch FL1SA2_smoke     "Alarm [MAP(alarm.map):%s]"         <fire>        (gSmoke)
+Switch FL1SA2_heat      "Heat Alarm [MAP(alarm.map):%s]"    <fire>        (gSmoke)
+Switch FL1SA2_tamper    "Tamper [MAP(alarm.map):%s]"        <siren>       (gSmoke)
+Switch FL1SA2_fault     "System Fault [MAP(alarm.map):%s]"  <error>       (gSmoke)
+Switch FL1SA2_battalarm "Battery Alarm [MAP(alarm.map):%s]" <lowbattery>  (gSmoke)
+Number FL1SA2_temp      "Temperature [%.1f °C]"             <temperature> (gSmoke)
+Number FL1SA2_battpc    "Battery [%.0f %%]"                 <battery>     (gSmoke)
+
 /* hive */
 
 /*Number GO1HT1_temperature "Current Temperature [%.1f °C]" <temperature> (gThermostat) {channel="hive:thermostat:73f8f16a-0891-4dfe-a269-2943b621ea8f:currenttemperature"}

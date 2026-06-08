@@ -214,13 +214,13 @@ Number GO1EM1_TE "Total Energy [%.2f kWh]" <energy> { channel="mqtt:topic:mosqui
 // -----------------------------------------
 // Smoke Alarms
 // -----------------------------------------
-Number  GK1SA1_smoke  "Alarm [MAP(smoke.map):%s]" <fire>    { channel="mqtt:topic:mosquitto:GK1SA1_smoke:GK1SA1_smoke" }
-Number  GK1SA1_tamper "Tamper [MAP(smoke.map):%s]" <siren>  { channel="mqtt:topic:mosquitto:GK1SA1_tamper:GK1SA1_tamper" }
-Number  GK1SA1_battV  "Battery (mV) [%.0f mV]"     <battery>{ channel="mqtt:topic:mosquitto:GK1SA1_battV:GK1SA1_battV" }
-Number  GK1SA1_battpc "Battery (%) [%.0f %%]"      <battery>{ channel="mqtt:topic:mosquitto:GK1SA1_battpc:GK1SA1_battpc" }
-Number  GK1SA1_temp   "Chip Temperature [%.1f °C]" <temperature> { channel="mqtt:topic:mosquitto:GK1SA1_temp:GK1SA1_temp" }
-String  GK1SA1_online "Connection Status"          <network> { channel="mqtt:topic:mosquitto:GK1SA1_online:GK1SA1_online" }
-DateTime GK1SA1_LastUpdate "Last Update [%1$td/%1$tm/%1$tY %1$tT]" <time>
+Number  GY1SA4_smoke  "Alarm [MAP(smoke.map):%s]" <fire>    { channel="mqtt:topic:mosquitto:GY1SA4_smoke:GY1SA4_smoke" }
+Number  GY1SA4_tamper "Tamper [MAP(smoke.map):%s]" <siren>  { channel="mqtt:topic:mosquitto:GY1SA4_tamper:GY1SA4_tamper" }
+Number  GY1SA4_battV  "Battery (mV) [%.0f mV]"     <battery>{ channel="mqtt:topic:mosquitto:GY1SA4_battV:GY1SA4_battV" }
+Number  GY1SA4_battpc "Battery (%) [%.0f %%]"      <battery>{ channel="mqtt:topic:mosquitto:GY1SA4_battpc:GY1SA4_battpc" }
+Number  GY1SA4_temp   "Chip Temperature [%.1f °C]" <temperature> { channel="mqtt:topic:mosquitto:GY1SA4_temp:GY1SA4_temp" }
+String  GY1SA4_online "Connection Status"          <network> { channel="mqtt:topic:mosquitto:GY1SA4_online:GY1SA4_online" }
+DateTime GY1SA4_LastUpdate "Last Update [%1$td/%1$tm/%1$tY %1$tT]" <time>
 
 
 Switch FB1SS13_switch1 "Master Bedroom" (gHeating) { channel="mqtt:topic:mosquitto:FB1SS13_switch1:FB1SS13_switch1" }

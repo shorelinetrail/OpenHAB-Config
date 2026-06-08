@@ -1,0 +1,5 @@
+ON=Alarm
+OFF=OK
+NULL=Unknown
+-=Unknown
+undefined=Unknown
