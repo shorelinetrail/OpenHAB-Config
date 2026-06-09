@@ -246,6 +246,7 @@ rule "Blinds Post-Sunrise"
                 ])
 end
 
+/*
 rule "Bedroom Blind Morning Release"
         when
                 Item GH1MS1_motion changed to "active"
@@ -279,3 +280,4 @@ rule "Bedroom Blind Morning Release Delayed"
                         sendCommand(FB1BE3_release, 1)                       
                 }
 end
+/*
