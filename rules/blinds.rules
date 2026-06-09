@@ -280,4 +280,4 @@ rule "Bedroom Blind Morning Release Delayed"
                         sendCommand(FB1BE3_release, 1)                       
                 }
 end
-/*
+*/
