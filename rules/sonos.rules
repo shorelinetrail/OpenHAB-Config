@@ -700,10 +700,11 @@ then
             timerPresetR2b?.cancel
             timerPresetR2b = createTimer(now.plusSeconds(2), [ |
                 timerPresetR2b = null
-                Sonos_Kitchen_Volume.sendCommand(25)
-                Sonos_Office_Volume.sendCommand(25)
-                Sonos_SunRoom_Volume.sendCommand(25)
-                Sonos_Bedroom_Volume.sendCommand(25)
+                val Number vol = if (Sonos_Preset_BBCR2_Volume.state instanceof Number) Sonos_Preset_BBCR2_Volume.state as Number else 25
+                Sonos_Kitchen_Volume.sendCommand(vol)
+                Sonos_Office_Volume.sendCommand(vol)
+                Sonos_SunRoom_Volume.sendCommand(vol)
+                Sonos_Bedroom_Volume.sendCommand(vol)
                 Sonos_Kitchen_Radio.sendCommand("BBC Radio 2") // play on coordinator -> whole group
                 Sonos_Kitchen_Control.sendCommand(PLAY)
             ])
@@ -711,4 +712,18 @@ then
     } else if (receivedCommand == OFF) {
         Sonos_Kitchen_Control.sendCommand(PAUSE)               // pause the group (stays grouped)
     }
+end
+
+rule "Sonos Preset BBC Radio 2 Volume"
+when
+    Item Sonos_Preset_BBCR2_Volume changed
+then
+    // Live-adjust the grouped rooms only while the preset is active.
+    if (Sonos_Preset_BBCR2.state != ON) return;
+    if (!(Sonos_Preset_BBCR2_Volume.state instanceof Number)) return;
+    val Number vol = Sonos_Preset_BBCR2_Volume.state as Number
+    Sonos_Kitchen_Volume.sendCommand(vol)
+    Sonos_Office_Volume.sendCommand(vol)
+    Sonos_SunRoom_Volume.sendCommand(vol)
+    Sonos_Bedroom_Volume.sendCommand(vol)
 end

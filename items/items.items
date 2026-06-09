@@ -660,4 +660,5 @@ String Sonos_CurrentMaster         "Current Master [%s]"
 // "My Radio Stations" entry by name; Favorite is the fallback (My Sonos).
 String Sonos_Kitchen_Radio    "Radio Station [%s]" { channel="sonos:PLAY3:RINCON_B8E93733144401400:radio" }
 String Sonos_Kitchen_Favorite "Favorite [%s]"      { channel="sonos:PLAY3:RINCON_B8E93733144401400:favorite" }
-Switch Sonos_Preset_BBCR2     "BBC Radio 2 (Office/Kitchen/Sun Room/Bedroom)"
+Switch Sonos_Preset_BBCR2        "BBC Radio 2 (Office/Kitchen/Sun Room/Bedroom)"
+Dimmer Sonos_Preset_BBCR2_Volume "Preset Volume [%d %%]"
