@@ -24,6 +24,7 @@ _Newest at top. One row per change. Claude Code appends a row for every modifica
 
 | Date | Version | Change | Files affected | Author |
 |---|---|---|---|---|
+| 2026-06-09 | 0.21 | Added the first Sonos **preset** ("BBC Radio 2"): new `Sonos_Preset_BBCR2` sitemap switch (ON=start/OFF=stop) + a rule (`sonos.rules`) that groups Office/Sun Room/Bedroom under Kitchen (coordinator, hard-coded UDN), sets all four to 25 %, and plays the saved "My Radio Stations" entry "BBC Radio 2" via the Kitchen `radio` channel; Stop pauses the group (stays grouped). Added `Sonos_Kitchen_Radio` + `Sonos_Kitchen_Favorite` (fallback) Items and a sitemap "Presets" frame | items/items.items, rules/sonos.rules, sitemaps/main.sitemap, docs/FDS.md | Claude Code |
 | 2026-06-09 | 0.20 | Reworded all smoke-detector Pushover notifications (`smoke.rules`): title is now `🔥 <Location> Smoke Detector` (e.g. "🔥 Kitchen Smoke Detector") and the body carries the event — `SMOKE DETECTED`/`HEAT DETECTED`/`Tamper alarm`/`System fault`/`Low battery` (active), `✅ <event> cleared` (recovery, title without the fire emoji), `Battery low (<pc>%)`, `Offline - …` (liveness). No change to priority/emergency-receipt logic or triggers | rules/smoke.rules, docs/FDS.md | Claude Code |
 | 2026-06-09 | 0.19 | Hardened the `Water Butt Level` rule's rain-overflow drain (`irrigation.rules`): NULL/UNDEF guard + early return; compute level-% locally and threshold on it (fixes the async stale-state race that delayed the drain by one sample); `!=OFF`/`!=ON` valve guards so an unknown relay state still drives the drain; and a **flow-verified drain** — 30 s after opening at >95%, if `GY1FT1_flow3` shows no flow while still full, retry the open + one high-priority Pushover ("OVERFLOW RISK"). Added a `pushoverHigh` (priority-1) lambda. Routine open/close stays log-only (no alert spam) | rules/irrigation.rules, docs/FDS.md | Claude Code |
 | 2026-06-09 | 0.18 | Migration (out-of-repo Pi setting): the new Pi5's 7 Sonos players showed `OFFLINE / COMMUNICATION_ERROR / "not available in local network"`. Root cause was openHAB jUPnP binding UPnP discovery to a non-LAN interface on the multi-homed Pi (`eth0` 192.168.0.57 + Tailscale `100.x`); fixed by setting **Network Settings → Primary Address = `192.168.0.57/24`**. No config change — Sonos Items/Things/rules/sitemap were already correct and OH5-valid (verified thing types + channels against the OH5 binding). Also corrected the new-Pi IP (`.41`→`.57`) in migration-intake and added the Tailscale UPnP caveat to the runbook | docs/FDS.md, docs/migration-intake.md, docs/migration-runbook.md | Claude Code |
@@ -284,6 +285,8 @@ in one row). Channels shown as `binding:…`; `mqtt:topic:mosquitto:<id>` abbrev
 | `Presence_Override` | Switch | Force-present override (today) |
 | `Sonos_<Room>_Control/_Volume/_Mute/_CurrentTrack/_Coordinator/_Add/_Standalone` ×7 rooms | Player/Dimmer/Switch/String | Per-speaker control |
 | `Sonos_All_PlayPause/Next/Prev/Mute/Unmute/VolUp/VolDown`, `Sonos_<Room>_JoinGroup/_LeaveGroup`, `Sonos_CurrentMaster` | Switch/String | Whole-house transport + dynamic grouping |
+| `Sonos_Kitchen_Radio` / `Sonos_Kitchen_Favorite` | String | Kitchen `radio`/`favorite` channels — drive saved-station presets (Kitchen is the preset coordinator) |
+| `Sonos_Preset_BBCR2` | Switch | Preset proxy (ON=start/OFF=stop): grouped "BBC Radio 2" in Office/Kitchen/Sun Room/Bedroom @ 25 % |
 | `gateRemoteControl/Single/Enable`, `gateRecloseEnable`, `gateTimerActive`, `gateRemoteTimer`, `gatePosition`, `gatePositionHold`, `gateBinDay`, `gateMove`, `gateSamsung`, `gateSamsungOnline`, `GY1SS9_status` | Switch/Number/String | Gate control, position, auto-reclose, bin-day, SmartThings bridge |
 | `Iri_F_SP/_Total/_Switch`, `Iri_F_SP_R/_Total_R/_Switch_R` | Number | Front / rear irrigation setpoint, totaliser, control |
 | `Power_Day/Start/End/Today/Cost/CostToday`, `Power_EUnit/EStand/GUnit/GStand` | Number | Energy usage + tariff/cost |
@@ -504,6 +507,7 @@ bank; per-room hysteresis (`hHysteresis`) switches radiator relays and fires the
 | Vol All Up / Down | `Sonos_All_VolUp/Down` ON | ±5 each `_Volume` (cap 0/100) | Whole-house volume |
 | `<Room>` Join Group ×6 | `Sonos_<Room>_JoinGroup` ON | pick coordinator (priority LivingRoom→…), `_Add`=coord, set `Sonos_CurrentMaster` | Join room to group |
 | `<Room>` Leave Group ×6 | `Sonos_<Room>_LeaveGroup` ON | `_Standalone` ON | Remove from group |
+| Sonos Preset BBC Radio 2 | `Sonos_Preset_BBCR2` command | ON: Kitchen standalone → add Office/Sun Room/Bedroom to Kitchen's group → set all to 25 % → play "BBC Radio 2" on Kitchen `radio` + PLAY (2 s gaps between steps). OFF: pause Kitchen (group stays grouped) | Sitemap-button radio preset (Kitchen = coordinator) |
 
 ### 10.12 `smoke.rules`
 | Rule | Trigger | Actions | Purpose |
@@ -591,7 +595,7 @@ Main Menu
 │   ├─ Central Heating → System · Room-temp chart · Boiler chart · Radiator status ·
 │   │     Temperature control (hSP_* setpoints) · Deltas · Settings (hAway/hWork,
 │   │     6 setpoint banks, Boiler run-time, Advanced: hHysteresis/hOverride/radiator overrides)
-│   ├─ Sonos → Whole-house transport + 7 per-room frames (track/volume/mute/transport/join-leave)
+│   ├─ Sonos → Whole-house transport + Presets (BBC Radio 2 start/stop) + 7 per-room frames (track/volume/mute/transport/join-leave)
 │   ├─ Blinds → Settings/Advanced + All/Downstairs/Office/Living Room/Bedroom position controls
 │   ├─ Lighting → Hall/Landing dimmers · Kitchen mode/spots/table/glasses/cooker/side ·
 │   │     Front Door · Yard · Rear Yard · Camera Lamp

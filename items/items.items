@@ -652,3 +652,12 @@ Switch Sonos_Workshop_LeaveGroup   "Leave Group"
 
 // optional helper so we can see who we chose as "master"
 String Sonos_CurrentMaster         "Current Master [%s]"
+
+// ========================================
+//  SONOS PRESETS
+// ========================================
+// Coordinator for grouped presets = Kitchen (PLAY:3). Radio plays the saved
+// "My Radio Stations" entry by name; Favorite is the fallback (My Sonos).
+String Sonos_Kitchen_Radio    "Radio Station [%s]" { channel="sonos:PLAY3:RINCON_B8E93733144401400:radio" }
+String Sonos_Kitchen_Favorite "Favorite [%s]"      { channel="sonos:PLAY3:RINCON_B8E93733144401400:favorite" }
+Switch Sonos_Preset_BBCR2     "BBC Radio 2 (Office/Kitchen/Sun Room/Bedroom)"

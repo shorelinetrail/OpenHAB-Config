@@ -315,6 +315,10 @@ Frame label="Dashboard" {
         Text   item=Sonos_CurrentMaster label="Group Master [%s]"
     }
 
+    Frame label="Presets" {
+        Switch item=Sonos_Preset_BBCR2 mappings=[ON="Start", OFF="Stop"]
+    }
+
     Frame label="Living Room – Connect:Amp" {
         Text   item=Sonos_LivingRoom_CurrentTrack label="Now Playing [%s]"
         Slider item=Sonos_LivingRoom_Volume       label="Volume"

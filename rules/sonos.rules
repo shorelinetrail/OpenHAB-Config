@@ -11,6 +11,10 @@ import java.time.ZonedDateTime
 var String currentCoordinator = ""
 var String currentMasterName = ""
 
+// Preset sequencing timers
+var Timer timerPresetR2a = null
+var Timer timerPresetR2b = null
+
 
 // ========================================
 // WHOLE-HOUSE CONTROLS
@@ -669,4 +673,42 @@ when
 then
     Sonos_Workshop_Standalone.sendCommand(ON)
     Sonos_Workshop_LeaveGroup.postUpdate(OFF)
+end
+
+
+
+// ========================================
+// PRESETS  (ON = start, OFF = stop)
+// Groups a fixed room set under one coordinator, sets volume, plays a saved
+// station. Stop pauses the group but leaves it grouped.
+// ========================================
+
+rule "Sonos Preset BBC Radio 2"
+when
+    Item Sonos_Preset_BBCR2 received command
+then
+    val String KITCHEN = "RINCON_B8E93733144401400"   // coordinator UDN (Kitchen PLAY:3)
+
+    if (receivedCommand == ON) {
+        Sonos_Kitchen_Standalone.sendCommand(ON)               // Kitchen = lone coordinator
+        timerPresetR2a?.cancel
+        timerPresetR2a = createTimer(now.plusSeconds(2), [ |
+            timerPresetR2a = null
+            Sonos_Office_Add.sendCommand(KITCHEN)              // others join Kitchen's group
+            Sonos_SunRoom_Add.sendCommand(KITCHEN)
+            Sonos_Bedroom_Add.sendCommand(KITCHEN)
+            timerPresetR2b?.cancel
+            timerPresetR2b = createTimer(now.plusSeconds(2), [ |
+                timerPresetR2b = null
+                Sonos_Kitchen_Volume.sendCommand(25)
+                Sonos_Office_Volume.sendCommand(25)
+                Sonos_SunRoom_Volume.sendCommand(25)
+                Sonos_Bedroom_Volume.sendCommand(25)
+                Sonos_Kitchen_Radio.sendCommand("BBC Radio 2") // play on coordinator -> whole group
+                Sonos_Kitchen_Control.sendCommand(PLAY)
+            ])
+        ])
+    } else if (receivedCommand == OFF) {
+        Sonos_Kitchen_Control.sendCommand(PAUSE)               // pause the group (stays grouped)
+    }
 end
