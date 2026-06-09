@@ -582,14 +582,6 @@ Frame label="Dashboard" {
 			}				
 		}
 
-		Text label="Electric Blanket" icon="bedroom" {	
-			Switch item=Blanket_control mappings=[1="On", 2="Cancel", 0="Off"] 
-			Text item=Blanket_status	
-			Setpoint item=Blanket_autotime minValue=0 maxValue=60 step=15
-			Setpoint item=Blanket_expiretime minValue=0 maxValue=60 step=15	
-//			Switch item=Blanket_test mappings=[ON="CHARGING", OFF="NOT CHARGING"] 	
-		}
-
 		Text label="Smoke Detection" icon="fire" {
 
 			Frame label="Kitchen" {

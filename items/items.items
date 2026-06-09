@@ -527,14 +527,6 @@ Switch gateBinDay "Bin Day" <motion>
 
 Switch GK1SW04_switch "Coffee Machine"
 
-// Electric Blanket
-
-Number Blanket_autotime "Auto timeout delay [%.0f min]" <time>
-Number Blanket_expiretime "Backup timeout delay [%.0f min]" <time>
-String Blanket_status "Status[%s]" <bedroom>
-Number Blanket_control "Control" <switch>
-//String Blanket_test "Test switch"
-
 Switch remoteTempEnable "Notify Remote Temperature"
 
 Number GO1EM1_M "Meter Reading [%.1f kWh]" <energy>
