@@ -799,19 +799,6 @@ rule "Lights Off"
                 sendCommand (Lighting_Mode, "3")     
 end
 
-rule "Bedside Lamp Toggle"
-/* Turn off Smart Plugs and Sonoff Relays when item A changes to 0 */
-        when   
-                Item FB1SC1_power changed to 3
-        then
-        if(FB1SP3_switch.state == ON){    
-                sendCommand (FB1SP3_switch, "OFF")
-                sendCommand(FB1SC1_power, 0)}
-        else{
-                sendCommand (FB1SP3_switch, "ON")
-                sendCommand(FB1SC1_power, 0)}              
-end
-
 rule "Lighting Mode Override"
         when
                 Item Lighting_Mode changed
@@ -829,97 +816,6 @@ rule "Lighting Mode Override"
                 postUpdate(A, a)
         }
 end
-
-rule "Test3"
-        when
-                Item FB1SC1_power changed to 1
-        then
-                a = 2
-                postUpdate(A, a)
-end
-
-/*============ TEST RULES USING BUTTONS ============*/
-/*
-rule "Test1"
-        when
-                Item FB1SC1_power changed to 3
-        then
-                a = 1
-                postUpdate(A, a)
-end*/
-
-/*rule "Test2"
-        when
-                Item FB1SC1_power changed to 2
-        then
-                a = 2
-                postUpdate(A, a)
-                sendCommand(FB1SC1_power, 0)
-end*/
-
-/*rule "Test"
-        when
-                Item FB1SC1_power changed to 3
-        then
-                z = z + 1
-                postUpdate(A, z)
-                sendCommand(GH1HB1_dimmer, 40)
-                sendCommand(FB1SC1_power, 0)
-                createTimer(now.plusSeconds(5), [sendCommand(GH1HB1_dimmer, 10) postUpdate(GH1HB1_dimmer, 10)])
-end*/
-
-/*rule "Lights_Off"
-        when
-                Channel 'astro:sun:local:rise#end' triggered START
-        then
-                if(GH1HB1_dimmer.state > 0){
-                createTimer(now.plusMinutes(20), [sendCommand(GH1HB1_dimmer, 0) postUpdate(GH1HB1_dimmer, 0)])
-                }              
-end*/
-
-/*rule "corLightOn"
-    when   
-            Item GH1MS1_motion changed to "active"
-
-    then
-            b = a
-            a = 100 
-            postUpdate(A, a) 
-            postUpdate(B, b)
-            sendCommand(GH1HB1_dimmer, 80) 
-            Thread::sleep(750)
-            sendCommand(FL1HB2_dimmer, 80)
-            Thread::sleep(750)
-            sendCommand(FL1HB3_dimmer, 80)
-            Thread::sleep(750)
-            Thread::sleep(1500)   
-            /*sendCommand(FL1HB3_dimmer, 1)
-            Thread::sleep(750)
-            sendCommand(FL1HB2_dimmer, 1)
-            Thread::sleep(750)
-            sendCommand(GH1HB1_dimmer, 1)
-            postUpdate(A, b)
-    end*/
-
-/*rule "corLightOnA"
-    when   
-            Member of Plugs changed to "ON"
-
-    then   
-            sendCommand(GH1HB1_dimmer, 80) 
-            createTimer(now.plusSeconds(2)) [sendCommand(GH1HB1_dimmer, 1) ]
-    end
-*/
-
-/*rule "corLightOn1"
-    when   
-            Time cron "	0 0 0 1/1 * ? * "
-
-    then   
-            sendCommand(FL1HB2_dimmer, 0) 
-            /*createTimer(now.plusSeconds(2)) [sendCommand(GH1HB1_dimmer, 1) ]
-    end*/
-
 
 // --- Two-phone presence combiner -------------------------------------------
 // Each phone's Tasker POSTs its own item (Ste -> _S, Jacqui -> _J) as the

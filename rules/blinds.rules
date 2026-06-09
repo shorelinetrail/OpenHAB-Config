@@ -246,21 +246,6 @@ rule "Blinds Post-Sunrise"
                 ])
 end
 
-rule "Bedroom Blind Open/Close"
-        when
-                Item FB1SC1_power changed to 2
-        then
-                if(FB1BE3_position.state > 0)
-                {
-                        sendCommand(FB1BE3_position, 1)                       
-                }
-                else
-                {
-                        sendCommand(FB1BE3_position, 100)
-                }
-                sendCommand(FB1SC1_power, 0)
-end
-
 rule "Bedroom Blind Morning Release"
         when
                 Item GH1MS1_motion changed to "active"
