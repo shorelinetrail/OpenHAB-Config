@@ -340,6 +340,25 @@ New Pi (OH5.1) role: everything else.
 
 Then resume the normal git workflow from `main`: review in Claude Code → commit/push on PC → `sudo git pull` on the new Pi (path `/etc/openhab`, service `openhab`), with the log tailing. Keep `docs/FDS.md` updated per the `CLAUDE.md` rule — and add the new architecture (two-Pi split, Brunt bridge, Z-Wave) to it.
 
+### Model reload latency after `git pull` (OH5)
+
+`.items` reload promptly, but `.rules` and `.sitemap` can lag noticeably (sometimes a minute or more) before openHAB re-reads them from disk. Practical notes:
+
+- **Don't judge a pull by the log.** `.sitemap` reloads are silent and `.rules` only log on a parse error or first fire — verify functionally (the UI shows the change / the rule fires), not by waiting for a log line.
+- **`touch` does nothing** — OH5's watcher detects changes by file **content** (hash), not mtime. And don't append to a model file to force it: that dirties the git-tracked working tree and will block the next `sudo git pull`.
+- **Force an immediate re-scan without a full restart** via the Karaf console (already running, connects instantly; rescans all model files in a few seconds):
+  ```bash
+  openhab-cli console            # default password: habopen
+  bundle:restart org.openhab.core.model.core
+  logout
+  ```
+- A full `sudo systemctl restart openhab` also works but takes ~1–2 min.
+- **If the lag is consistently long**, the watcher is probably polling instead of using native filesystem events. Raise the inotify limit, then restart once; future pulls then reload near-instantly:
+  ```bash
+  echo "fs.inotify.max_user_watches=524288" | sudo tee /etc/sysctl.d/60-openhab-inotify.conf
+  sudo sysctl --system
+  ```
+
 ---
 
 ## Open items to carry forward
