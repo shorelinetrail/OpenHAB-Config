@@ -97,11 +97,8 @@ Frame label="Dashboard" {
 		//Text item=GO1EM1_voltage label="Mains Voltage"
 		//Switch item=XM1DB1_doorbell label="Doorbell"
 
-
-		Switch item=Blanket_control label="Electric Blanket" icon="bedroom" mappings=[1="ON", 2="CANCEL", 0="OFF"]
 		Switch item=Presence_Override icon="settings" mappings=[ON="OVERRIDE", OFF="NORMAL"]
 		//Text item=GY1MC1_temp label="Freezer PV [%.1f °C]"
-
 
 		//Slider item=gHueDimmer label="Landing/Hall Dimmer"
 		//Slider item=gHueKitchen label="Kitchen Dimmer"
