@@ -14,8 +14,8 @@
 | Old OS + bitness | openHABian; stays on OH2 so bitness irrelevant (not upgraded) |
 | How OH2 was installed | openHABian |
 | Exact OH2 version | **2.5.12** (final 2.5.x) |
-| New Pi model / RAM / boot media | Pi 4 (≥2 GB) or Pi 5, **64-bit**, SSD preferred — TBD at purchase |
-| New Pi hostname / static IP | openHAB5 / 192.168.0.41 |
+| New Pi model / RAM / boot media | **Raspberry Pi 5**, 64-bit, SSD preferred |
+| New Pi hostname / static IP | openHAB5 / **192.168.0.57** (intake originally recorded `.41` — corrected during migration; a different device answers at `.41`) |
 
 ## 2. MQTT broker (Mosquitto)
 

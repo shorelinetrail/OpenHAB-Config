@@ -6,7 +6,7 @@
 > config is migrated on a git branch; cutover is a hostname/IP swap once validated.
 >
 > Fill the placeholders before starting:
-> `<OLD_PI_IP>` `<NEW_PI_IP>` `<OLD_PI_HOST>=openhabianpi.local` `<NEW_PI_HOST>`
+> `<OLD_PI_IP>`=192.168.0.40  `<NEW_PI_IP>`=192.168.0.57  `<OLD_PI_HOST>`=openhabianpi.local  `<NEW_PI_HOST>`=openHAB5
 >
 > **Key path/name changes (OH2 → OH5):** `/etc/openhab2`→`/etc/openhab`,
 > `/var/lib/openhab2`→`/var/lib/openhab`, `/var/log/openhab2`→`/var/log/openhab`,
@@ -220,7 +220,7 @@ convert-and-deploy all files at once — the emergency boiler/gate alerts must b
 
 6. **Re-auth cloud/LAN bindings:**
    - **hue:** add bridge Thing → **press the physical button** on the Hue bridge to authorise → bulbs rediscover.
-   - **sonos:** auto-discovers on the LAN; confirm players come ONLINE.
+   - **sonos:** auto-discovers on the LAN; confirm players come ONLINE. **Multi-homed gotcha (hit during migration):** the new Pi runs Tailscale (`tailscale0`, 100.x) alongside `eth0`, and openHAB's jUPnP can bind UPnP discovery to the wrong interface → every player shows `OFFLINE / COMMUNICATION_ERROR / "not available in local network"` even though the textual Things/UDNs are correct. Fix: **Settings → Network Settings → Primary Address = `192.168.0.57/24`** (the eth0 address — *not* Tailscale `100.x` or a docker `172.x` bridge), then restart the Sonos binding (persists as `primaryAddress` in `/var/lib/openhab/config/org/openhab/network.config`). The same fix applies to any UPnP-discovered binding (e.g. hue bridge discovery).
    - **tplinksmarthome:** LAN-local; confirm the 3 HS110 plugs discovered (same subnet as new Pi).
    - **astro:** set system location (Main UI → Settings → Regional) or geolocation on the Thing.
 
