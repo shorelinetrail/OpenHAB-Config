@@ -9,6 +9,19 @@ val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushover = 
     }
 ]
 
+// High-priority variant (priority 1: bypasses quiet hours, no ack loop) for the
+// overflow-risk alert.
+val org.eclipse.xtext.xbase.lib.Functions$Function1<String, Boolean> pushoverHigh = [ String message |
+    val actions = getActions("pushover", "pushover:pushover-account:account")
+    if (actions === null) {
+        logWarn("pushover", "Pushover offline - high-priority dropped: " + message)
+        false
+    } else {
+        actions.sendPriorityMessage(message, "Water Butt", 1)
+        true
+    }
+]
+
 var Number front_flow_T = 0
 var Timer timerFront = null
 var Timer timerFront1 = null
@@ -20,6 +33,8 @@ var Timer timerRear1 = null
 var Number totalStart_R = 0
 var Timer timerButtRefill = null
 var Timer timerRearStart = null
+var Timer timerDrainCheck = null
+var boolean drainNoFlowAlerted = false
 
 rule "Front Irrigation Control"
     when
@@ -69,26 +84,74 @@ end
 
 rule "Water Butt Level"
     when
-            Item GY1FT1_level changed 
+            Item GY1FT1_level changed
     then
-            sendCommand(GY1FT1_level_mm, ((GY1FT1_level.state as Number) * 0.9775) - 66.5)
-            sendCommand(GY1FT1_level_pc, ((GY1FT1_level.state as Number) * 0.1283) - 8.7262)
-            sendCommand(GY1FT1_level_vol, ((GY1FT1_level.state as Number) * 0.1058) - 6.6877)
-            if((GY1FT1_level_pc.state as Number > 90) && (GY1FT1_switch3.state == OFF)){
-                sendCommand(GY1FT1_switch3, ON)
+        // Robustness: ignore NULL/UNDEF (sensor dropout / pre-restore) so the overflow
+        // protection never runs on a bad reading and never aborts half-way.
+        if (!(GY1FT1_level.state instanceof Number)) {
+            logWarn("irrigation", "Water Butt Level: GY1FT1_level=" + GY1FT1_level.state + " (not a number) - skipping")
+            return;
+        }
+
+        val Number raw = GY1FT1_level.state as Number
+        // Decide on THIS reading. The old rule compared GY1FT1_level_pc.state right
+        // after sendCommand-ing it, i.e. against the PREVIOUS value (async update).
+        val Number pc = (raw * 0.1283) - 8.7262
+
+        GY1FT1_level_mm.postUpdate ((raw * 0.9775) - 66.5)
+        GY1FT1_level_pc.postUpdate (pc)
+        GY1FT1_level_vol.postUpdate((raw * 0.1058) - 6.6877)
+
+        // Top-up valve: close (ON) once near full.
+        if (pc > 90 && GY1FT1_switch3.state != ON) {
+            GY1FT1_switch3.sendCommand(ON)
+        }
+
+        // Drain valve is fail-safe: OFF = OPEN (draining), ON = CLOSED (retaining).
+        if (pc > 95) {
+            // Open the drain to dump rain overflow. "!= OFF" so an unknown relay state
+            // still drives it open (the old "== ON" guard skipped opening when NULL).
+            if (GY1FT1_switch2.state != OFF) {
+                GY1FT1_switch2.sendCommand(OFF)
+                logInfo("irrigation", "Water butt " + String::format("%.1f%%", pc.doubleValue) + " - opening drain valve")
             }
-            if((GY1FT1_level_pc.state as Number > 95) && (GY1FT1_switch2.state == ON)){
-                sendCommand(GY1FT1_switch2, OFF)
-            }            
-            if((GY1FT1_level_pc.state as Number) <= 90 && (GY1FT1_switch2.state == OFF)){
-                // 2.5s settle before opening switch2 (non-blocking)
-                timerButtRefill = createTimer(now.plusSeconds(3), [ |
-                    timerButtRefill = null
-                    if ((GY1FT1_level_pc.state as Number) <= 90 && (GY1FT1_switch2.state == OFF)) {
-                        sendCommand(GY1FT1_switch2, ON)
+            // Verify it actually drains: a blocked/stuck drain at >95% means imminent
+            // overflow. Check the drain flow ~30s later; retry the open and alert once
+            // if there is still no flow while still over the threshold.
+            if (timerDrainCheck === null) {
+                timerDrainCheck = createTimer(now.plusSeconds(30), [ |
+                    timerDrainCheck = null
+                    val boolean stillFull = (GY1FT1_level.state instanceof Number) &&
+                                            (((GY1FT1_level.state as Number) * 0.1283 - 8.7262) > 95)
+                    val boolean draining  = (GY1FT1_flow3.state instanceof Number) &&
+                                            ((GY1FT1_flow3.state as Number) > 0.2)
+                    if (stillFull && !draining) {
+                        GY1FT1_switch2.sendCommand(OFF)   // retry in case the command was lost
+                        if (!drainNoFlowAlerted) {
+                            drainNoFlowAlerted = true
+                            pushoverHigh.apply("Water butt full & not draining")
+                        }
                     }
                 ])
-            }    
+            }
+        }
+
+        // Drain valve: close (ON) once the level has fallen back into band.
+        if (pc <= 90 && GY1FT1_switch2.state != ON) {
+            timerButtRefill?.cancel
+            timerButtRefill = createTimer(now.plusSeconds(3), [ |
+                timerButtRefill = null
+                if ((GY1FT1_level.state instanceof Number) &&
+                    (((GY1FT1_level.state as Number) * 0.1283 - 8.7262) <= 90) &&
+                    GY1FT1_switch2.state != ON) {
+                    GY1FT1_switch2.sendCommand(ON)
+                }
+            ])
+            // Recovered: clear the no-flow latch and any pending drain check.
+            drainNoFlowAlerted = false
+            timerDrainCheck?.cancel
+            timerDrainCheck = null
+        }
 end
 
 
