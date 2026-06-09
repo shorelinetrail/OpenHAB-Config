@@ -506,16 +506,6 @@ rule "Sunset"
                 postUpdate(A, a)
 end
 
-rule "Bedtime"
-/* Set variable a = 3 when scene controller button 4 is pressed */
-        when
-                Item FB1SC1_power changed to 4
-        then 
-                a = 3
-                postUpdate(A, a)
-                sendCommand(FB1SC1_power, 0)
-end
-
 rule "Night Lights Away"
 /* Set variable a = 3 when it is 23:00 if not present */
         when

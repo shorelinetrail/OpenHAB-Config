@@ -22,7 +22,6 @@ Group:Number:MIN gTemperatureDelta "Temperature Delta" <temperature>
 
 Group gHueColour                                     <colorlight>
 Group gHueGlass                                      <lightbulb>
-Group gSceneControl  "Scene Controller"              <settings>     (gDevices)    ["Scene Controller"]
 Group gMultisensor   "Multisensor"                   <lightbulb>     (gDevices)   ["Multisensor"]
 Group gPhilipsHue    "Philips Hue"                   <lightbulb>     (gDevices)   ["Hue"]
 Group gHueYard       "Yard Lighting"                 <lightbulb>     (gDevices)   ["Yard Lighting"]
@@ -365,10 +364,6 @@ Number hGS1_Radiator "Sun Room Radiator" <radiator> (gHeatingFault)
 Number hFB1_Radiator "Master Bedroom Radiator" <radiator> (gHeatingFault)
 Number hFB2_Radiator "Workshop Radiator" <radiator> (gHeatingFault)
 Number hFB3_Radiator "Guest Bedroom Radiator" <radiator> (gHeatingFault)
-
-/* Hank Scene Controller */
-
-Number FB1SC1_power "Scene No." <settings> (gSceneControl)
 
 /* Astro */
 
