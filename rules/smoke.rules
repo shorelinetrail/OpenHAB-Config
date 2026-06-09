@@ -101,27 +101,27 @@ then
                    else if (name.startsWith("FL1SA2")) "Landing"
                    else if (name.startsWith("GY1SA4")) "Shed"
                    else name
-    var String desc = "alarm"           // body wording
-    var String label = "Alarm"          // title wording (Title Case)
+    var String body    = "Alarm"               // active-alarm body wording
+    var String cleared = "Alarm cleared"        // recovery body wording
     var boolean lifeSafety = false
-    if      (name.endsWith("_smoke"))     { desc = "SMOKE ALARM";                     label = "Smoke Alarm";  lifeSafety = true }
-    else if (name.endsWith("_heat"))      { desc = "HEAT ALARM";                      label = "Heat Alarm";   lifeSafety = true }
-    else if (name.endsWith("_tamper"))    { desc = "tamper alarm (enclosure opened)"; label = "Tamper" }
-    else if (name.endsWith("_fault"))     { desc = "system fault reported";           label = "System Fault" }
-    else if (name.endsWith("_battalarm")) { desc = "low-battery alarm";               label = "Low Battery" }
+    if      (name.endsWith("_smoke"))     { body = "SMOKE DETECTED"; cleared = "Smoke cleared";         lifeSafety = true }
+    else if (name.endsWith("_heat"))      { body = "HEAT DETECTED";  cleared = "Heat cleared";          lifeSafety = true }
+    else if (name.endsWith("_tamper"))    { body = "Tamper alarm";   cleared = "Tamper cleared" }
+    else if (name.endsWith("_fault"))     { body = "System fault";   cleared = "System fault cleared" }
+    else if (name.endsWith("_battalarm")) { body = "Low battery";    cleared = "Battery OK" }
+
+    val title = location + " Smoke Detector"
 
     if ((ns as Number).intValue == 0) {
         // 0 = Alarm active
-        val msg   = location + " smoke detector: " + desc
-        val title = "🔥 " + location + " " + label
-        logWarn("smoke.rules", msg)
+        logWarn("smoke.rules", title + ": " + body)
         if (lifeSafety) {
-            val receipt = pushoverEmergency.apply(msg, title)   // priority 2 - requires acknowledgement
+            val receipt = pushoverEmergency.apply(body, "🔥 " + title)   // priority 2 - requires acknowledgement
             if (receipt !== null) {
                 emergencyReceipts.put(name, receipt)            // remember it so recovery can cancel the nag
             }
         } else {
-            pushover.apply(msg, title)
+            pushover.apply(body, "🔥 " + title)
         }
     } else if ((ns as Number).intValue == 1 && previousState instanceof Number && (previousState as Number).intValue == 0) {
         // restored from an active alarm: cancel any outstanding emergency, then confirm
@@ -129,7 +129,7 @@ then
         if (receipt !== null) {
             cancelPushoverEmergency.apply(receipt)
         }
-        pushover.apply(location + " smoke detector: " + desc + " cleared", "✅ " + location + " " + label + " Cleared")
+        pushover.apply("✅ " + cleared, title)
     }
 end
 
@@ -150,7 +150,7 @@ then
         val location = if (item.name.startsWith("GK1SA1")) "Kitchen"
                        else if (item.name.startsWith("FL1SA2")) "Landing"
                        else "Shed"
-        pushover.apply(location + " smoke detector battery low: " + pc + " %", "🔥 " + location + " Battery Low")
+        pushover.apply("Battery low (" + pc + "%)", "🔥 " + location + " Smoke Detector")
     }
 end
 
@@ -170,7 +170,7 @@ then
         val info = getThingStatusInfo(uid)
         val status = if (info === null) "UNINITIALIZED" else info.getStatus.toString
         if (status != "ONLINE") {
-            pushover.apply(loc + " smoke detector is " + status + " - Z-Wave node not responding", "🔥 " + loc + " Detector Offline")
+            pushover.apply("Offline - Z-Wave node not responding (" + status + ")", "🔥 " + loc + " Smoke Detector")
         }
     ]
 
@@ -179,8 +179,8 @@ then
     // Tune the threshold to ~3x the device's actual publish interval.
     val lastSeen = GY1SA4_LastUpdate.state
     if (!(lastSeen instanceof DateTimeType)) {
-        pushover.apply("Shed smoke detector: no MQTT heartbeat received", "🔥 Shed Detector Offline")
+        pushover.apply("Offline - no MQTT heartbeat received", "🔥 Shed Smoke Detector")
     } else if ((lastSeen as DateTimeType).getInstant.isBefore(now.minusHours(2).toInstant)) {
-        pushover.apply("Shed smoke detector: no MQTT heartbeat for over 2 hours", "🔥 Shed Detector Offline")
+        pushover.apply("Offline - no MQTT heartbeat for over 2 hours", "🔥 Shed Smoke Detector")
     }
 end
