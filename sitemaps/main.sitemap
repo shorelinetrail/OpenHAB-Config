@@ -318,6 +318,8 @@ Frame label="Dashboard" {
     Frame label="Presets" {
         Switch item=Sonos_Preset_BBCR2        mappings=[ON="Start", OFF="Stop"]
         Slider item=Sonos_Preset_BBCR2_Volume label="Volume"
+        Switch item=Sonos_Preset_TV           mappings=[ON="Start", OFF="Stop"]
+        Slider item=Sonos_Preset_TV_Volume    label="Volume"
     }
 
     Frame label="Living Room – Connect:Amp" {

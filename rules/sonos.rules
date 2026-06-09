@@ -14,6 +14,7 @@ var String currentMasterName = ""
 // Preset sequencing timers
 var Timer timerPresetR2a = null
 var Timer timerPresetR2b = null
+var Timer timerPresetTV = null
 
 
 // ========================================
@@ -726,4 +727,45 @@ then
     Sonos_Office_Volume.sendCommand(vol)
     Sonos_SunRoom_Volume.sendCommand(vol)
     Sonos_Bedroom_Volume.sendCommand(vol)
+end
+
+
+// TV mode: pause every other room, play the Living Room line-in ("Audio
+// Component") at the slider volume. Stop pauses the Living Room.
+rule "Sonos Preset TV"
+when
+    Item Sonos_Preset_TV received command
+then
+    val String LIVINGROOM = "RINCON_B8E937A0059601400"   // Living Room Connect:Amp UDN
+
+    if (receivedCommand == ON) {
+        // 1) silence every other room
+        Sonos_Kitchen_Control.sendCommand(PAUSE)
+        Sonos_Office_Control.sendCommand(PAUSE)
+        Sonos_Bedroom_Control.sendCommand(PAUSE)
+        Sonos_SunRoom_Control.sendCommand(PAUSE)
+        Sonos_Aux_Control.sendCommand(PAUSE)
+        Sonos_Workshop_Control.sendCommand(PAUSE)
+        Sonos_Preset_BBCR2.postUpdate(OFF)               // radio preset (if on) is now paused -> reflect it
+        // 2) Living Room solo, then play its line-in at the preset volume
+        Sonos_LivingRoom_Standalone.sendCommand(ON)
+        timerPresetTV?.cancel
+        timerPresetTV = createTimer(now.plusSeconds(2), [ |
+            timerPresetTV = null
+            val Number vol = if (Sonos_Preset_TV_Volume.state instanceof Number) Sonos_Preset_TV_Volume.state as Number else 25
+            Sonos_LivingRoom_Volume.sendCommand(vol)
+            Sonos_LivingRoom_PlayLineIn.sendCommand(LIVINGROOM)   // play LR line-in; prefix "Analog," + UDN if it doesn't switch source
+        ])
+    } else if (receivedCommand == OFF) {
+        Sonos_LivingRoom_Control.sendCommand(PAUSE)
+    }
+end
+
+rule "Sonos Preset TV Volume"
+when
+    Item Sonos_Preset_TV_Volume changed
+then
+    if (Sonos_Preset_TV.state != ON) return;
+    if (!(Sonos_Preset_TV_Volume.state instanceof Number)) return;
+    Sonos_LivingRoom_Volume.sendCommand(Sonos_Preset_TV_Volume.state as Number)
 end
