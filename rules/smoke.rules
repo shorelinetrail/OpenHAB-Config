@@ -78,11 +78,17 @@ rule "Smoke Detector Alarm Init"
 when
     System started
 then
-    // Z-Wave notification channels report only on an event (0=Alarm) or a
-    // restore/wakeup (1=OK), so a freshly-linked Item sits at NULL ("Unknown").
-    // Seed the unreported ones to OK (1); a real notification overrides it.
+    // Z-Wave alarm channels report only on a state change, so a freshly-linked Item
+    // sits at NULL ("Unknown"). Seed the unreported ones to their OK value; a real
+    // alarm overrides it. NB the OK value is source-dependent (see below).
     gSmokeAlarm.members.filter[ m | m.state == NULL || m.state == UNDEF ].forEach[ m |
-        m.postUpdate("1")
+        // OK-seed differs by source: Fibaro (Z-Wave, Switch ON=alarm -> Number) OK=0;
+        // Shed (GY1SA4, MQTT) OK=1. Seeding the wrong value would fake an alarm.
+        if (m.name.startsWith("GK1SA1") || m.name.startsWith("FL1SA2")) {
+            m.postUpdate("0")
+        } else {
+            m.postUpdate("1")
+        }
     ]
 end
 
@@ -112,8 +118,19 @@ then
 
     val title = location + " Smoke Detector"
 
-    if ((ns as Number).intValue == 0) {
-        // 0 = Alarm active
+    // Polarity differs by source. Fibaro (Z-Wave) alarm channels are Switch (ON=alarm),
+    // surfaced on these Number Items as 1=Alarm / 0=OK. The Shed (GY1SA4, MQTT) uses the
+    // opposite convention 0=Alarm / 1=OK. Normalise to a per-source boolean.
+    val isFibaro = name.startsWith("GK1SA1") || name.startsWith("FL1SA2")
+    val cur = (ns as Number).intValue
+    val alarmNow  = if (isFibaro) (cur != 0) else (cur == 0)
+    val prevAlarm = if (previousState instanceof Number) {
+                        val p = (previousState as Number).intValue
+                        if (isFibaro) (p != 0) else (p == 0)
+                    } else false
+
+    if (alarmNow) {
+        // alarm active
         logWarn("smoke.rules", title + ": " + body)
         if (lifeSafety) {
             val receipt = pushoverEmergency.apply(body, "🔥 " + title)   // priority 2 - requires acknowledgement
@@ -123,8 +140,8 @@ then
         } else {
             pushover.apply(body, "🔥 " + title)
         }
-    } else if ((ns as Number).intValue == 1 && previousState instanceof Number && (previousState as Number).intValue == 0) {
-        // restored from an active alarm: cancel any outstanding emergency, then confirm
+    } else if (prevAlarm) {
+        // cleared from an active alarm: cancel any outstanding emergency, then confirm
         val receipt = emergencyReceipts.remove(name)
         if (receipt !== null) {
             cancelPushoverEmergency.apply(receipt)

@@ -31,9 +31,10 @@ Group gHueYardRColour "Rear Yard Lighting"           <colorlight>     (gDevices)
 Group gHueFront      "Front Door Lighting"           <lightbulb>     (gDevices)   ["Front Door Lighting"]
 Group gHueFrontColour "Front Door Lighting"          <colorlight>     (gDevices)  ["Front Door Lighting"] 
 Group gSmoke         "Smoke Detection"               <fire>          (gDevices)   ["Smoke"]
-// gSmokeAlarm: every detector's binary alarm Item (0=Alarm, 1=OK) - the Fibaro
-// FGSD002 channels (smoke/heat/tamper/fault/battalarm, below) plus the shed MQTT
-// GY1SA4_smoke/_tamper (mqtt.items). Watched by smoke.rules for alerting + seeding.
+// gSmokeAlarm: every detector's binary alarm Item. MIXED polarity by source:
+//   Fibaro FGSD002 (Z-Wave, below): Switch alarm channels (ON=alarm) -> Number 1=Alarm, 0=OK
+//   Shed MQTT (GY1SA4_smoke/_tamper, mqtt.items):                                0=Alarm, 1=OK
+// smoke.rules normalises per source for alerting + seeding (see the Alarm/Init rules).
 Group gSmokeAlarm    "Smoke Alarm Channels"          <fire>
 Group gPlugSP1       "Plug Office"                   <energy>        (gDevices)   ["Smart Plugs"]
 Group gPlugSP2       "Plug Living Room"              <energy>        (gDevices)   ["Smart Plugs"]

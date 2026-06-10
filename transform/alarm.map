@@ -1,5 +1,5 @@
-0=Alarm
-1=OK
+0=OK
+1=Alarm
 ON=Alarm
 OFF=OK
 NULL=Unknown
